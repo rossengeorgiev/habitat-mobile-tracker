@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"> <!--<![endif]-->
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>habitat mobile tracker</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <link rel="stylesheet" href="t/css/base.css"/>
+        <link rel="stylesheet" href="t/css/skeleton.css"/>
+        <link rel="stylesheet" href="t/css/layout.css"/>
+        <!--[if lt IE 9]>
+            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <link rel="shortcut icon" href="t/images/favicon.ico" />
+        <link rel="stylesheet" href="css/main.css"/>
+        <script type="text/javascript" language="javascript" src="js/jquery-1.8.3-min.js"></script>
+        <script type="text/javascript" language="javascript" src="js/app.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+        <script>
+          var map;
+          function initialize() {
+            var mapOptions = {
+              zoom: 8,
+              center: new google.maps.LatLng(-34.397, 150.644),
+              mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            map = new google.maps.Map(document.getElementById('map_canvas'),
+                mapOptions);
+          }
+
+          google.maps.event.addDomListener(window, 'load', initialize);
+        </script>
+    </head>
+    <body>
+    <header>
+        <div class="container">
+            <ol class="nav">
+                <li class="home"></li>
+                <li class="navigation"></li>
+                <li class="chasecar"></li>
+                <li class="stations"></li>
+            </ol>
+            <span id="app_name"><b>tracker</b></span>
+        </div>
+    </header>
+
+
+    <div id="map_canvas"></div>
+    <div id="main">
+        <div class="portrait">
+            <div class="header">Apex Lumia<i class="icon-arrow"></i></div>
+            <div class="data">
+                <div class="left">
+                    <dl>
+                    <dt>2012-12-30 20:38:34</dt>
+                    <dd>time</dd>
+                    <dt>48.985682, 19.41762</dt>
+                    <dd>position</dd>
+                    <dt class="recievers">Recieved by:</dt>
+                    <dd class="recievers">You, ApexHAB, M0UPU, ASTILA, LZ1DEV, Tinky Tinky, Dipsy, Laa-Laa</dd>
+                    </dl> 
+                </div>
+                <div class="right">
+                    <dl>
+                    <dt>5.4 m/s</dt>
+                    <dd>rate</dd>
+                    <dt>11543 m</dt>
+                    <dd>altitude</dd>
+                    <dt>41283 m</dt>
+                    <dd>max alt</dd>
+                    </dl> 
+                </div>
+            </div>
+        </div>
+        <div class="landscape">
+            <div class="header">Apex Lumia<i class="icon-arrow"></i></div>
+            <div class="data">
+                <div class="left">
+                    <dl>
+                    <dt>2012-12-30 20:38:34</dt>
+                    <dd>time</dd>
+                    <dt>48.985682, 19.41762</dt>
+                    <dd>position</dd>
+                    <dt class="recievers">Recieved by:</dt>
+                    <dd class="recievers">You, ApexHAB, M0UPU, ASTILA, LZ1DEV, Tinky Tinky, Dipsy, Laa-Laa</dd>
+                    </dl> 
+                </div>
+            </div>
+            <div class="header">PAVA<i class="icon-arrow"></i></div>
+            <div class="header">TINYv1<i class="icon-arrow"></i></div>
+        </div>
+    </div>
+    </body>
+</html>

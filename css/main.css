@@ -1,0 +1,173 @@
+/* Habitat Mobile Tracker
+ * Main style sheet
+ * 
+ */
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+header {
+    padding: 0;
+    margin: 0;
+    padding-top: 20px;
+    height: 50px;
+    min-height: 50px;
+    max-height: 50px;
+    border-bottom: 5px solid #33b5e5;
+    box-shadow: 0px 5px 3px #ccc;
+}
+header > div,
+#app_name {
+    height: 50px;
+}
+
+#map_canvas {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.nav {
+    list-style: none outside none;    
+    margin: 0;
+    padding: 0;
+    height: 40px;
+    display: block;
+    min-width: 40px;
+    width: auto;
+    float: left;
+    margin: 5px 0px;
+}
+
+.nav > li {
+    margin: 0;
+    padding: 0;
+    float: left;
+    width: 40px;
+    height: 30px;
+    background: transparent url('../img/menu-icons.png') no-repeat top left;
+    border-right: 1px solid #33b5e5;
+    padding: 5px;
+    cursor: pointer;
+} 
+.nav > li:active { background-color: #33b5e5; }
+.nav > li:hover { border-bottom: 5px solid #fff; }
+.nav > li.home { background-position: 5px 0px; }
+.nav > li.navigation { background-position: 5px -40px; }
+.nav > li.chasecar { background-position: 5px -80px; }
+.nav > li.stations { background-position: 5px -120px; }
+
+.header i {
+    float: right;
+    font-weight: normal;
+    color: #000;
+}
+.header i:after { content: "▼"; }
+
+@media only screen and (max-height: 480px) {
+    .landscape { display: none; }
+    #map_canvas {
+        height: 225px;
+    }
+    #main {
+        height: 180px;
+    }
+    #main .header {
+        height: 20px;
+        padding: 10px;
+        border-bottom: 2px solid #33b5e5;
+    }
+    #main .data {
+        background-color: #f4f4f4;
+        height: 140px;
+        padding: 0px 10px;
+    }
+    #main .data .left {
+        float: left;
+        width: 220px;
+        padding-right: 20px;
+    }
+    #main .data .right {
+        float: right;
+        width: 60px;
+    }
+    #main .data dl > dt { 
+        color: #000;
+        line-height: 11px;
+        margin-top: 15px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    #main .data dl > dd { 
+        padding: 0;
+        margin: 0;
+        text-transform:uppercase;
+        line-height: 11px;
+        font-size: 11px;
+    }
+    #main .data dl > dt.recievers { 
+        font-size: 10px;
+        font-weight: normal;
+    }
+    #main .data dl > dd.recievers { 
+        font-size: 10px;
+    }
+}
+@media only screen and (max-height: 320px) {
+    .portrait { display: none; }
+    .landscape { display: block; }
+    .container { width: 460px; }
+    #map_canvas {
+        float: right;
+        height: 245px;
+        width: 280px;
+    }
+    #main {
+        float: left;
+        height: 245px;
+        width: 199px;
+        border-right: 1px solid #ddd;
+        overflow: hidden;
+    }
+    #main .header {
+        height: 20px;
+        padding: 10px;
+        border-bottom: 2px solid #33b5e5;
+    }
+    #main .data {
+        background-color: #f4f4f4;
+        height: 140px;
+        padding: 0px 10px;
+    }
+    #main .data .left {
+        float: right;
+        width: 160px;
+        padding-right: 20px;
+    }
+    #main .data dl > dt { 
+        color: #000;
+        line-height: 11px;
+        margin-top: 15px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    #main .data dl > dd { 
+        padding: 0;
+        margin: 0;
+        text-transform:uppercase;
+        line-height: 11px;
+        font-size: 11px;
+    }
+    #main .data dl > dt.recievers { 
+        font-size: 10px;
+        font-weight: normal;
+    }
+    #main .data dl > dd.recievers { 
+        font-size: 10px;
+    }
+}
