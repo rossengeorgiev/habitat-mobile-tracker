@@ -13,8 +13,8 @@ html, body {
 header {
     padding: 0;
     margin: 0;
-    padding-top: 20px;
     height: 50px;
+    padding-top: 20px;
     min-height: 50px;
     max-height: 50px;
     border-bottom: 5px solid #33b5e5;
@@ -77,8 +77,27 @@ header > div,
 .header i:after { content: "▼"; }
 
 #main .row { margin: 0; padding: 0; position: relative; }
+#main .row  .header {
+    position: relative;
+    z-index: 4;
+    cursor: pointer;
+    background-color: #fff;
+ }
+#main .row:hover .header { color: #33b5e5; font-weight: bold; }
 #main .row .data { display: none; }
 #main .row.active .data { display: inline-block; }
+#main .row .data .left,
+#main .row .data .right {
+    position: relative;
+    z-index: 4;
+}
+#main .row .data img { 
+    position: absolute;
+    z-index: 3;
+    bottom: 40%;
+    right: 25%;
+    opacity: 0.6;
+}
 
 
 @media only screen and (max-height: 480px) {
@@ -181,5 +200,9 @@ header > div,
     }
     #main .data dl > dd.recievers { 
         font-size: 10px;
+    }
+    #main .row .data img {
+        right: 5%;
+        top: 30%;
     }
 }
