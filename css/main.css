@@ -18,7 +18,14 @@ header {
     min-height: 50px;
     max-height: 50px;
     border-bottom: 5px solid #33b5e5;
-    box-shadow: 0px 5px 3px #ccc;
+    box-shadow: 0px 3px 3px #888;
+    z-index: 5;
+    position: relative;
+}
+#map,
+#main {
+    position: relative;
+    z-index: 1;
 }
 header > div,
 #app_name {
@@ -69,6 +76,11 @@ header > div,
 }
 .header i:after { content: "▼"; }
 
+#main .row { margin: 0; padding: 0; position: relative; }
+#main .row .data { display: none; }
+#main .row.active .data { display: inline-block; }
+
+
 @media only screen and (max-height: 480px) {
     .landscape { display: none; }
     #map_canvas {
@@ -89,12 +101,12 @@ header > div,
     }
     #main .data .left {
         float: left;
-        width: 220px;
+        width: 70%;
         padding-right: 20px;
     }
     #main .data .right {
         float: right;
-        width: 60px;
+        width: 20%;
     }
     #main .data dl > dt { 
         color: #000;
