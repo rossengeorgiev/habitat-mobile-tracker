@@ -25,7 +25,7 @@ $(window).ready(function() {
     });
 
     // expand list items
-    $('.row .header').click(function() {
+    $('#main').on('click', '.row .header', function() {
         var e = $(this).parent();
         if(e.hasClass('active')) {
             e.removeClass('active');

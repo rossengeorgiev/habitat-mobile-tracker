@@ -1,7 +1,3 @@
-* integrate modified version of spacenear.us tracker
-  - display list of current HABs
-  - display everything on the map, just like on desktop version
-
 * functionality of menu icons
   - home (HAB list)
   - perhas a screen with current location? if phone allows
@@ -15,4 +11,9 @@
     At least on iOS 4.1, maybe fixed on newer version
 
 * add rotation animation to arrow in vehicle list
+
+* add functionality to select which balloon to follow
+
+
+
 
