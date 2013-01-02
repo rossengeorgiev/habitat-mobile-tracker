@@ -7,17 +7,34 @@ var preloadImages = [
     "img/menu-icons.png",    
 ];
 
-function hideAddressbar()
-{
-    window.scrollTo(0, 1);
+function checkSize() {
+    // we are in landscape mode
+    w = $(window).width();
+    h = $(window).height();
+    hh = $('header').height();
+    sw = $('#main').width();
+
+    if($('.landscape:visible').length) {
+        $('.container').width(w-40);
+        $('#main,#map').height(h-hh-5);
+        $('#map').width(w-sw-1);
+    } else { // portrait mode
+        $('.container').width(w-20);
+        $('#main,#map').height(h-hh-5-180);
+        $('#map').width(w);
+    }
+
+    if(map) map.checkResize();
 }
 
-function checkPreload() {
-}
+window.onresize = checkSize;
 
 
 $(window).ready(function() {
-    window.onorientationchange = hideAddressbar();
+    // resize elements if needed
+    checkSize();
+
+    // add inline scroll to vehicle list
     listScroll = new iScroll('main', { hScrollbar: false, snap: true });
 
     // click first icon for popup with the window size

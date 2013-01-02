@@ -8,6 +8,7 @@ html, body {
     padding: 0;
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 
 #loading {
@@ -22,8 +23,9 @@ header {
     padding: 0;
     margin: 0;
     height: 50px;
-    min-height: 50px;
-    max-height: 50px;
+    min-height: 55px;
+    max-height: 55px;
+    line-height: normal;
     border-bottom: 5px solid #33b5e5;
     box-shadow: 0px 3px 3px #888;
     z-index: 5;
@@ -110,61 +112,9 @@ header > div,
     opacity: 0.6;
 }
 
-
-@media only screen and (max-height: 480px) {
-    .landscape { display: none; }
-    #map{
-        height: 225px;
-    }
-    #main {
-        height: 180px;
-    }
-    #main .header {
-        height: 20px;
-        padding: 10px;
-        border-bottom: 2px solid #33b5e5;
-    }
-    #main .data {
-        background-color: #f4f4f4;
-        height: 140px;
-    }
-    #main .data .left {
-        float: left;
-        width: 65%;
-        padding-left: 10px;
-        padding-right: 20px;
-    }
-    #main .data .right {
-        float: right;
-        padding-right: 10px;
-        width: 20%;
-    }
-    #main .data dl > dt { 
-        color: #000;
-        line-height: 11px;
-        margin-top: 15px;
-        font-weight: bold;
-        font-size: 14px;
-    }
-    #main .data dl > dd { 
-        padding: 0;
-        margin: 0;
-        text-transform:uppercase;
-        line-height: 11px;
-        font-size: 11px;
-    }
-    #main .data dl > dt.recievers { 
-        font-size: 10px;
-        font-weight: normal;
-    }
-    #main .data dl > dd.recievers { 
-        font-size: 10px;
-    }
-}
-@media only screen and (max-height: 320px) {
+@media only screen and (min-width: 321px) {
     .portrait { display: none; }
     .landscape { display: block; }
-    .container { width: 460px; }
     #map {
         float: right;
         height: 245px;
@@ -216,5 +166,56 @@ header > div,
     #main .row .data img {
         right: 5%;
         top: 50px;
+    }
+}
+@media only screen and (max-width: 320px) {
+    .portrait { display: block; }
+    .landscape { display: none; }
+    #map{
+        height: 225px;
+    }
+    #main {
+        height: 180px;
+    }
+    #main .header {
+        height: 20px;
+        padding: 10px;
+        border-bottom: 2px solid #33b5e5;
+    }
+    #main .data {
+        background-color: #f4f4f4;
+        height: 140px;
+    }
+    #main .data .left {
+        float: left;
+        width: 65%;
+        padding-left: 10px;
+        padding-right: 20px;
+    }
+    #main .data .right {
+        float: right;
+        padding-right: 10px;
+        width: 20%;
+    }
+    #main .data dl > dt { 
+        color: #000;
+        line-height: 11px;
+        margin-top: 15px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    #main .data dl > dd { 
+        padding: 0;
+        margin: 0;
+        text-transform:uppercase;
+        line-height: 11px;
+        font-size: 11px;
+    }
+    #main .data dl > dt.recievers { 
+        font-size: 10px;
+        font-weight: normal;
+    }
+    #main .data dl > dd.recievers { 
+        font-size: 10px;
     }
 }
