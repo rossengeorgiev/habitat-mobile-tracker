@@ -21,16 +21,20 @@ header {
     z-index: 5;
     position: relative;
 }
+#app_name {
+    line-height: normal;
+    margin-top: 10px;
+}
+header > div,
+#app_name {
+    position: relative;
+    height: 50px;
+}
 #map,
 #main {
     position: relative;
     z-index: 1;
 }
-header > div,
-#app_name {
-    height: 50px;
-}
-
 #map {
     margin: 0;
     padding: 0;

@@ -5,6 +5,7 @@ function hideAddressbar()
     window.scrollTo(0, 1);
 }
 
+
 $(window).ready(function() {
     window.onorientationchange = hideAddressbar();
     listScroll = new iScroll('main', { hScrollbar: false, snap: true });
@@ -48,4 +49,29 @@ $(window).ready(function() {
             panTo(parseInt(e.attr('class').match(/vehicle(\d+)/)[1]));
         }
     });
+
+    // We are able to get GPS position on idevices, if the user allows
+    // The position is displayed in top right corner of the screen
+    // This should be very handly for in the field tracking 
+    //setTimeout(function() {updateCurrentPosition(50.27533, 3.335166);}, 5000);
+    if(navigator.geolocation) {
+        setInterval(function() {
+            navigator.geolocation.getCurrentPosition(function(position) {
+               var lat = position.coords.latitude;
+               var long = position.coords.longitude;
+
+               // add marker on the map
+               updateCurrentPosition(lat, long);
+                
+               // round the coordinates
+               lat = parseInt(lat * 1000000)/1000000;
+               long = parseInt(long * 1000000)/1000000;
+
+               $('#app_name b').html(lat + '<br/>' + long);
+            }, 
+            function() {
+               $('#app_name b').html('mobile<br/>tracker');
+            });
+        }, 10000); // poll every 10sec;
+    }
 });

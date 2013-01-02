@@ -1009,7 +1009,7 @@ function addPosition(position) {
 
 function refresh() {
   status = '<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing ...';
-  $('#status_bar').html(status);
+  //$('#status_bar').html(status);
 
   $.ajax({
     type: "GET",
@@ -1018,18 +1018,18 @@ function refresh() {
     dataType: "json",
     success: function(response, textStatus) {
                 update(response);
-                $('#status_bar').html(status);
+                //$('#status_bar').html(status);
              },
     complete: function(request, textStatus) {
                 // remove the spinner
-                $('status_bar').removeClass('ajax_loading');
+                //$('status_bar').removeClass('ajax_loading');
                 periodical = setTimeout(refresh, timer_seconds * 1000);
            }
   });
 }
 
 function refreshReceivers() {
-  $('#status_bar').html('<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing receivers ...');
+  //$('#status_bar').html('<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing receivers ...');
 
   $.ajax({
     type: "GET",
@@ -1041,15 +1041,15 @@ function refreshReceivers() {
              },
     complete: function(request, textStatus) {
                 // remove the spinner
-                $('status_bar').removeClass('ajax_loading');
-                $('#status_bar').html(status);
+                //$('status_bar').removeClass('ajax_loading');
+                //$('#status_bar').html(status);
                 periodical_listeners = setTimeout(refreshReceivers, 60 * 1000);
            }
   });
 }
 
 function refreshPredictions() {
-  $('#status_bar').html('<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing predictions ...');
+  //$('#status_bar').html('<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing predictions ...');
 
   $.ajax({
     type: "GET",
@@ -1061,8 +1061,8 @@ function refreshPredictions() {
              },
     complete: function(request, textStatus) {
                 // remove the spinner
-                $('status_bar').removeClass('ajax_loading');
-                $('#status_bar').html(status);
+                //$('status_bar').removeClass('ajax_loading');
+                //$('#status_bar').html(status);
                 periodical_predictions = setTimeout(refreshPredictions, 2 * timer_seconds * 1000);
            }
   });
@@ -1078,7 +1078,7 @@ function startAjax() {
   clearTimeout(periodical_predictions);
 
   /* a bit of fancy styles */
-  $('status_bar').innerHTML = '<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing ...';
+  //$('status_bar').innerHTML = '<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing ...';
 
   // the periodical starts here, the * 1000 is because milliseconds required
   
@@ -1098,14 +1098,34 @@ function stopAjax() {
 }
 
 function centerAndZoomOnBounds(bounds) {
-var center = bounds.getCenter();
-var newZoom = map.getBoundsZoomLevel(bounds);
-if (map.getZoom() != newZoom) {
-  map.setCenter(center, newZoom);
-} else {
-  map.panTo(center);
+    var center = bounds.getCenter();
+    var newZoom = map.getBoundsZoomLevel(bounds);
+    if (map.getZoom() != newZoom) {
+      map.setCenter(center, newZoom);
+    } else {
+      map.panTo(center);
+    }
 }
+
+var currentPosition = null;
+
+function updateCurrentPosition(lat, lon) {
+  var latlng = new GLatLng(lat, lon);
+
+  if(!currentPosition) {
+      currentPosition = {icon: null, marker: null};
+      currentPosition.icon = new GIcon();
+      currentPosition.icon.image = "img/marker-you.png";
+      currentPosition.icon.iconSize = new GSize(19,40);
+      currentPosition.icon.iconAnchor = new GPoint(13,40);
+      //currentPosition.icon.infoWindowAnchor = new GPoint(18,5);
+      currentPosition.marker = new GMarker(latlng, {icon: currentPosition.icon});
+      map.addOverlay(currentPosition.marker);
+  } else {
+    currentPosition.marker.setLatLng(latlng);
+  }
 }
+
 function updateReceiverMarker(receiver) {
   var latlng = new GLatLng(receiver.lat, receiver.lon);
   if(!receiver.marker) {
