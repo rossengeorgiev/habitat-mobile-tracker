@@ -35,34 +35,19 @@ $(window).ready(function() {
     checkSize();
 
     // add inline scroll to vehicle list
-    listScroll = new iScroll('main', { hScrollbar: false, snap: true });
-
-    // click first icon for popup with the window size
-    $('.home').click(function() {
-        var size = "";
-        size += $(window).width();
-        size += "x";
-        size += $(window).height();
-
-        alert(size);
-    });
-
-    // reload page when station icon is clicked
-    $('.stations').click(function() {
-        window.location.href = window.location.href;
-    });
+    listScroll = new iScroll('main', { hScrollbar: false, hScroll: false, snap: false });
 
     // expand list items
     $('#main').on('click', '.row .header', function() {
         var e = $(this).parent();
         if(e.hasClass('active')) {
-            // collapse data for selecte vehicle
+            // collapse data for selected vehicle
             e.removeClass('active');
             e.find('.data').hide();
 
             listScroll.refresh();
         } else {
-            // expand data for select vehicle
+            // expand data for selected vehicle
             e.addClass('active');
             e.find('.data').show();
 
@@ -82,21 +67,32 @@ $(window).ready(function() {
     // This should be very handly for in the field tracking 
     //setTimeout(function() {updateCurrentPosition(50.27533, 3.335166);}, 5000);
     if(navigator.geolocation) {
+        // if we have geolocation services, show the locate me button
+        // the button pants the map to the user current location
+        $("li.location").show().click(function() {
+            if(map && currentPosition) {
+                map.panTo(new GLatLng(currentPosition.lat, currentPosition.lon));    
+            }      
+        });
+
+        // start polling for GPS data
         setInterval(function() {
             navigator.geolocation.getCurrentPosition(function(position) {
                var lat = position.coords.latitude;
                var long = position.coords.longitude;
 
-               // add marker on the map
+               // add/update marker on the map
                updateCurrentPosition(lat, long);
                 
                // round the coordinates
                lat = parseInt(lat * 1000000)/1000000;
                long = parseInt(long * 1000000)/1000000;
 
+               // dispaly them in the top right corner
                $('#app_name b').html(lat + '<br/>' + long);
             }, 
             function() {
+               // when there is no location
                $('#app_name b').html('mobile<br/>tracker');
             });
         }, 10000); // poll every 10sec;
@@ -118,8 +114,8 @@ $(window).ready(function() {
         // app stars with a welcome screen
         // after images are loaded we can show the interface
         setTimeout(function() {
-            $('#loading').hide();
-            $('header,#main,#map').show();
+            $('#loading').hide(); // welcome screen
+            $('header,#main,#map').show(); // interface elements
         }, 500);
     }, 100);
 });

@@ -75,12 +75,15 @@ header > div,
     padding: 5px;
     cursor: pointer;
 } 
+.nav > li.last { border: 0; } 
 .nav > li:active { background-color: #33b5e5; }
 .nav > li:hover { border-bottom: 5px solid #fff; }
 .nav > li.home { background-position: 5px 0px; }
 .nav > li.navigation { background-position: 5px -40px; }
 .nav > li.chasecar { background-position: 5px -80px; }
 .nav > li.stations { background-position: 5px -120px; }
+.nav > li.location { background-position: 5px -160px; }
+.nav > li.help { background-position: 5px -200px; }
 
 .header i {
     float: right;

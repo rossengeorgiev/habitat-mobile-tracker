@@ -1,7 +1,10 @@
 # Habitat Mobile Tracker
 
-This is a tracker webpage specifically crafted for use on mobile devices.
+A tracker web-app specifically crafted for use on mobile devices.
+Also, works great on desktops, laptops or netbooks. It is build upon
+[spacenear.us/tracker](http://spacenear.us/tracker) and habitat.
 
+[Demo here](http://rossengeorgiev.github.com/habitat-mobile-tracker/)
 
 ## Design
 
@@ -13,9 +16,15 @@ Author: Daniel Saul [@danielsaul](https://github.com/danielsaul)
 
 ## Currently Supported Devices
 
-### iPhone 3G, 3Gs 
-* fully supported as home screen bookmark  
+### iPhone 3G, 3Gs; iPad1,2
+* displays coordinates and marker with your current location  
+  great for in the field tracking 
+* fully supported as home screen bookmark, or though safari 
 (testbed `test-iphone3g.html`, FF+Chrome)
+
+### Desktop PC
+* Any modern browser
+* no support of IE, we said modern after all
 
 ## Other tested devices
 

@@ -1113,15 +1113,17 @@ function updateCurrentPosition(lat, lon) {
   var latlng = new GLatLng(lat, lon);
 
   if(!currentPosition) {
-      currentPosition = {icon: null, marker: null};
+      currentPosition = {icon: null, marker: null, lat: lat, lon: lon};
       currentPosition.icon = new GIcon();
       currentPosition.icon.image = "img/marker-you.png";
       currentPosition.icon.iconSize = new GSize(19,40);
-      currentPosition.icon.iconAnchor = new GPoint(13,40);
+      currentPosition.icon.iconAnchor = new GPoint(9,40);
       //currentPosition.icon.infoWindowAnchor = new GPoint(18,5);
       currentPosition.marker = new GMarker(latlng, {icon: currentPosition.icon});
       map.addOverlay(currentPosition.marker);
   } else {
+    currentPosition.lat = lat;
+    currentPosition.lon = lon;
     currentPosition.marker.setLatLng(latlng);
   }
 }
