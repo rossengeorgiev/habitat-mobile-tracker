@@ -71,7 +71,7 @@ header > div,
 .header i {
     float: right;
     font-weight: normal;
-    color: #000;
+    color: #aaa;
 }
 .header i:after { content: "▼"; }
 

@@ -1,18 +1,27 @@
+* on expand scroll to item on list
+
+* add functionality to select which balloon to follow
+
+* adjust colors and fonts of the template to be more slick
+
+* make the global tamplate to landscape, so it fits anything
+  that is not a phone in portrait mode. This way the app
+  can be run by desktop browsers as well as handhelds
+
 * functionality of menu icons
   - home (HAB list)
   - perhas a screen with current location? if phone allows
   - just a list of all chase cars
   - just a list of all stations
+ 
+ New idea: Have just home and help icon
+  - home is just the regular screen
+  - help cotains credits and useful info
 
 * resize elements with javascript, so app displays correctly on any browser/mobile/tablet
 
-* adjust top and bottom padding with javascript based on browser
-    iPhone safari's addressbar and bottom bar cover part of the web page.
-    At least on iOS 4.1, maybe fixed on newer version
-
 * add rotation animation to arrow in vehicle list
 
-* add functionality to select which balloon to follow
 
 
 

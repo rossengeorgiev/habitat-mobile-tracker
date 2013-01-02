@@ -495,8 +495,9 @@ function updateVehicleInfo(index, position) {
   //var container = $('vehicle' + index);
   var elm = $('.vehicle' + index);
   if (elm.length == 0) {
-    $('.portrait').append('<div class="row vehicle'+index+'"></div>');
-    $('.landscape').append('<div class="row vehicle'+index+'"></div>');
+    var active = (index == 0) ? 'active' : '';
+    $('.portrait').append('<div class="row '+active+' vehicle'+index+'"></div>');
+    $('.landscape').append('<div class="row '+active+' vehicle'+index+'"></div>');
     
   }
 

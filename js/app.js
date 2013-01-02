@@ -28,12 +28,24 @@ $(window).ready(function() {
     $('#main').on('click', '.row .header', function() {
         var e = $(this).parent();
         if(e.hasClass('active')) {
+            // collapse data for selecte vehicle
             e.removeClass('active');
-            e.find('.data').slideUp();
+            e.find('.data').hide();
+
+            listScroll.refresh();
         } else {
+            // expand data for select vehicle
             e.addClass('active');
-            e.find('.data').slideDown();
+            e.find('.data').show();
+
+            listScroll.refresh();
+            
+            // auto scroll when expanding an item
+            var eName = "." + e.parent().attr('class') + " ." + e.attr('class').match(/vehicle\d+/)[0];
+            listScroll.scrollToElement(eName);
+            
+            // pan to selected vehicle
+            panTo(parseInt(e.attr('class').match(/vehicle(\d+)/)[1]));
         }
-        listScroll.refresh();
     });
 });
