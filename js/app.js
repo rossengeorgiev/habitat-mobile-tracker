@@ -1,8 +1,18 @@
 var listScroll;
+var nLoadedImages = 0;
+var preloadTimer;
+var preloadImages = [ 
+    "img/logo.png",    
+    "img/marker-you.png",    
+    "img/menu-icons.png",    
+];
 
 function hideAddressbar()
 {
     window.scrollTo(0, 1);
+}
+
+function checkPreload() {
 }
 
 
@@ -74,4 +84,25 @@ $(window).ready(function() {
             });
         }, 10000); // poll every 10sec;
     }
+
+    // preload images
+    var i = 0;
+    for(i = 0; i < preloadImages.length; i++) {
+        var image = new Image();
+        image.onLoad = (function() { nLoadedImages++; })();
+        image.src = preloadImages[i];
+    }
+
+    // check if images have loaded
+    preloadTimer = setInterval(function() {
+        if(nLoadedImages < preloadImages.length) return;
+        clearInterval(preloadTimer);
+
+        // app stars with a welcome screen
+        // after images are loaded we can show the interface
+        setTimeout(function() {
+            $('#loading').hide();
+            $('header,#main,#map').show();
+        }, 500);
+    }, 100);
 });

@@ -27,7 +27,10 @@
         <script type="text/javascript" language="javascript" src="js/app.js?nocache=1"></script>
     </head>
     <body onload="load();">
-    <header>
+
+    <div id="loading"></div>
+
+    <header style="display: none">
         <div class="container">
             <ol class="nav">
                 <li class="home"></li>
@@ -35,13 +38,14 @@
                 <li class="chasecar"></li>
                 <li class="stations"></li>
             </ol>
-            <span id="app_name"><b>tracker</b></span>
+            <span id="app_name"><b>mobile<br/>tracker</b></span>
         </div>
     </header>
 
 
-    <div id="map"></div>
-    <div id="main">
+
+    <div id="map" style="dispaly: none"></div>
+    <div id="main" style="dispaly: none">
         <div class="scrollwrapper">
         <div class="portrait"></div>
         <div class="landscape"></div>
