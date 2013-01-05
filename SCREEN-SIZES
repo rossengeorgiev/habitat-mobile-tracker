@@ -1,6 +1,6 @@
 P = portrait
 L = landscape
 
-iPhone 3G
+iPhone 3G,3Gs
 -------
-Full mode: 320x480 (P), 480x420 (L)
+Full mode: 320x480 (P), 480x320 (L)

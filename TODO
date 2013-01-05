@@ -1,13 +1,4 @@
-* adjust colors and fonts of the template to be more slick
-
-* new menu
-  - home is just the regular screen
-  - current location: only on devices supporting geolocation
-  - chase car view, where you can switch uploading of GPS data
-    to habitat, so a chase car is displayed on the map
-  - help cotains credits and useful info
-
-* chase car option
+* implement functanility to actually push ChaseCar info to habitat
 
 * move to Gmaps API3, as API2 is being shutdown in May 2013
 
@@ -21,18 +12,25 @@
 
 * in the field tracking view, distance to target vehicle
 
+Optimizations
+-----------------------
+
+* minimize footprint
+
+* combine+minify CSSs into a single file
+
+* combine+minify JS into a single file
+
 known bugs
 ------------------------
-
-* if geolocation is available, but no coordinates have
-  the locate me button on the menu, display a popup
 
 * on iphone, where the screen has higher DPI, all icons
   look blurry because they are blown up. Should have 
   a mechanism to detect such display and a set of higher
   resolution icons
-  
-  (all icons are not vectors 04/01/2013)
+
+  04/01/2013
+  all icons are now vectors, map markers are still low res images
 
 
 

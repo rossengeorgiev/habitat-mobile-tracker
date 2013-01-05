@@ -5,20 +5,30 @@ var preloadImages = [
     "img/logo.png",    
     "img/marker-you.png",    
 ];
+var GPS_ts = null;
+var GPS_lat = null;
+var GPS_lon = null;
+var GPS_alt = null;
+var GPS_speed = null;
 
 function checkSize() {
     // we are in landscape mode
     w = $(window).width();
+    w = (w < 320) ? 320 :  w; // absolute minimum 320px
     h = $(window).height();
+    h = (h < 320) ? 320 :  h; // absolute minimum 320px
     hh = $('header').height();
     sw = $('#main').width();
 
+    $('.container').width(w-20);
+
     if($('.landscape:visible').length) {
-        $('.container').width(w-40);
         $('#main,#map').height(h-hh-5);
+        $('body').height(h);
         $('#map').width(w-sw-1);
     } else { // portrait mode
-        $('.container').width(w-20);
+        if(h < 420) h = 420;
+        $('body').height(h);
         $('#main,#map').height(h-hh-5-180);
         $('#map').width(w);
     }
@@ -27,6 +37,8 @@ function checkSize() {
 }
 
 window.onresize = checkSize;
+window.onchangeorientation = checkSize;
+
 
 
 $(window).ready(function() {
@@ -61,6 +73,46 @@ $(window).ready(function() {
         }
     });
 
+    // menu interface options
+    $('.nav')
+    .on('click', '.home', function() {
+        var e = $(this);
+        var box = $('#main,#map');
+        if(box.is(':hidden')) {
+            $('#chasecarbox,#aboutbox').hide();
+            box.show();
+        }
+        checkSize();
+    })
+    .on('click', '.chasecar', function() {
+        var e = $(this);
+        var box = $('#chasecarbox');
+        if(box.is(':hidden')) {
+            $('#map,#main,#aboutbox').hide();
+            box.show();
+        }
+        checkSize();
+    })
+    .on('click', '.about', function() {
+        var e = $(this);
+        var box = $('#aboutbox');
+        if(box.is(':hidden')) {
+            $('#map,#main,#chasecarbox').hide();
+            box.show();
+        }
+        checkSize();
+    });
+
+    // toggle functionality for switch button
+    $(".switch").click(function() {
+        var e = $(this);
+        if(e.hasClass('on')) {
+            e.removeClass('on').addClass('off');
+        } else {
+            e.removeClass('off').addClass('on');
+        }
+    });
+
     // We are able to get GPS position on idevices, if the user allows
     // The position is displayed in top right corner of the screen
     // This should be very handly for in the field tracking 
@@ -71,33 +123,79 @@ $(window).ready(function() {
         $("#locate-me,.chasecar").show();
         $("#locate-me").click(function() {
             if(map && currentPosition) {
+                $('.nav .home').click();
                 map.panTo(new GLatLng(currentPosition.lat, currentPosition.lon));    
             } else {
                 alert("No position available");
             }
         });
 
-        // start polling for GPS data
         setInterval(function() {
             navigator.geolocation.getCurrentPosition(function(position) {
-               var lat = position.coords.latitude;
-               var long = position.coords.longitude;
+                var lat = position.coords.latitude;
+                var lon = position.coords.longitude;
+                var alt = (position.coords.altitude) ? position.coords.altitude + 'm' : 'none';
+                var accuracy = (position.coords.accuracy) ? position.coords.accuracy + 'm' : 'none';
+                var speed = (position.coords.speed) ? position.coords.speed + 'm/s' : 'none';
 
-               // add/update marker on the map
-               updateCurrentPosition(lat, long);
-                
-               // round the coordinates
-               lat = parseInt(lat * 1000000)/1000000;
-               long = parseInt(long * 1000000)/1000000;
+                // constantly update 'last updated' field, and display friendly time since last update
+                if(!GPS_ts) {
+                    GPS_ts = parseInt(position.timestamp/1000);
 
-               // dispaly them in the top right corner
-               $('#app_name b').html(lat + '<br/>' + long);
+                    setInterval(function() {
+                        var delta_ts = parseInt(Date.now()/1000) - GPS_ts;
+
+                        // generate friendly timestamp
+                        var hours = Math.floor(delta_ts / 3600);
+                        var minutes = Math.floor(delta_ts / 60) % 60;
+                        var ts_str = (delta_ts >= 60) ? 
+                                            ((hours)?hours+'h ':'')
+                                            + ((minutes)?minutes+'m':'')
+                                            + ' ago'
+                                        : 'just now';
+                        $('#cc_timestamp').text(ts_str);
+                    }, 30000);
+        
+                    $('#cc_timestamp').text('just now');
+                }
+
+                // save position and update only if different is available
+                if(GPS_lat != lat
+                   || GPS_lon != lon
+                   || GPS_alt != alt
+                   || GPS_speed != speed)
+                {
+                    GPS_lat = lat;
+                    GPS_lon = lon;
+                    GPS_alt = alt;
+                    GPS_speed = speed;
+                    GPS_ts = parseInt(position.timestamp/1000);
+                    $('#cc_timestamp').text('just now');
+                }
+                else { return; }
+
+                // add/update marker on the map
+                updateCurrentPosition(lat, lon);
+                 
+                // round the coordinates
+                lat = parseInt(lat * 1000000)/1000000;
+                lon = parseInt(lon * 1000000)/1000000;
+
+                // dispaly them in the top right corner
+                $('#app_name b').html(lat + '<br/>' + lon);
+
+                // update chase car interface
+                $('#cc_lat').text(lat);
+                $('#cc_lon').text(lon);
+                $('#cc_alt').text(alt);
+                $('#cc_accuracy').text(accuracy);
+                $('#cc_speed').text(speed);
             }, 
             function() {
-               // when there is no location
-               $('#app_name b').html('mobile<br/>tracker');
+                // when there is no location
+                $('#app_name b').html('mobile<br/>tracker');
             });
-        }, 10000); // poll every 10sec;
+        }, 5000);
     }
 
     // preload images

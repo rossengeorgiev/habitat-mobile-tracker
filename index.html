@@ -36,15 +36,65 @@
             <ol class="nav">
                 <li class="home"><i class="icon-habhub"></i></li>
                 <li class="chasecar" style="display: none"><i class="icon-car"></i></li>
-                <li class="help last"><i class="icon-question"></i></li>
+                <li class="about last"><i class="icon-question"></i></li>
             </ol>
             <span id="locate-me" style="display: none"><i class="icon-target"></i></span>
             <span id="app_name"><b>mobile<br/>tracker</b></span>
         </div>
     </header>
 
-
-
+    <div id="aboutbox" style="display: none">
+        <div class="slimContainer">
+            <h2>About</h2>
+            <hr>
+            <span>ttext text texttext text texttext text texttext text textext text text</span>
+            <h2>Issues</h2>
+            <hr>
+            <span>text text texttext text texttext text texttext text texttext text text</span>
+        </div>
+    </div>
+    <div id="chasecarbox" style="display: none">
+        <div class="slimContainer">
+            <h2>Chase car mode</h2>
+            <hr>
+            <div class="row">
+                <span>Enable</span>
+                <div class="switch off">
+                    <span class="thumb"></span>
+                    <input type="checkbox" id="chasecar_on">
+                </div> 
+            </div>
+            <div class="row">
+                <span>Name</span>
+                <span class="r" id="cc_id">mobile512_chase</span>
+            </div>
+            <hr>
+            <div class="row">
+                <span>Last updated</span>
+                <span class="r" id="cc_timestamp">never</span>
+            </div>
+            <div class="row">
+                <span>Latitude</span>
+                <span class="r" id="cc_lat">0.000000</span>
+            </div>
+            <div class="row">
+                <span>Longitude</span>
+                <span class="r" id="cc_lon">0.000000</span>
+            </div>
+            <div class="row">
+                <span>Altitude</span>
+                <span class="r" id="cc_alt">none</span>
+            </div>
+            <div class="row">
+                <span>Accuracy</span>
+                <span class="r" id="cc_accuracy">none</span>
+            </div>
+            <div class="row">
+                <span>Speed</span>
+                <span class="r" id="cc_speed">none</span>
+            </div>
+        </div> 
+    </div>
     <div id="map" style="dispaly: none"></div>
     <div id="main" style="dispaly: none">
         <div class="scrollwrapper">

@@ -36,8 +36,8 @@ var polylineEncoder = new PolylineEncoder();
 var notamOverlay = null;
 
 // preload images
-img_spinner = new Image(100,25); 
-img_spinner.src = "spinner.gif"; 
+//img_spinner = new Image(100,25); 
+//img_spinner.src = "spinner.gif"; 
 
 function load() {
 
@@ -1008,7 +1008,7 @@ function addPosition(position) {
 }
 
 function refresh() {
-  status = '<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing ...';
+  //status = '<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing ...';
   //$('#status_bar').html(status);
 
   $.ajax({
