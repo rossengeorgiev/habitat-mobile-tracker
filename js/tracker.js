@@ -503,7 +503,7 @@ function updateVehicleInfo(index, position) {
 
   ascent_text = position.gps_alt != 0 ? vehicles[index].ascent_rate.toFixed(1) + ' m/s' : '';
   // start
-  var a    = '<div class="header">' + vehicle_names[index] + '<i class="icon-arrow"></i></div>'
+  var a    = '<div class="header">' + vehicle_names[index] + '<i class="arrow"></i></div>'
            + '<div class="data">'
            + '<img src="'+image+'" />'
            + '<div class="left">'
@@ -530,7 +530,7 @@ function updateVehicleInfo(index, position) {
   var l    = '<dt>'+ascent_text+'</dt><dd>rate</dd>'
            + '<dt>'+position.gps_alt+'m ('+vehicles[index].max_alt+'m)</dt><dd>altitude (max)</dd>'
            + '<dt>'+position.gps_time+'</dt><dd>time</dd>'
-           + '<dt>'+ roundNumber(position.gps_lat, 6) + ',' + roundNumber(position.gps_lon, 6) +'</dt><dd>time</dd>'
+           + '<dt>'+ roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6) +'</dt><dd>coordinates</dd>'
            + '<dt class="recievers">Recieved by:</dt><dd class="recievers">'
            + position.callsign.split(",").join(", ")
            + '</dd>';

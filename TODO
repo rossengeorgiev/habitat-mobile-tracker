@@ -3,10 +3,36 @@
 * new menu
   - home is just the regular screen
   - current location: only on devices supporting geolocation
+  - chase car view, where you can switch uploading of GPS data
+    to habitat, so a chase car is displayed on the map
   - help cotains credits and useful info
 
-* add rotation animation to arrow in vehicle list
+* chase car option
 
+* move to Gmaps API3, as API2 is being shutdown in May 2013
+
+* have a more slick UI in portrait mode for large screen devices
+
+* add a way to zoom the map quickly in and out.
+  Pinching seems quite anoying
+
+* implement option to follow the selected vehicle or user location,
+  as position changes
+
+* in the field tracking view, distance to target vehicle
+
+known bugs
+------------------------
+
+* if geolocation is available, but no coordinates have
+  the locate me button on the menu, display a popup
+
+* on iphone, where the screen has higher DPI, all icons
+  look blurry because they are blown up. Should have 
+  a mechanism to detect such display and a set of higher
+  resolution icons
+  
+  (all icons are not vectors 04/01/2013)
 
 
 

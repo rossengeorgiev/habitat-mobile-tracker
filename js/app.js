@@ -4,7 +4,6 @@ var preloadTimer;
 var preloadImages = [ 
     "img/logo.png",    
     "img/marker-you.png",    
-    "img/menu-icons.png",    
 ];
 
 function checkSize() {
@@ -69,10 +68,13 @@ $(window).ready(function() {
     if(navigator.geolocation) {
         // if we have geolocation services, show the locate me button
         // the button pants the map to the user current location
-        $("li.location").show().click(function() {
+        $("#locate-me,.chasecar").show();
+        $("#locate-me").click(function() {
             if(map && currentPosition) {
                 map.panTo(new GLatLng(currentPosition.lat, currentPosition.lon));    
-            }      
+            } else {
+                alert("No position available");
+            }
         });
 
         // start polling for GPS data
