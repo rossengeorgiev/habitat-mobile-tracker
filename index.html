@@ -20,6 +20,7 @@
         <link rel="stylesheet" href="css/habitat-font.css"/>
         <script type="text/javascript" language="javascript" src="js/jquery-1.8.3-min.js"></script>
         <script type="text/javascript" language="javascript" src="js/iscroll.js"></script>
+        <script type="text/javascript" language="javascript" src="js/chasecar.lib.js"></script>
         <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=AIzaSyCOqkcNey4CCyG4X0X5qxHAhCgD8g5DwXg" type="text/javascript"></script>
         <script src="js/PolylineEncoder.js" type="text/javascript"></script>
         <script src="js/balloonmarker.js" type="text/javascript"></script>
@@ -47,10 +48,17 @@
         <div class="slimContainer">
             <h2>About</h2>
             <hr>
-            <span>ttext text texttext text texttext text texttext text textext text text</span>
-            <h2>Issues</h2>
+            <span>
+                Welcome to the Habitat Mobile Tracker beta. This webpage is specifically crafted with mobile devices in mind.
+                Just point the browser on your platform of choice - Android or iOS. The mobile tracker aims to provide all the
+                tracking goodness on your phone while you are out there chasing. You can run it just as well on your desktop!
+            </span>
+            <h2>Contribute</h2>
             <hr>
-            <span>text text texttext text texttext text texttext text texttext text text</span>
+            <span>
+                If you find any bugs or have a suggestion just find us on <u>#highaltitude</u> at <u>irc.freenode.org</u>.
+                Or on <a href="https://github.com/rossengeorgiev/habitat-mobile-tracker">github/habitat-mobile-tracker</a>
+            </span>
         </div>
     </div>
     <div id="chasecarbox" style="display: none">
@@ -65,8 +73,8 @@
                 </div> 
             </div>
             <div class="row">
-                <span>Name</span>
-                <span class="r" id="cc_id">mobile512_chase</span>
+                <span>Callsign</span>
+                <span class="r"><input type="text" id="cc_callsign" style="width: 140px;"/></span>
             </div>
             <hr>
             <div class="row">

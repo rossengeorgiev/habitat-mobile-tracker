@@ -18,8 +18,10 @@ Optimizations
 * minimize footprint
 
 * combine+minify CSSs into a single file
+  (SimpLESS, compile into a single file+minification)
 
 * combine+minify JS into a single file
+  (Google Closure? Requires rewritting)
 
 known bugs
 ------------------------
@@ -31,7 +33,13 @@ known bugs
 
   04/01/2013
   all icons are now vectors, map markers are still low res images
+  07/01/2013
+  GMaps API3 should resolve this issue on retina displays
 
+* app might crash if map has too many elements. Also, could manifest
+  when viewed on desktops/laptops making the interface slugish.
+  This is best resolved on the server. Some sort of simplification 
+  of paths, and only very recent position data etc.
 
 
 

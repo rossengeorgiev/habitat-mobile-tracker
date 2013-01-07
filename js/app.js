@@ -10,6 +10,10 @@ var GPS_lat = null;
 var GPS_lon = null;
 var GPS_alt = null;
 var GPS_speed = null;
+var CHASE_enabled = false;
+var CHASE_listenerSent = false;
+var CHASE_timer = 0
+var callsign = "";
 
 function checkSize() {
     // we are in landscape mode
@@ -106,12 +110,59 @@ $(window).ready(function() {
     // toggle functionality for switch button
     $(".switch").click(function() {
         var e = $(this);
+        var field = $('#cc_callsign');
+
+        // turning the switch off
         if(e.hasClass('on')) {
+            field.removeAttr('disabled');
             e.removeClass('on').addClass('off');
+
+            CHASE_enabled = false;
+
+            // blue man reappers :)
+            if(currentPosition && currentPosition.marker) currentPosition.marker.show(); 
+        // turning the switch on
         } else {
+            if(callsign.length < 5) { alert('Please enter a valid callsign, at least 5 characters'); return; }
+            if(!callsign.match(/^[a-zA-Z0-9\_\-]+$/)) { alert('Invalid characters in callsign (use only a-z,0-9,-,_)'); return; }
+
+            field.attr('disabled','disabled');
             e.removeClass('off').addClass('on');
+            
+            // push listen doc to habitat
+            if(!CHASE_listenerSent) { 
+                ChaseCar.putListenerInfo(callsign);
+                CHASE_listenerSent = true;
+            }
+            // if already have a position push it to habitat
+            if(GPS_ts) {
+                ChaseCar.updatePosition(callsign, { coords: { latitude: GPS_lat, longitude: GPS_lon, altitude: GPS_alt, speed: GPS_speed }});
+            }
+            CHASE_enabled = true;
+
+            // hide the blue man
+            if(currentPosition && currentPosition.marker) currentPosition.marker.hide(); 
         }
     });
+
+    // remember callsign as a cookie
+    $("#cc_callsign").on('change keyup', function() {
+        callsign = $(this).val().trim();
+        document.cookie = "mtCallsign=" + callsign + "; expires=Fri, 13 Jul 2033 03:33:33 UTC; path=/";
+        CHASE_listenerSent = false;
+    });
+
+    // read callsign cookie and load the value
+    var cookiejar = document.cookie.split(";");
+
+    for (var i = 0; i < cookiejar.length; i++) {
+        var cookie = cookiejar[i].split('=');
+        if(cookie[0] == "mtCallsign") {
+            callsign = cookie[1];
+            $('#cc_callsign').val(callsign);
+            break;
+        }
+    }
 
     // We are able to get GPS position on idevices, if the user allows
     // The position is displayed in top right corner of the screen
@@ -134,9 +185,9 @@ $(window).ready(function() {
             navigator.geolocation.getCurrentPosition(function(position) {
                 var lat = position.coords.latitude;
                 var lon = position.coords.longitude;
-                var alt = (position.coords.altitude) ? position.coords.altitude + 'm' : 'none';
-                var accuracy = (position.coords.accuracy) ? position.coords.accuracy + 'm' : 'none';
-                var speed = (position.coords.speed) ? position.coords.speed + 'm/s' : 'none';
+                var alt = (position.coords.altitude) ? position.coords.altitude : 0;
+                var accuracy = (position.coords.accuracy) ? position.coords.accuracy : 0;
+                var speed = (position.coords.speed) ? position.coords.speed : 0;
 
                 // constantly update 'last updated' field, and display friendly time since last update
                 if(!GPS_ts) {
@@ -171,6 +222,10 @@ $(window).ready(function() {
                     GPS_speed = speed;
                     GPS_ts = parseInt(position.timestamp/1000);
                     $('#cc_timestamp').text('just now');
+
+                    if(CHASE_enabled) {
+                        ChaseCar.updatePosition(callsign, position);
+                    }
                 }
                 else { return; }
 
@@ -187,9 +242,9 @@ $(window).ready(function() {
                 // update chase car interface
                 $('#cc_lat').text(lat);
                 $('#cc_lon').text(lon);
-                $('#cc_alt').text(alt);
-                $('#cc_accuracy').text(accuracy);
-                $('#cc_speed').text(speed);
+                $('#cc_alt').text(alt + " m");
+                $('#cc_accuracy').text(accuracy + " m");
+                $('#cc_speed').text(speed + " m/s");
             }, 
             function() {
                 // when there is no location

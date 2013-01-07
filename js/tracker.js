@@ -1241,6 +1241,7 @@ function update(response) {
     }
     map.savePosition();
     zoomed_in = true;
+    listScroll.refresh();
   }
   
 }
