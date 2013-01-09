@@ -69,8 +69,10 @@ $(window).ready(function() {
             listScroll.refresh();
             
             // auto scroll when expanding an item
-            var eName = "." + e.parent().attr('class') + " ." + e.attr('class').match(/vehicle\d+/)[0];
-            listScroll.scrollToElement(eName);
+            if($('.portrait:visible').length) {
+                var eName = "." + e.parent().attr('class') + " ." + e.attr('class').match(/vehicle\d+/)[0];
+                listScroll.scrollToElement(eName);
+            }
             
             // pan to selected vehicle
             panTo(parseInt(e.attr('class').match(/vehicle(\d+)/)[1]));
@@ -129,9 +131,11 @@ $(window).ready(function() {
             field.attr('disabled','disabled');
             e.removeClass('off').addClass('on');
             
-            // push listen doc to habitat
+            // push listener doc to habitat
+            // this gets a station on the map, under the car marker
+            // im still not sure its nessesary
             if(!CHASE_listenerSent) { 
-                ChaseCar.putListenerInfo(callsign);
+                //ChaseCar.putListenerInfo(callsign);
                 CHASE_listenerSent = true;
             }
             // if already have a position push it to habitat
