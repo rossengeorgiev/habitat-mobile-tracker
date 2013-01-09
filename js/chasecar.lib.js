@@ -28,7 +28,8 @@ ChaseCar.getUUIDS = function(callback) {
 ChaseCar.request = function(doc) {
     if(doc) { ChaseCar.queue.push(doc); }
 
-    for(var i = 0; i < ChaseCar.queue.length; i++ ) {
+    var i = ChaseCar.queue.length;
+    while(i--) {
         if(ChaseCar.ucount == ChaseCar.uused && !ChaseCar.uuidsRequested) {
             ChaseCar.uuidsRequested = true; // blocks further uuids request until the current one completes
             ChaseCar.getUUIDS(function() {

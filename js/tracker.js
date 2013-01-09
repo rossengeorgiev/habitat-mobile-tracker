@@ -51,7 +51,7 @@ function load() {
     
     // set minimum zoom
     var mapTypes = map.getMapTypes();
-    for(var i = 0; i < mapTypes.length; i++){
+    for(var i = 0,ii = mapTypes.length; i < ii; i++){
 			//mapTypes[i].getMaximumResolution = function(latlng){ return 12;};
 			mapTypes[i].getMinimumResolution = function(latlng){ return 2;};
 		}
@@ -132,7 +132,7 @@ function optional(caption, value, postfix) {
     } else {
       var a = value.split(";");
       var result = "";
-      for(var i = 0; i < a.length; i++) {
+      for(var i = 0,ii = a.length; i < ii; i++) {
         var b = a[i].split("=");
         result += "<b>" + b[0] + ":</b> " + b[1] + "<br />"
       }
@@ -239,7 +239,7 @@ function atlas_data(caption, value, postfix) {
   var extra = 0;
   if(value.indexOf(";") != -1) {
     values = value.split(";");
-    for(var i = 0; i < values.length; i++) {
+    for(var i = 0, ii = values.length; i < ii; i++) {
       if(i < fields.length) {
         caption = fields[i];
       } else {
@@ -261,7 +261,7 @@ function whitestar_data(caption, value, postfix) {
   var extra = 0;
   if(value.indexOf(";") != -1) {
     values = value.split(";");
-    for(var i = 0; i < values.length; i++) {
+    for(var i = 0, ii = values.length; i < ii; i++) {
       if(i < fields.length) {
         caption = fields[i];
       } else {
@@ -283,7 +283,7 @@ function horus_data(caption, value, postfix) {
   var extra = 0;
   if(value.indexOf(";") != -1) {
     values = value.split(";");
-    for(var i = 0; i < values.length; i++) {
+    for(var i = 0, ii = values.length; i < ii; i++) {
       if(i < fields.length) {
         caption = fields[i];
       } else {
@@ -305,7 +305,7 @@ function darkside_data(caption, value, postfix) {
   var extra = 0;
   if(value.indexOf(";") != -1) {
     values = value.split(";");
-    for(var i = 0; i < values.length; i++) {
+    for(var i = 0, ii = values.length; i < ii; i++) {
       if(i < fields.length) {
         caption = fields[i];
       } else {
@@ -327,7 +327,7 @@ function picochu_data(caption, value, postfix) {
   var extra = 0;
   if(value.indexOf(";") != -1) {
     values = value.split(";");
-    for(var i = 0; i < values.length; i++) {
+    for(var i = 0, ii = values.length; i < ii; i++) {
       if(i < fields.length) {
         caption = fields[i];
       } else {
@@ -353,7 +353,7 @@ function apex_data(caption, value, postfix) {
   var extra = 0;
   if(value.indexOf(";") != -1) {
     values = value.split(";");
-    for(var i = 0; i < values.length; i++) {
+    for(var i = 0, ii = values.length; i < ii; i++) {
       if(i < fields.length) {
         caption = fields[i];
       } else {
@@ -396,7 +396,7 @@ function updateAltitude(index) {
 }
 
 function updateZoom() {
-  for(var index = 0; index < vehicles.length; index++) {
+  for(var index = 0, ii = vehicles.length; index < ii; index++) {
     if(vehicles[index].vehicle_type == "balloon") {
       updateAltitude(index);
     }
@@ -599,7 +599,7 @@ function showSignals(index, position) {
   signals = [];
   if(position.callsign == "") return;
   var callsigns = position.callsign.split(",");
-  for(var i = 0; i < callsigns.length; i++) {
+  for(var i = 0, ii = callsigns.length; i < ii; i++) {
   	// check receivers first:
     var r_index = $.inArray(callsigns[i], receiver_names);
     if(r_index != -1) {
@@ -614,7 +614,7 @@ function showSignals(index, position) {
     	// if nothing found, check vehicles:
     	var vehicle_index;
     	var r = new RegExp(callsigns[i], "i"); // check if callsign is contained in vehicle name
-    	for(vehicle_index = 0; vehicle_index < vehicle_names.length; vehicle_index++) {
+    	for(vehicle_index = 0, iii = vehicle_names.length; vehicle_index < iii; vehicle_index++) {
     		if(vehicle_names[vehicle_index].search(r) != -1) break;
     	}
     	if(vehicle_index != vehicle_names.length
@@ -633,7 +633,7 @@ function showSignals(index, position) {
 
 function hideSignals() {
   if(!signals) return;
-  for(var i = 0; i < signals.length; i++) {
+  for(var i = 0, ii = signals.length; i <<i; i++) {
     map.removeOverlay(signals[i]);
   }
   signals = null;
@@ -664,11 +664,11 @@ function mouseVehiclePos(latlng) {
 	}
 	var vehicle_index = -1, pos, best_dist = 9999999999;
 	var p1 = map.fromLatLngToDivPixel(latlng);
-	for(var v = 0; v < vehicles.length; v++) {
+	for(var v = 0, vv = vehicles.length; v < vv; v++) {
 		if(!vehicles[v].path_enabled) {
 			continue;
 		}
-		for(var i = 0; i < vehicles[v].line.length; i++) { // note: skip the last pos
+		for(var i = 0, ii =vehicles[v].line.length; i < ii; i++) { // note: skip the last pos
 			var p2 = map.fromLatLngToDivPixel(vehicles[v].line[i]);
 			var dist = Math.sqrt(Math.pow(p2.x-p1.x, 2) + Math.pow(p2.y-p1.y,2));
 			if(dist < best_dist) {
@@ -764,7 +764,7 @@ function redrawPrediction(vehicle_index) {
 		var max_alt = -99999;
 		var latlng_burst = null;
 		var	burst_index = 0;
-		for(var i = 0; i < data.length; i++) {
+		for(var i = 0, ii = data.length; i <ii; i++) {
 			latlng = new GLatLng(data[i].lat, data[i].lon);
 			line.push(latlng); 
 			if(parseFloat(data[i].alt) > max_alt) {
@@ -856,7 +856,7 @@ function findPosition(positions, other) {
 	if (!sequence || sequence == '' || sequence == 0) {
 		return -1;
 	}
-	for(var i = 0 ; i < positions.length; i++) {
+	for(var i = 0, ii = positions.length; i < ii; i++) {
 		if(positions[i].sequence != sequence) continue;
 		if(positions[i].gps_lat != other.gps_lat) continue;
 		if(positions[i].gps_lon != other.gps_lon) continue;
@@ -869,8 +869,8 @@ function findPosition(positions, other) {
   
 
 function insertPosition(vehicle, position) {
-  var i;
-  for(i = vehicle.positions.length-1; i >= -1; i--) {
+  var i = vehicle.positions.length;
+  while(i--) {
     if(i >= 0 && convert_time(vehicle.positions[i].server_time) < convert_time(position.server_time)) {
       break;
     }
@@ -1151,7 +1151,7 @@ function updateReceiverMarker(receiver) {
 }
 
 function updateReceivers(r) {
-  for(var i = 0; i < r.length; i++) {
+  for(var i = 0, ii = r.length; i < ii; i++) {
     var lat = parseFloat(r[i].lat);
     var lon = parseFloat(r[i].lon);
     if(lat < -90 || lat > 90 || lon < -180 || lon > 180) continue;
@@ -1173,7 +1173,7 @@ function updateReceivers(r) {
 }
 
 function updatePredictions(r) {
-	for(var i = 0; i < r.length; i++) {
+    for(var i = 0, ii = r.length; i < ii; i++) {
 		var vehicle_index = $.inArray(r[i].vehicle, vehicle_names);
 		if(vehicle_index != -1) {
 			if(vehicles[vehicle_index].prediction && vehicles[vehicle_index].prediction.time == r[i].time) {

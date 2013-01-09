@@ -258,8 +258,7 @@ $(window).ready(function() {
     }
 
     // preload images
-    var i = 0;
-    for(i = 0; i < preloadImages.length; i++) {
+    for(var i = 0, ii = preloadImages.length; i < ii; i++) {
         var image = new Image();
         image.onLoad = (function() { nLoadedImages++; })();
         image.src = preloadImages[i];
