@@ -1,0 +1,176 @@
+/*
+* Skeleton V1.2
+* Copyright 2011, Dave Gamache
+* www.getskeleton.com
+* Free to use under the MIT license.
+* http://www.opensource.org/licenses/mit-license.php
+* 6/20/2012
+
+* Edited by Daniel Saul
+* For use in the Habitat Webpage Template
+ 
+*/
+
+/* Table of Content
+==================================================
+	#Site Styles
+	#Page Styles
+	#Media Queries
+	#Font-Face */
+
+/* #Site Styles
+================================================== */
+
+/* Header */
+header{
+    width: 100%;
+    min-height: 75px;
+
+    text-align: left;
+    line-height: 75px;
+    color: #ffffff;
+    font-size: 14px;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+
+    background: #00a3d3;
+    border-bottom: 1px solid #009bc9;
+
+}
+
+header h1{
+    height: 75px;
+    float: left;
+}
+
+header span#app_name {
+    float: right;
+}
+
+/* Grey Area */
+#grey-section{
+    width: 100%;
+    margin-bottom: 50px;
+    padding: 15px 0 15px 0;
+
+    color: #666666;
+
+    background: #fcfcfc;
+    border-top: 1px solid #ffffff;
+    border-bottom: 1px solid #eeeeee;
+}
+
+#grey-section h3{
+    color: #00a3d3;
+}
+
+#grey-section .badge{
+    margin-top: -30px;
+    margin-bottom: -100%;
+    float: right;
+    visibility: hidden;
+}
+
+/* Forms */
+.form.row label{
+    padding-top: 3px;
+    font-weight: normal;
+}
+
+.form.row{
+    margin-bottom: 44px;
+}
+
+.form.row input, .form.row select {
+    margin-bottom: 0 !important;
+}
+
+.form.row select {
+    /* base.css makes this different to input for some reason. */
+    padding: 5px 4px;
+    width: 220px;
+}
+
+.validated input{
+    float: left;
+}
+
+.validated img{
+    padding: 3px 0 0 10px;
+    float: left;
+}
+
+.form.row .input_extra{
+    background: #f8f8f8;
+    color: #999999;
+    padding: 5px;
+    -moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+    position: relative;
+    min-height: 22px;
+    width: auto;
+}
+
+@media only screen and (min-width: 768px){
+.input_extra:before {
+    content: "\0020";
+    width: 0;
+    height: 0;
+    border-top: 15px solid transparent;
+    border-bottom: 15px solid transparent;
+    border-right: 15px solid #f8f8f8;
+    position: absolute;
+    left: -14px;
+    top: 1px;
+    display: inline;
+}
+.form.row input.long {
+    width: 380px;
+}
+}
+
+.long_protection {
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+}
+
+/* #Page Styles
+================================================== */
+
+/* #Media Queries
+================================================== */
+
+	/* Smaller than standard 960 (devices and browsers) */
+	@media only screen and (max-width: 959px) {}
+
+	/* Tablet Portrait size to standard 960 (devices and browsers) */
+	@media only screen and (min-width: 768px) and (max-width: 959px) {}
+
+	/* All Mobile Sizes (devices and browser) */
+	@media only screen and (max-width: 767px) {}
+
+	/* Mobile Landscape Size to Tablet Portrait (devices and browsers) */
+	@media only screen and (min-width: 480px) and (max-width: 767px) {}
+
+	/* Mobile Portrait Size to Mobile Landscape Size (devices and browsers) */
+	@media only screen and (max-width: 479px) {}
+
+
+/* #Font-Face
+================================================== */
+/* 	This is the proper syntax for an @font-face file
+		Just create a "fonts" folder at the root,
+		copy your FontName into code below and remove
+		comment brackets */
+
+/*	@font-face {
+	    font-family: 'FontName';
+	    src: url('../fonts/FontName.eot');
+	    src: url('../fonts/FontName.eot?iefix') format('eot'),
+	         url('../fonts/FontName.woff') format('woff'),
+	         url('../fonts/FontName.ttf') format('truetype'),
+	         url('../fonts/FontName.svg#webfontZam02nTh') format('svg');
+	    font-weight: normal;
+	    font-style: normal; }
+*/
