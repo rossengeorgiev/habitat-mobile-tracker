@@ -1,5 +1,3 @@
-* implement functanility to actually push ChaseCar info to habitat
-
 * move to Gmaps API3, as API2 is being shutdown in May 2013
 
 * have a more slick UI in portrait mode for large screen devices
@@ -16,9 +14,6 @@ Optimizations
 -----------------------
 
 * minimize footprint
-
-* combine+minify CSSs into a single file
-  (SimpLESS, compile into a single file+minification)
 
 * combine+minify JS into a single file
   (Google Closure? Requires rewritting)
