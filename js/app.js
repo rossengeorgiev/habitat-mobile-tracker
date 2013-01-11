@@ -20,7 +20,7 @@ function checkSize() {
     w = $(window).width();
     w = (w < 320) ? 320 :  w; // absolute minimum 320px
     h = $(window).height();
-    h = (h < 320) ? 320 :  h; // absolute minimum 320px
+    h = (h < 300) ? 300 :  h; // absolute minimum 320px minus 20px for the iphone bar
     hh = $('header').height();
     sw = $('#main').width();
 
