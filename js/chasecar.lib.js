@@ -39,8 +39,8 @@ ChaseCar.request = function(doc) {
             return;
         } else {
             ChaseCar.uused++;
-            var uuid = ChaseCar._uuids.shift();     // pop the first uuid
-            var doc = ChaseCar.queue.shift();       // pop the first doc on queue
+            // get one uuid and one doc from the queue and push to habitat
+            var uuid = ChaseCar._uuids.shift(), doc = ChaseCar.queue.shift();
             
             // update doc with uuids and time of upload
             doc._id = uuid;
