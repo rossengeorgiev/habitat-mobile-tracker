@@ -233,7 +233,7 @@ $(window).ready(function() {
                 }
                 else { return; }
 
-                // add/update marker on the map
+                // add/update marker on the map (tracker.js)
                 updateCurrentPosition(lat, lon);
                  
                 // round the coordinates
@@ -254,7 +254,7 @@ $(window).ready(function() {
                 // when there is no location
                 $('#app_name b').html('mobile<br/>tracker');
             });
-        }, 5000);
+        }, 30000);
     }
 
     // preload images
