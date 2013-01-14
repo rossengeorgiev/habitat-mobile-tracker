@@ -33,8 +33,9 @@ function checkSize() {
     } else { // portrait mode
         if(h < 420) h = 420;
         $('body').height(h);
-        $('#main,#map').height(h-hh-5-180);
+        $('#map').height(h-hh-5-180);
         $('#map').width(w);
+        $('#main').height(180); // 180px is just enough to hold one expanded vehicle
     }
 
     if(map) map.checkResize();

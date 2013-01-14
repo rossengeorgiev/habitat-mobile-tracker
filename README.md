@@ -4,7 +4,7 @@ A tracker web-app specifically crafted for use on mobile devices.
 Also, works great on desktops, laptops or netbooks. It is build upon
 [spacenear.us/tracker](http://spacenear.us/tracker) and habitat.
 
-[Demo here](http://rossengeorgiev.github.com/habitat-mobile-tracker/)
+[Live version](http://habhub.org/mt/)
 
 ## Design
 
