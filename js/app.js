@@ -53,6 +53,11 @@ $(window).ready(function() {
     // add inline scroll to vehicle list
     listScroll = new iScroll('main', { hScrollbar: false, hScroll: false, snap: false });
 
+    // confirm dialog when launchnig a native map app with coordinates
+    $('#main').on('click', '#launch_mapapp', function() {
+        return confirm("Launch your maps app?");
+    });
+
     // expand list items
     $('#main').on('click', '.row .header', function() {
         var e = $(this).parent();

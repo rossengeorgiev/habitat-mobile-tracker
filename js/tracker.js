@@ -501,7 +501,21 @@ function updateVehicleInfo(index, position) {
     
   }
 
-  ascent_text = position.gps_alt != 0 ? vehicles[index].ascent_rate.toFixed(1) + ' m/s' : '';
+  var ascent_text = position.gps_alt != 0 ? vehicles[index].ascent_rate.toFixed(1) + ' m/s' : '';
+  
+  var coords_text;
+  var ua =  navigator.userAgent.toLowerCase();
+  if(ua.indexOf('iphone') > -1) { 
+      coords_text = '<a id="launch_mapapp" href="http://maps.google.com/?q='+position.gps_lat+','+position.gps_lon+'">'
+                    + roundNumber(position.gps_lat, 6) + ',' + roundNumber(position.gps_lon, 6) +'</a>'
+                    + ' <i class="icon-location"></i>';
+  } else if(ua.indexOf('android') > -1) { 
+      coords_text = '<a id="launch_mapapp" href="geo:0,0?q='+position.gps_lat+','+position.gps_lon+'">'
+                    + roundNumber(position.gps_lat, 6) + ',' + roundNumber(position.gps_lon, 6) +'</a>'
+                    + ' <i class="icon-location"></i>';
+  } else {
+      coords_text = roundNumber(position.gps_lat, 6) + ',' + roundNumber(position.gps_lon, 6);
+  }
   // start
   var a    = '<div class="header"><span>' + vehicle_names[index] + '</span><i class="arrow"></i></div>'
            + '<div class="data">'
@@ -515,7 +529,7 @@ function updateVehicleInfo(index, position) {
            + '';
   // mid for portrait
   var p    = '<dt>'+position.gps_time+'</dt><dd>time</dd>'
-           + '<dt>'+ roundNumber(position.gps_lat, 6) + ',' + roundNumber(position.gps_lon, 6) +'</dt><dd>time</dd>'
+           + '<dt>'+coords_text+'</dt><dd>time</dd>'
            + '<dt class="recievers">Recieved by:</dt><dd class="recievers">'
            + position.callsign.split(",").join(", ")
            + '</dd></dl>'
@@ -530,7 +544,7 @@ function updateVehicleInfo(index, position) {
   var l    = '<dt>'+ascent_text+'</dt><dd>rate</dd>'
            + '<dt>'+position.gps_alt+'m ('+vehicles[index].max_alt+'m)</dt><dd>altitude (max)</dd>'
            + '<dt>'+position.gps_time+'</dt><dd>time</dd>'
-           + '<dt>'+ roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6) +'</dt><dd>coordinates</dd>'
+           + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
            + '<dt class="recievers">Recieved by:</dt><dd class="recievers">'
            + position.callsign.split(",").join(", ")
            + '</dd>';
