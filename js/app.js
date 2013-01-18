@@ -44,6 +44,82 @@ function checkSize() {
 window.onresize = checkSize;
 window.onchangeorientation = checkSize;
 
+// functions
+
+var positionUpdateHandle = function() {
+    navigator.geolocation.getCurrentPosition(function(position) {
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        var alt = (position.coords.altitude) ? position.coords.altitude : 0;
+        var accuracy = (position.coords.accuracy) ? position.coords.accuracy : 0;
+        var speed = (position.coords.speed) ? position.coords.speed : 0;
+
+        // constantly update 'last updated' field, and display friendly time since last update
+        if(!GPS_ts) {
+            GPS_ts = parseInt(position.timestamp/1000);
+
+            setInterval(function() {
+                var delta_ts = parseInt(Date.now()/1000) - GPS_ts;
+
+                // generate friendly timestamp
+                var hours = Math.floor(delta_ts / 3600);
+                var minutes = Math.floor(delta_ts / 60) % 60;
+                var ts_str = (delta_ts >= 60) ? 
+                                    ((hours)?hours+'h ':'')
+                                    + ((minutes)?minutes+'m':'')
+                                    + ' ago'
+                                : 'just now';
+                $('#cc_timestamp').text(ts_str);
+            }, 30000);
+
+            $('#cc_timestamp').text('just now');
+        }
+
+        // save position and update only if different is available
+        if(GPS_lat != lat
+           || GPS_lon != lon
+           || GPS_alt != alt
+           || GPS_speed != speed)
+        {
+            GPS_lat = lat;
+            GPS_lon = lon;
+            GPS_alt = alt;
+            GPS_speed = speed;
+            GPS_ts = parseInt(position.timestamp/1000);
+            $('#cc_timestamp').text('just now');
+
+            if(CHASE_enabled) {
+                ChaseCar.updatePosition(callsign, position);
+            }
+        }
+        else { return; }
+
+        // add/update marker on the map (tracker.js)
+        updateCurrentPosition(lat, lon);
+         
+        // round the coordinates
+        lat = parseInt(lat * 1000000)/1000000;  // 6 decimal places
+        lon = parseInt(lon * 1000000)/1000000;  // 6 decimal places
+        speed = parseInt(speed * 10)/10;        // 1 decimal place
+        accuracy = parseInt(accuracy);
+        alt = parseInt(alt);
+
+        // dispaly them in the top right corner
+        $('#app_name b').html(lat + '<br/>' + lon);
+
+        // update chase car interface
+        $('#cc_lat').text(lat);
+        $('#cc_lon').text(lon);
+        $('#cc_alt').text(alt + " m");
+        $('#cc_accuracy').text(accuracy + " m");
+        $('#cc_speed').text(speed + " m/s");
+    }, 
+    function() {
+        // when there is no location
+        $('#app_name b').html('mobile<br/>tracker');
+    });
+}
+
 
 
 $(window).ready(function() {
@@ -191,79 +267,10 @@ $(window).ready(function() {
             }
         });
 
-        setInterval(function() {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                var lat = position.coords.latitude;
-                var lon = position.coords.longitude;
-                var alt = (position.coords.altitude) ? position.coords.altitude : 0;
-                var accuracy = (position.coords.accuracy) ? position.coords.accuracy : 0;
-                var speed = (position.coords.speed) ? position.coords.speed : 0;
-
-                // constantly update 'last updated' field, and display friendly time since last update
-                if(!GPS_ts) {
-                    GPS_ts = parseInt(position.timestamp/1000);
-
-                    setInterval(function() {
-                        var delta_ts = parseInt(Date.now()/1000) - GPS_ts;
-
-                        // generate friendly timestamp
-                        var hours = Math.floor(delta_ts / 3600);
-                        var minutes = Math.floor(delta_ts / 60) % 60;
-                        var ts_str = (delta_ts >= 60) ? 
-                                            ((hours)?hours+'h ':'')
-                                            + ((minutes)?minutes+'m':'')
-                                            + ' ago'
-                                        : 'just now';
-                        $('#cc_timestamp').text(ts_str);
-                    }, 30000);
-        
-                    $('#cc_timestamp').text('just now');
-                }
-
-                // save position and update only if different is available
-                if(GPS_lat != lat
-                   || GPS_lon != lon
-                   || GPS_alt != alt
-                   || GPS_speed != speed)
-                {
-                    GPS_lat = lat;
-                    GPS_lon = lon;
-                    GPS_alt = alt;
-                    GPS_speed = speed;
-                    GPS_ts = parseInt(position.timestamp/1000);
-                    $('#cc_timestamp').text('just now');
-
-                    if(CHASE_enabled) {
-                        ChaseCar.updatePosition(callsign, position);
-                    }
-                }
-                else { return; }
-
-                // add/update marker on the map (tracker.js)
-                updateCurrentPosition(lat, lon);
-                 
-                // round the coordinates
-                lat = parseInt(lat * 1000000)/1000000;  // 6 decimal places
-                lon = parseInt(lon * 1000000)/1000000;  // 6 decimal places
-                speed = parseInt(speed * 10)/10;        // 1 decimal place
-                accuracy = parseInt(accuracy);
-                alt = parseInt(alt);
-
-                // dispaly them in the top right corner
-                $('#app_name b').html(lat + '<br/>' + lon);
-
-                // update chase car interface
-                $('#cc_lat').text(lat);
-                $('#cc_lon').text(lon);
-                $('#cc_alt').text(alt + " m");
-                $('#cc_accuracy').text(accuracy + " m");
-                $('#cc_speed').text(speed + " m/s");
-            }, 
-            function() {
-                // when there is no location
-                $('#app_name b').html('mobile<br/>tracker');
-            });
-        }, 30000);
+        // check for location update every 30sec
+        setInterval(positionUpdateHandle, 30000); 
+        // immediatelly check for position
+        positionUpdateHandle();
     }
 
     // preload images
