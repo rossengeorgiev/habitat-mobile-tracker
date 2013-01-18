@@ -218,7 +218,7 @@ function habitat_data(jsondata) {
       if (suffixes[key] !== undefined)
         suffix = " " + suffixes[key];
 
-      output.push("<b>" + name + ":</b> " + data[key] + suffix + "<br />");
+      output.push("<dt>" + data[key] + suffix + "</dt><dd>" + name + "</dd>");
     }
 
     output.sort();
@@ -226,9 +226,9 @@ function habitat_data(jsondata) {
   }
   catch (error)
   {
-    if (jsondata && jsondata != '')
-      return "<b>Data:</b> " + jsondata + "<br /> ";
-    else
+    //if (jsondata && jsondata != '')
+    // return "<b>Data:</b> " + jsondata + "<br /> ";
+    //else
       return "";
   }
 }
@@ -527,12 +527,16 @@ function updateVehicleInfo(index, position) {
            + '</div>' // right
            + '</div>' // data
            + '';
+  var c    = '<dt class="recievers">Recieved by:</dt><dd class="recievers">'
+           + position.callsign.split(",").join(", ") + '</dd>'
+
+  if(!position.callsign) c = '';
+
   // mid for portrait
   var p    = '<dt>'+position.gps_time+'</dt><dd>time</dd>'
            + '<dt>'+coords_text+'</dt><dd>time</dd>'
-           + '<dt class="recievers">Recieved by:</dt><dd class="recievers">'
-           + position.callsign.split(",").join(", ")
-           + '</dd></dl>'
+           + c // recievers if any
+           + '</dl>'
            + '</div>' // left
            + '<div class="right">'
            + '<dl>'
@@ -545,64 +549,14 @@ function updateVehicleInfo(index, position) {
            + '<dt>'+position.gps_alt+'m ('+vehicles[index].max_alt+'m)</dt><dd>altitude (max)</dd>'
            + '<dt>'+position.gps_time+'</dt><dd>time</dd>'
            + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
-           + '<dt class="recievers">Recieved by:</dt><dd class="recievers">'
-           + position.callsign.split(",").join(", ")
-           + '</dd>';
+           + habitat_data(position.data) 
+           + c // recievers if any
            + '';
 
 
   $('.portrait .vehicle'+index).html(a + p + b); 
   $('.landscape .vehicle'+index).html(a + l + b); 
   return true;
-
-           /// old code
-
-  var html = '  <div class="altitude_container" id="altitude_' + index + '">'
-           + '      <div class="altitude" style="font-size:0px; border-top: solid white ' + (98 - pixels) + 'px; height: ' + pixels + 'px;"></div>'
-           + '  </div>'
-           + '  <div class="vehicle_info_wrapper">'
-           + '    <div class="vehicle_info" style="background: url(' + image + ') no-repeat top right;">'
-           + '      <b style="font-size:12px">' + vehicle_names[index] + '</b><br />';
-
-  /* XXX OSIRIS INVISIBILITY */  if (vehicle_names[index] != "OSIRIS" && vehicle_names[index] != "PETUNIA")
-  html +=    '      <b>Time:</b> ' + position.gps_time + '<br />'
-           + '      <b>Position:</b> ' + roundNumber(position.gps_lat, 6) + ',' + roundNumber(position.gps_lon, 6) + '<br />'
-           + '      <b>Altitude:</b> ' + position.gps_alt + ' m' + ascent_text + '<br />'
-           + (vehicles[index].vehicle_type == "balloon" ? ('<b>Max. Altitude:</b> ' + vehicles[index].max_alt + ' m<br />') : '');
-
-
-  /* XXX OSIRIS INVISIBILITY */  else
-  html +=    '      <b>Sentence ID:</b> ' + position.sequence + '<br />';
-
-  html +=    optional("Heading", position.gps_heading, "&deg;")
-           + optional("Speed", position.gps_speed, " km/h")
-           + optional("Temperature", position.temp_inside, "C");
-
-     /* Use habitat data! Just add the keys you want to the habitat_data function 
-      *    if (position.vehicle == "wb8elk2")
-      *      html += whitestar_data("Data", position.data, "");
-      *    else if (position.vehicle == "apex")
-      *      html += apex_data("Data", position.data, "");
-      *    else if (position.vehicle == "picochu-1")
-      *      html += picochu_data("Data", position.data, "");
-      *    else if (position.vehicle == "DARKSIDE")
-      *      html += darkside_data("Dara", position.data, "");
-      *    else
-      *      // html += optional("Data", position.data, "");
-     */
-
-  html +=    habitat_data(position.data);
-  html +=    optional("Receivers", position.callsign.split(",").join(", "), "");
-  /* XXX OSIRIS INVISIBILITY */  if (vehicle_names[index] != "OSIRIS" && vehicle_names[index] != "PETUNIA")
-  html +=    vehicleButtons(index);
-
-  html +=    '    </div>'
-           + '  </div>'
-           + '  <div style="clear:both;"></div>';
-  
-  container.innerHTML = html;
-  //$("#debug_box").html("Height: " + container.offsetHeight);
-  $("#altitude_" + index).css("margin-top", container.offsetHeight - 100);
 }
 
 function showSignals(index, position) {

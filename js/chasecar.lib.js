@@ -83,8 +83,8 @@ ChaseCar.updatePosition = function(callsign, position) {
                 'chase': true,
                 'latitude': position.coords.latitude,
                 'longitude': position.coords.longitude,
-                'altitude': position.coords.altitude,
-                'speed': position.coords.speed
+                'altitude': ((!!position.coords.altitude) ? position.coords.altitude : 0),
+                'speed': ((!!position.coords.speed) ? position.coords.speed : 0)
             }
         });
 }
