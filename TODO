@@ -10,14 +10,6 @@
 
 * in the field tracking view, distance to target vehicle
 
-Optimizations
------------------------
-
-* minimize footprint
-
-* combine+minify JS into a single file
-  (Google Closure? Requires rewritting)
-
 known bugs
 ------------------------
 

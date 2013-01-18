@@ -238,8 +238,11 @@ $(window).ready(function() {
                 updateCurrentPosition(lat, lon);
                  
                 // round the coordinates
-                lat = parseInt(lat * 1000000)/1000000;
-                lon = parseInt(lon * 1000000)/1000000;
+                lat = parseInt(lat * 1000000)/1000000;  // 6 decimal places
+                lon = parseInt(lon * 1000000)/1000000;  // 6 decimal places
+                speed = parseInt(speed * 10)/10;        // 1 decimal place
+                accuracy = parseInt(accuracy);
+                alt = parseInt(alt);
 
                 // dispaly them in the top right corner
                 $('#app_name b').html(lat + '<br/>' + lon);

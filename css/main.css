@@ -94,11 +94,20 @@ header > div {
     font-weight: normal;
     float: right;
     color: #aaa;
+    }
+#main .header span {
+    overflow: hidden; 
+    display: block;
+    width: 90%;
+    float: left;
+}
+#main .header span.center {
+    text-align: center;
 }
 .row .header .arrow:after { content: "▲"; }
 .row.active .header .arrow:after { content: "▼"; }
 
-#main .row { margin: 0; padding: 0; position: relative; }
+#main .row { background-color: #f4f4f4; margin: 0; padding: 0; position: relative; }
 #main .row  .header {
     position: relative;
     z-index: 4;
@@ -264,9 +273,8 @@ header > div {
         border-bottom: 2px solid #33b5e5;
     }
     #main .data {
-        background-color: #f4f4f4;
         height: 100%;
-        padding-bottom: 10px;
+        padding-bottom: 5px;
     }
     #main .data .left {
         float: left;
@@ -314,7 +322,6 @@ header > div {
         border-bottom: 2px solid #33b5e5;
     }
     #main .data {
-        background-color: #f4f4f4;
         height: 140px;
     }
     #main .data .left {

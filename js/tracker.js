@@ -503,7 +503,7 @@ function updateVehicleInfo(index, position) {
 
   ascent_text = position.gps_alt != 0 ? vehicles[index].ascent_rate.toFixed(1) + ' m/s' : '';
   // start
-  var a    = '<div class="header">' + vehicle_names[index] + '<i class="arrow"></i></div>'
+  var a    = '<div class="header"><span>' + vehicle_names[index] + '</span><i class="arrow"></i></div>'
            + '<div class="data">'
            + '<img src="'+image+'" />'
            + '<div class="left">'
