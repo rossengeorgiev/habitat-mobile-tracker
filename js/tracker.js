@@ -507,14 +507,14 @@ function updateVehicleInfo(index, position) {
   var ua =  navigator.userAgent.toLowerCase();
   if(ua.indexOf('iphone') > -1) { 
       coords_text = '<a id="launch_mapapp" href="http://maps.google.com/?q='+position.gps_lat+','+position.gps_lon+'">'
-                    + roundNumber(position.gps_lat, 6) + ',' + roundNumber(position.gps_lon, 6) +'</a>'
+                    + roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6) +'</a>'
                     + ' <i class="icon-location"></i>';
   } else if(ua.indexOf('android') > -1) { 
       coords_text = '<a id="launch_mapapp" href="geo:0,0?q='+position.gps_lat+','+position.gps_lon+'">'
-                    + roundNumber(position.gps_lat, 6) + ',' + roundNumber(position.gps_lon, 6) +'</a>'
+                    + roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6) +'</a>'
                     + ' <i class="icon-location"></i>';
   } else {
-      coords_text = roundNumber(position.gps_lat, 6) + ',' + roundNumber(position.gps_lon, 6);
+      coords_text = roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6);
   }
   // start
   var a    = '<div class="header"><span>' + vehicle_names[index] + '</span><i class="arrow"></i></div>'
@@ -534,7 +534,7 @@ function updateVehicleInfo(index, position) {
 
   // mid for portrait
   var p    = '<dt>'+position.gps_time+'</dt><dd>time</dd>'
-           + '<dt>'+coords_text+'</dt><dd>time</dd>'
+           + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
            + c // recievers if any
            + '</dl>'
            + '</div>' // left
@@ -1209,9 +1209,9 @@ function update(response) {
     }
     map.savePosition();
     zoomed_in = true;
-    listScroll.refresh();
   }
   
+  if(listScroll) listScroll.refresh();
 }
 
 function redrawPlot(vehicle_index) {
