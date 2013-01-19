@@ -39,6 +39,9 @@ function checkSize() {
     }
 
     if(map) map.checkResize();
+
+    // this should hide the address bar, when possible
+    window.scrollTo(0,1);
 }
 
 window.onresize = checkSize;
@@ -290,6 +293,9 @@ $(window).ready(function() {
         setTimeout(function() {
             $('#loading').hide(); // welcome screen
             $('header,#main,#map').show(); // interface elements
+            
+            // try hiding the address bar
+            window.scrollTo(0,1);
         }, 500);
     }, 100);
 });
