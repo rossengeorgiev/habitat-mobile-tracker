@@ -31,7 +31,7 @@ var balloon_colors = ["red", "blue", "green", "yellow"];
 var color_table = new Array("#aa0000", "#0000ff", "#006633", "#ff6600", "#003366", "#CC3333","#663366" ,"#000000");
 
 var map = null;
-var polylineEncoder = new PolylineEncoder();
+//var polylineEncoder = new PolylineEncoder();
 
 var notamOverlay = null;
 
@@ -41,24 +41,13 @@ var notamOverlay = null;
 
 function load() {
 
-  if (GBrowserIsCompatible()) {
-    mapDiv = document.getElementById("map");
-    map = new GMap2(mapDiv);
-    map.addMapType(G_PHYSICAL_MAP);
-    map.addControl(new GHierarchicalMapTypeControl());
-    map.enableScrollWheelZoom();
-    //map.enableContinuousZoom();
-    
-    // set minimum zoom
-    var mapTypes = map.getMapTypes();
-    for(var i = 0,ii = mapTypes.length; i < ii; i++){
-			//mapTypes[i].getMaximumResolution = function(latlng){ return 12;};
-			mapTypes[i].getMinimumResolution = function(latlng){ return 2;};
-		}
+  var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 2,
+      center: new google.maps.LatLng(0, 0),
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+  });
 
-
-    map.setCenter(new GLatLng(0, 0), 2);
-
+  if (1==2) {
     //----- Stop page scrolling if wheel over map ----
     GEvent.addDomListener(mapDiv, "DOMMouseScroll", wheelevent);
     mapDiv.onmousewheel = wheelevent;
@@ -83,7 +72,7 @@ function load() {
 }
 
 function unload() {
-  GUnload();
+  google.maps.Unload();
 }
 
 //----- Stop page scrolling if wheel over map ----
@@ -121,7 +110,7 @@ function addPicture(vehicle, gps_time, gps_lat, gps_lon, gps_alt, gps_heading, g
 }
 
 function panTo(vehicle_index) {
-  map.panTo(new GLatLng(vehicles[vehicle_index].curr_position.gps_lat, vehicles[vehicle_index].curr_position.gps_lon));
+  map.panTo(new google.maps.LatLng(vehicles[vehicle_index].curr_position.gps_lat, vehicles[vehicle_index].curr_position.gps_lon));
 }
 
 function optional(caption, value, postfix) {
@@ -170,7 +159,8 @@ function habitat_data(jsondata) {
     "gas_combustible": "Gas (Combustible)",
     "radiation": "Radiation (CPM)",
     "temperature_radio": "Temperature, Radio",
-    "uplink_rssi": "Uplink RSSI"
+    "uplink_rssi": "Uplink RSSI",
+    "light_intensity": "Light Intensity"
   }
 
   var hide_keys = {
@@ -194,6 +184,7 @@ function habitat_data(jsondata) {
     "rssi_floor": "dBm",
     "iss_azimuth": "&deg;",
     "iss_elevation": "&deg;",
+    "light_intensity": "lx",
     "spam": ""
   }
 
@@ -232,152 +223,6 @@ function habitat_data(jsondata) {
       return "";
   }
 }
-
-function atlas_data(caption, value, postfix) {
-  var fields = ["Crystal Temp (&deg;C)", "PID Controller", "Internal Temp (&deg;C)", "External Temp (&deg;C)", "Light Sensor"];
-  var result = "";
-  var extra = 0;
-  if(value.indexOf(";") != -1) {
-    values = value.split(";");
-    for(var i = 0, ii = values.length; i < ii; i++) {
-      if(i < fields.length) {
-        caption = fields[i];
-      } else {
-        caption = "Extra " + extra;
-        extra++;
-      }
-      var data = values[i];
-      result += "<b>" + caption + ":</b> " + data + "<br />"
-    }
-  } else if(value != '') {
-    result = "<b>" + caption + ":</b> " + value + postfix + "<br />"
-  }
-  return result;
-}
-
-function whitestar_data(caption, value, postfix) {
-  var fields = ["Ice", "External Temp (&deg;C)", "Humidity", "Speed", "Climb", "Ballast Remaining"];
-  var result = "";
-  var extra = 0;
-  if(value.indexOf(";") != -1) {
-    values = value.split(";");
-    for(var i = 0, ii = values.length; i < ii; i++) {
-      if(i < fields.length) {
-        caption = fields[i];
-      } else {
-        caption = "Extra " + extra;
-        extra++;
-      }
-      var data = values[i];
-      result += "<b>" + caption + ":</b> " + data + "<br />"
-    }
-  } else if(value != '') {
-    result = "<b>" + caption + ":</b> " + value + postfix + "<br />"
-  }
-  return result;
-}
-
-function horus_data(caption, value, postfix) {
-  var fields = ["GPS Sats", "Internal Temp (&deg;C)", "External Temp (&deg;C)", "Battery (V)"];
-  var result = "";
-  var extra = 0;
-  if(value.indexOf(";") != -1) {
-    values = value.split(";");
-    for(var i = 0, ii = values.length; i < ii; i++) {
-      if(i < fields.length) {
-        caption = fields[i];
-      } else {
-        caption = "Extra " + extra;
-        extra++;
-      }
-      var data = values[i];
-      result += "<b>" + caption + ":</b> " + data + "<br />"
-    }
-  } else if(value != '') {
-    result = "<b>" + caption + ":</b> " + value + postfix + "<br />"
-  }
-  return result;
-}
-
-function darkside_data(caption, value, postfix) {
-  var fields = ["Internal Temp (&deg;C)", "Air Pressure (hPa)", "Battery (raw ADC val)"];
-  var result = "";
-  var extra = 0;
-  if(value.indexOf(";") != -1) {
-    values = value.split(";");
-    for(var i = 0, ii = values.length; i < ii; i++) {
-      if(i < fields.length) {
-        caption = fields[i];
-      } else {
-        caption = "Extra " + extra;
-        extra++;
-      }
-      var data = values[i];
-      result += "<b>" + caption + ":</b> " + data + "<br />"
-    }
-  } else if(value != '') {
-    result = "<b>" + caption + ":</b> " + value + postfix + "<br />"
-  }
-  return result;
-}
-
-function picochu_data(caption, value, postfix) {
-  var fields = ["External Temp (&deg;C)", "Internal Temp (&deg;C)"];
-  var result = "";
-  var extra = 0;
-  if(value.indexOf(";") != -1) {
-    values = value.split(";");
-    for(var i = 0, ii = values.length; i < ii; i++) {
-      if(i < fields.length) {
-        caption = fields[i];
-      } else {
-        caption = "Extra " + extra;
-        extra++;
-      }
-      var data = values[i];
-      result += "<b>" + caption + ":</b> " + data + "<br />"
-    }
-  } else if(value != '') {
-    result = "<b>" + caption + ":</b> " + value + postfix + "<br />"
-  }
-  return result;
-}
-
-function apex_data(caption, value, postfix) {
-  var fields = ["GPS Sats", "Internal Temperature (&deg;C)",
-                "External Temperature (&deg;C)", "Pressure (mbar)",
-                "Battery Voltage (V)", "IRD 1 (Counts/30sec)", 
-                "IRD 2 (Counts/30sec)",
-                "Light", "RSSI (%)"];
-  var result = "";
-  var extra = 0;
-  if(value.indexOf(";") != -1) {
-    values = value.split(";");
-    for(var i = 0, ii = values.length; i < ii; i++) {
-      if(i < fields.length) {
-        caption = fields[i];
-      } else {
-        caption = "Extra " + extra;
-        extra++;
-      }
-      var data = values[i];
-      if(i == 3) {        // pressure
-        data = roundNumber(parseInt(data, 16)/3.312, 2);
-      } else if(i == 4) { // battery voltage
-        data = roundNumber(10*parseInt(data, 16)/4096, 2);
-      } else if(i == 5 || i == 6) { // IRD counts
-        data = parseInt(data, 16);
-      } else if(i == 8 ) { // RSSI
-        data = roundNumber(100*parseInt(data, 16)/256, 2);
-      }
-      result += "<b>" + caption + ":</b> " + data + "<br />"
-    }
-  } else if(value != '') {
-    result = "<b>" + caption + ":</b> " + value + postfix + "<br />"
-  }
-  return result;
-}
-
 
 function updateAltitude(index) {
   var pixel_altitude = 0;
@@ -446,7 +291,7 @@ function roundNumber(number, digits) {
 }
 
 function updateVehicleInfo(index, position) {
-  var latlng = new GLatLng(position.gps_lat, position.gps_lon);
+  var latlng = new google.maps.LatLng(position.gps_lat, position.gps_lon);
   vehicles[index].marker.setLatLng(latlng);
   if(vehicles[index].vehicle_type == "balloon") {
     updateAltitude(index);
@@ -573,8 +418,8 @@ function showSignals(index, position) {
     if(r_index != -1) {
       var receiver = receivers[r_index];
       var latlngs = [];
-      latlngs.push(new GLatLng(position.gps_lat, position.gps_lon));
-      latlngs.push(new GLatLng(receiver.lat, receiver.lon));
+      latlngs.push(new google.maps.LatLng(position.gps_lat, position.gps_lon));
+      latlngs.push(new google.maps.LatLng(receiver.lat, receiver.lon));
       var poly = new GPolyline(latlngs, "#00FF00", 2, 0.5);
       signals.push(poly);
       map.addOverlay(poly);
@@ -589,8 +434,8 @@ function showSignals(index, position) {
          && vehicle_names[vehicle_index].toLowerCase() != callsigns[i].toLowerCase()) {
 	      var vehicle_pos = vehicles[vehicle_index].curr_position;
 	      var latlngs = [];
-	      latlngs.push(new GLatLng(position.gps_lat, position.gps_lon));
-	      latlngs.push(new GLatLng(vehicle_pos.gps_lat, vehicle_pos.gps_lon));
+	      latlngs.push(new google.maps.LatLng(position.gps_lat, position.gps_lon));
+	      latlngs.push(new google.maps.LatLng(vehicle_pos.gps_lat, vehicle_pos.gps_lon));
 	      var poly = new GPolyline(latlngs, "#00FF00", 2, 0.5);
 	      signals.push(poly);
 	      map.addOverlay(poly);
@@ -733,7 +578,7 @@ function redrawPrediction(vehicle_index) {
 		var latlng_burst = null;
 		var	burst_index = 0;
 		for(var i = 0, ii = data.length; i <ii; i++) {
-			latlng = new GLatLng(data[i].lat, data[i].lon);
+			latlng = new google.maps.LatLng(data[i].lat, data[i].lon);
 			line.push(latlng); 
 			if(parseFloat(data[i].alt) > max_alt) {
 				max_alt = parseFloat(data[i].alt);
@@ -741,13 +586,13 @@ function redrawPrediction(vehicle_index) {
 				burst_index = i;
 			}
 		}
-		var polyline = polylineEncoder.dpEncodeToGPolyline(line, color_table[vehicle_index], 2, 0.3);
+		//var polyline = polylineEncoder.dpEncodeToGPolyline(line, color_table[vehicle_index], 2, 0.3);
 		removePrediction(vehicle_index);
   map.addOverlay(polyline);
 		
 		if(vehicle_names[vehicle_index] != "wb8elk2") { // WhiteStar
 	  var image_src = host_url + "images/markers/target-" + balloon_colors[vehicles[vehicle_index].color_index] + ".png";
-	  var icon = new GIcon();
+	  var icon = new google.maps.Icon();
 	  icon.image = image_src;
 	  icon.iconSize = new GSize(25,25);
 	  icon.iconAnchor = new GPoint(13,13);
@@ -766,7 +611,7 @@ function redrawPrediction(vehicle_index) {
   
 		if(burst_index != 0 && vehicle_names[vehicle_index] != "wb8elk2") {
 	  var image_src = host_url + "images/markers/balloon-pop.png";
-	  var icon = new GIcon();
+	  var icon = new google.maps.Icon();
 	  icon.image = image_src;
 	  icon.iconSize = new GSize(35,32);
 	  icon.iconAnchor = new GPoint(18,15);
@@ -791,7 +636,7 @@ function updatePolyline(vehicle_index) {
     if (vehicles[vehicle_index].polyline) {
       map.removeOverlay(vehicles[vehicle_index].polyline);
     }
-    vehicles[vehicle_index].polyline = polylineEncoder.dpEncodeToGPolyline(vehicles[vehicle_index].line, color_table[vehicle_index]);
+    //vehicles[vehicle_index].polyline = polylineEncoder.dpEncodeToGPolyline(vehicles[vehicle_index].line, color_table[vehicle_index]);
 
     if(vehicles[vehicle_index].path_enabled) {
     	map.addOverlay(vehicles[vehicle_index].polyline);
@@ -845,7 +690,7 @@ function insertPosition(vehicle, position) {
   }
   vehicle.positions.splice(i+1, 0, position);
   // add the point to form new lines
-  vehicle.line.splice(i+1, 0, new GLatLng(position.gps_lat, position.gps_lon));
+  vehicle.line.splice(i+1, 0, new google.maps.LatLng(position.gps_lat, position.gps_lon));
     var curr_time = convert_time(position.server_time)*1000;
     vehicle.alt_data.splice(i+1, 0, new Array(curr_time, position.gps_alt));
   return vehicle.positions[vehicle.positions.length-1];
@@ -863,7 +708,7 @@ function addPosition(position) {
     var vehicle_type = "";
     var horizon_circle = null;
     var subhorizon_circle = null;
-    var point = new GLatLng(position.gps_lat, position.gps_lon);
+    var point = new google.maps.LatLng(position.gps_lat, position.gps_lon);
     var image_src = "";
     var color_index = 0;
     if(position.vehicle.search(/(chase)|(car)/i) != -1  // whitelist
@@ -872,7 +717,7 @@ function addPosition(position) {
       color_index = car_index++;
       var c = color_index % car_colors.length;
       var image_src = host_url + "images/markers/car-" + car_colors[c] + ".png";
-      var icon = new GIcon();
+      var icon = new google.maps.Icon();
       icon.image = image_src;
       icon.iconSize = new GSize(55,25);
       icon.iconAnchor = new GPoint(27,22);
@@ -897,6 +742,7 @@ function addPosition(position) {
 
       var circle_radius_km = 1;
       //horizon_circle = new CircleOverlay(point, circle_radius_km, "#336699", 1, 1, '#336699', 0.0);
+      /*
       horizon_circle = new BDCCCircle(point,
                                       circle_radius_km, // radius in km
                                       "#0000FF",        // stroke color
@@ -917,6 +763,7 @@ function addPosition(position) {
                                       0.5,              // fill opacity
                                       "5 degree horizon of " + position.vehicle); // tooltip
       map.addOverlay(subhorizon_circle);
+      */
 
 
     }
@@ -1078,11 +925,11 @@ function centerAndZoomOnBounds(bounds) {
 var currentPosition = null;
 
 function updateCurrentPosition(lat, lon) {
-  var latlng = new GLatLng(lat, lon);
+  var latlng = new google.maps.LatLng(lat, lon);
 
   if(!currentPosition) {
       currentPosition = {icon: null, marker: null, lat: lat, lon: lon};
-      currentPosition.icon = new GIcon();
+      currentPosition.icon = new google.maps.Icon();
       currentPosition.icon.image = "img/marker-you.png";
       currentPosition.icon.iconSize = new GSize(19,40);
       currentPosition.icon.iconAnchor = new GPoint(9,40);
@@ -1097,9 +944,9 @@ function updateCurrentPosition(lat, lon) {
 }
 
 function updateReceiverMarker(receiver) {
-  var latlng = new GLatLng(receiver.lat, receiver.lon);
+  var latlng = new google.maps.LatLng(receiver.lat, receiver.lon);
   if(!receiver.marker) {
-    var icon = new GIcon();
+    var icon = new google.maps.Icon();
     icon.image = host_url + "images/markers/antenna-green.png";
     icon.iconSize = new GSize(26,32);
     icon.iconAnchor = new GPoint(13,30);
@@ -1196,7 +1043,7 @@ function update(response) {
 	  }
 	  if(follow_vehicle != -1) {
 	  	var pos = vehicles[follow_vehicle].curr_position;
-	  	map.panTo(new GLatLng(pos.gps_lat, pos.gps_lon));
+	  	map.panTo(new google.maps.LatLng(pos.gps_lat, pos.gps_lon));
 	  }
   }
   

@@ -29,7 +29,7 @@ function BalloonMarker(latlng, opts) {
 
 /* BalloonMarker extends GOverlay class from the Google Maps API
  */
-BalloonMarker.prototype = new GOverlay();
+BalloonMarker.prototype = new google.maps.OverlayView();
 
 /* Creates the DIV representing this BalloonMarker.
  * @param map {GMap2} Map that bar overlay is added to.
@@ -56,7 +56,7 @@ BalloonMarker.prototype.initialize = function(map) {
     div.style.backgroundPosition = "" + ((image_width - image_shadow_width)/2) + "px " + (image_height + me.altitude_ - image_shadow_height) + "px";
   }
 
-  GEvent.addDomListener(this.img_, "click", function(event) {
+  google.maps.Event.addDomListener(this.img_, "click", function(event) {
     me.clicked_ = 1;
     GEvent.trigger(me, "click");
   });

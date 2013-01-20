@@ -298,4 +298,7 @@ $(window).ready(function() {
             window.scrollTo(0,1);
         }, 500);
     }, 100);
+
+    // finally load map
+    load();
 });
