@@ -170,7 +170,8 @@ function habitat_data(jsondata) {
     "gas_combustible": "Gas (Combustible)",
     "radiation": "Radiation (CPM)",
     "temperature_radio": "Temperature, Radio",
-    "uplink_rssi": "Uplink RSSI"
+    "uplink_rssi": "Uplink RSSI",
+    "light_intensity": "Light Intensity",
   }
 
   var hide_keys = {
@@ -194,6 +195,7 @@ function habitat_data(jsondata) {
     "rssi_floor": "dBm",
     "iss_azimuth": "&deg;",
     "iss_elevation": "&deg;",
+    "light_intensity": "lx",
     "spam": ""
   }
 
@@ -232,152 +234,6 @@ function habitat_data(jsondata) {
       return "";
   }
 }
-
-function atlas_data(caption, value, postfix) {
-  var fields = ["Crystal Temp (&deg;C)", "PID Controller", "Internal Temp (&deg;C)", "External Temp (&deg;C)", "Light Sensor"];
-  var result = "";
-  var extra = 0;
-  if(value.indexOf(";") != -1) {
-    values = value.split(";");
-    for(var i = 0, ii = values.length; i < ii; i++) {
-      if(i < fields.length) {
-        caption = fields[i];
-      } else {
-        caption = "Extra " + extra;
-        extra++;
-      }
-      var data = values[i];
-      result += "<b>" + caption + ":</b> " + data + "<br />"
-    }
-  } else if(value != '') {
-    result = "<b>" + caption + ":</b> " + value + postfix + "<br />"
-  }
-  return result;
-}
-
-function whitestar_data(caption, value, postfix) {
-  var fields = ["Ice", "External Temp (&deg;C)", "Humidity", "Speed", "Climb", "Ballast Remaining"];
-  var result = "";
-  var extra = 0;
-  if(value.indexOf(";") != -1) {
-    values = value.split(";");
-    for(var i = 0, ii = values.length; i < ii; i++) {
-      if(i < fields.length) {
-        caption = fields[i];
-      } else {
-        caption = "Extra " + extra;
-        extra++;
-      }
-      var data = values[i];
-      result += "<b>" + caption + ":</b> " + data + "<br />"
-    }
-  } else if(value != '') {
-    result = "<b>" + caption + ":</b> " + value + postfix + "<br />"
-  }
-  return result;
-}
-
-function horus_data(caption, value, postfix) {
-  var fields = ["GPS Sats", "Internal Temp (&deg;C)", "External Temp (&deg;C)", "Battery (V)"];
-  var result = "";
-  var extra = 0;
-  if(value.indexOf(";") != -1) {
-    values = value.split(";");
-    for(var i = 0, ii = values.length; i < ii; i++) {
-      if(i < fields.length) {
-        caption = fields[i];
-      } else {
-        caption = "Extra " + extra;
-        extra++;
-      }
-      var data = values[i];
-      result += "<b>" + caption + ":</b> " + data + "<br />"
-    }
-  } else if(value != '') {
-    result = "<b>" + caption + ":</b> " + value + postfix + "<br />"
-  }
-  return result;
-}
-
-function darkside_data(caption, value, postfix) {
-  var fields = ["Internal Temp (&deg;C)", "Air Pressure (hPa)", "Battery (raw ADC val)"];
-  var result = "";
-  var extra = 0;
-  if(value.indexOf(";") != -1) {
-    values = value.split(";");
-    for(var i = 0, ii = values.length; i < ii; i++) {
-      if(i < fields.length) {
-        caption = fields[i];
-      } else {
-        caption = "Extra " + extra;
-        extra++;
-      }
-      var data = values[i];
-      result += "<b>" + caption + ":</b> " + data + "<br />"
-    }
-  } else if(value != '') {
-    result = "<b>" + caption + ":</b> " + value + postfix + "<br />"
-  }
-  return result;
-}
-
-function picochu_data(caption, value, postfix) {
-  var fields = ["External Temp (&deg;C)", "Internal Temp (&deg;C)"];
-  var result = "";
-  var extra = 0;
-  if(value.indexOf(";") != -1) {
-    values = value.split(";");
-    for(var i = 0, ii = values.length; i < ii; i++) {
-      if(i < fields.length) {
-        caption = fields[i];
-      } else {
-        caption = "Extra " + extra;
-        extra++;
-      }
-      var data = values[i];
-      result += "<b>" + caption + ":</b> " + data + "<br />"
-    }
-  } else if(value != '') {
-    result = "<b>" + caption + ":</b> " + value + postfix + "<br />"
-  }
-  return result;
-}
-
-function apex_data(caption, value, postfix) {
-  var fields = ["GPS Sats", "Internal Temperature (&deg;C)",
-                "External Temperature (&deg;C)", "Pressure (mbar)",
-                "Battery Voltage (V)", "IRD 1 (Counts/30sec)", 
-                "IRD 2 (Counts/30sec)",
-                "Light", "RSSI (%)"];
-  var result = "";
-  var extra = 0;
-  if(value.indexOf(";") != -1) {
-    values = value.split(";");
-    for(var i = 0, ii = values.length; i < ii; i++) {
-      if(i < fields.length) {
-        caption = fields[i];
-      } else {
-        caption = "Extra " + extra;
-        extra++;
-      }
-      var data = values[i];
-      if(i == 3) {        // pressure
-        data = roundNumber(parseInt(data, 16)/3.312, 2);
-      } else if(i == 4) { // battery voltage
-        data = roundNumber(10*parseInt(data, 16)/4096, 2);
-      } else if(i == 5 || i == 6) { // IRD counts
-        data = parseInt(data, 16);
-      } else if(i == 8 ) { // RSSI
-        data = roundNumber(100*parseInt(data, 16)/256, 2);
-      }
-      result += "<b>" + caption + ":</b> " + data + "<br />"
-    }
-  } else if(value != '') {
-    result = "<b>" + caption + ":</b> " + value + postfix + "<br />"
-  }
-  return result;
-}
-
 
 function updateAltitude(index) {
   var pixel_altitude = 0;
