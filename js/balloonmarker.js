@@ -13,7 +13,7 @@ var image_shadow = "http://spacenear.us/tracker/images/markers/shadow.png";
 var image_shadow_width = 24;
 var image_shadow_height = 16;
  
-function BalloonMarker(latlng, opts) {
+function BalloonMarker(map, latlng, opts) {
   this.latlng = latlng;
 
   if (!opts) opts = {};
@@ -25,6 +25,8 @@ function BalloonMarker(latlng, opts) {
   this.clicked_ = 0;
   this.altitude_ = opts.altitude? opts.altitude : 0;
   this.img_ = opts.img;
+
+  this.initialize(map);
 }
 
 /* BalloonMarker extends GOverlay class from the Google Maps API
@@ -36,6 +38,10 @@ BalloonMarker.prototype = new google.maps.OverlayView();
  */
 BalloonMarker.prototype.initialize = function(map) {
   var me = this;
+  this.draw = function() {};
+  this.onAdd = function() {};
+  this.onRemove = function() {};
+  this.setMap(map);
 
   // Create the DIV representing our BalloonMarker
   var div = document.createElement("div");
@@ -55,13 +61,16 @@ BalloonMarker.prototype.initialize = function(map) {
     div.style.backgroundRepeat = 'no-repeat';
     div.style.backgroundPosition = "" + ((image_width - image_shadow_width)/2) + "px " + (image_height + me.altitude_ - image_shadow_height) + "px";
   }
-
+  /*
   google.maps.Event.addDomListener(this.img_, "click", function(event) {
     me.clicked_ = 1;
     GEvent.trigger(me, "click");
   });
+  */
 
-  map.getPane(G_MAP_MARKER_PANE).appendChild(div);
+  //map.getPane(G_MAP_MARKER_PANE).appendChild(div);
+  console.log(this.getPanes());
+  this.getPanes().overlayImage.appendChild(div);
 
   this.map_ = map;
   this.div_ = div;
@@ -84,7 +93,7 @@ BalloonMarker.prototype.copy = function() {
   opts.mode = this.mode_;
   opts.altitude = this.altitude_;
   opts.img = this.img_;
-  return new BalloonMarker(this.latlng, opts);
+  return new BalloonMarker(this.map_, this.latlng, opts);
 };
 
 /* Redraw the BalloonMarker based on the current projection and zoom level
@@ -98,7 +107,7 @@ BalloonMarker.prototype.redraw = function(force) {
   // Calculate the DIV coordinates of two opposite corners 
   // of our bounds to get the size and position of our BalloonMarker
   if(!this.latlng) return;
-  var divPixel = this.map_.fromLatLngToDivPixel(this.latlng);
+  var divPixel = this.getProjection().fromLatLngToDivPixel(this.latlng);
 
   // Now position our DIV based on the DIV coordinates of our bounds
   this.div_.style.width = this.width_ + "px";

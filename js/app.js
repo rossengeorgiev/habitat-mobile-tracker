@@ -4,6 +4,10 @@ var preloadTimer;
 var preloadImages = [ 
     "img/logo.png",    
     "img/marker-you.png",    
+    "img/markers/antenna-green.png",    
+    "img/markers/balloon-red.png",    
+    "img/markers/balloon-blue.png",    
+    "img/markers/shadow.png"
 ];
 var GPS_ts = null;
 var GPS_lat = null;
@@ -38,7 +42,7 @@ function checkSize() {
         $('#main').height(180); // 180px is just enough to hold one expanded vehicle
     }
 
-    if(map) map.checkResize();
+    //if(map) map.checkResize();
 
     // this should hide the address bar, when possible
     window.scrollTo(0,1);
@@ -207,7 +211,7 @@ $(window).ready(function() {
             CHASE_enabled = false;
 
             // blue man reappers :)
-            if(currentPosition && currentPosition.marker) currentPosition.marker.show(); 
+            if(currentPosition && currentPosition.marker) currentPosition.marker.setVisible(true); 
         // turning the switch on
         } else {
             if(callsign.length < 5) { alert('Please enter a valid callsign, at least 5 characters'); return; }
@@ -230,7 +234,7 @@ $(window).ready(function() {
             CHASE_enabled = true;
 
             // hide the blue man
-            if(currentPosition && currentPosition.marker) currentPosition.marker.hide(); 
+            if(currentPosition && currentPosition.marker) currentPosition.marker.setVisible(false);
         }
     });
 
@@ -264,7 +268,7 @@ $(window).ready(function() {
         $("#locate-me").click(function() {
             if(map && currentPosition) {
                 $('.nav .home').click();
-                map.panTo(new GLatLng(currentPosition.lat, currentPosition.lon));    
+                map.panTo(new google.maps.LatLng(currentPosition.lat, currentPosition.lon));    
             } else {
                 alert("No position available");
             }
