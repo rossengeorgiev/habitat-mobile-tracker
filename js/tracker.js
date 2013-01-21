@@ -29,23 +29,18 @@ var car_colors = ["blue", "red", "green", "yellow"];
 var balloon_index = 0;
 var balloon_colors = ["red", "blue", "green", "yellow"];
 
-var color_table = new Array("#aa0000", "#0000ff", "#006633", "#ff6600", "#003366", "#CC3333","#663366" ,"#000000");
+var color_table = new Array("#a00", "#00f", "#063", "#f60", "#036", "#C33","#636" ,"#000");
 
 var map = null;
 var overlay = null;
-//var polylineEncoder = new PolylineEncoder();
 
 var notamOverlay = null;
-
-// preload images
-//img_spinner = new Image(100,25); 
-//img_spinner.src = "spinner.gif"; 
 
 function load() {
     //initialize map object
     map = new google.maps.Map(document.getElementById('map'), {
         zoom: 5,
-        center: new google.maps.LatLng(0, 0),
+        center: new google.maps.LatLng(53.467511,-2.2338940),
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         keyboardShortcuts: false,
         streetViewControl: false,
@@ -56,12 +51,11 @@ function load() {
         scrollwheel: true
     });
 	
-    // we need a dummy overlay to access getProject()	
+    // we need a dummy overlay to access getProjection()	
     overlay = new google.maps.OverlayView();
     overlay.draw = function() {};
     overlay.setMap(map);
 
-    // used to simulate altitude of balloons on the map, by adjusting their position related to the shadow
     google.maps.event.addListener(map, 'idle', function() {
         updateZoom();
     });
@@ -560,7 +554,6 @@ function redrawPrediction(vehicle_index) {
             burst_index = i;
         }
     }
-    //var polyline = polylineEncoder.dpEncodeToGPolyline(line, color_table[vehicle_index], 2, 0.3);
     removePrediction(vehicle_index);
     //map.addOverlay(polyline);
 		
@@ -609,16 +602,7 @@ function redrawPrediction(vehicle_index) {
 }
 
 function updatePolyline(vehicle_index) {
-  if (got_positions && vehicles[vehicle_index].line.length > 1) {
-    if (vehicles[vehicle_index].polyline) {
-     // map.removeOverlay(vehicles[vehicle_index].polyline);
-    }
-    //vehicles[vehicle_index].polyline = polylineEncoder.dpEncodeToGPolyline(vehicles[vehicle_index].line, color_table[vehicle_index]);
-
-    if(vehicles[vehicle_index].path_enabled) {
-    	//map.addOverlay(vehicles[vehicle_index].polyline);
-    }
-  }
+    vehicles[vehicle_index].polyline.setPath(vehicles[vehicle_index].positions);
 }
 
 function convert_time(gps_time) {
@@ -674,158 +658,169 @@ function insertPosition(vehicle, position) {
 }
 
 function addPosition(position) { 
-  // vehicle info
-  //vehicle_names.include(position.vehicle);
 
   position.sequence = position.sequence ? parseInt(position.sequence, 10) : null;
   
-  if($.inArray(position.vehicle, vehicle_names) == -1) {
-    vehicle_names.push(position.vehicle);
-    var marker = null;
-    var marker_shadow = null;
-    var vehicle_type = "";
-    var horizon_circle = null;
-    var subhorizon_circle = null;
-    var point = new google.maps.LatLng(position.gps_lat, position.gps_lon);
-    var image_src = "";
-    var color_index = 0;
-    if(position.vehicle.search(/(chase)|(car)/i) != -1  // whitelist
-        && position.vehicle.search(/icarus/i) == -1) {  // blacklist
-      vehicle_type = "car";
-      color_index = car_index++;
-      var c = color_index % car_colors.length;
-      var image_src = host_url + markers_url + "car-" + car_colors[c] + ".png";
-      /*
-      icon.infoWindowAnchor = new google.maps.Point(27,5);
-      */
-      marker = new google.maps.Marker({
-        icon: image_src,
-        position: point,
-        size: new google.maps.Size(55,25),
-        map: map
-      });
-    } else {
-      vehicle_type = "balloon";
-      color_index = balloon_index++;
-      var c = color_index % balloon_colors.length;
-      
-      image_src = host_url + markers_url + "balloon-" + balloon_colors[c] + ".png";
-      marker_shadow = new google.maps.Marker({
-          map: map,
-          position: point,
-          icon: new google.maps.MarkerImage(
-              host_url + markers_url + "shadow.png",
-              new google.maps.Size(24,16),
-              null,
-              new google.maps.Point(12,8)
-          ),
-          clickable: false
-      });
-      marker = new google.maps.Marker({
-          map: map,
-          position: point,
-          icon: image_src,
-          clickable: false,
-      });
-      marker.shadow = marker_shadow;
-      marker.balloonColor = balloon_colors[c];
-      marker.setMode = function(mode) {
-          var img;
-          if(mode == "landed") {
-              img = host_url + markers_url + "landed-" + this.balloonColor + ".png";
-          } else if(mode == "parachute") {
-              img = host_url + markers_url + "parachute-" + this.balloonColor + ".png";
-          } else {
-              img = host_url + markers_url + "balloon-" + this.balloonColor + ".png";
-          }
-          this.setIcon(img);
-      }
-      marker.setAltitude = function(alt) {
-        var pos = overlay.getProjection().fromLatLngToDivPixel(this.shadow.getPosition());
-        pos.y -= alt;
-        this.setPosition(overlay.getProjection().fromDivPixelToLatLng(pos));
-      }
-      marker.setAltitude(0);
-           
-      horizon_circle = new google.maps.Circle({
-          map: map,
-          radius: 1,
-          fillColor: '#0000FF',
-          fillOpacity: 0.1,
-          strokeColor: '#0000FF',
-          strokeOpacity: 0.5,
-          strokeWeight: 3,
-          clickable: false,
-          editable: false
-      });
-      horizon_circle.bindTo('center', marker_shadow, 'position');
-      subhorizon_circle = new google.maps.Circle({
-          map: map,
-          radius: 1,
-          fillColor: '#00FF00',
-          fillOpacity: 0.1,
-          strokeColor: '#00FF00',
-          strokeOpacity: 0.5,
-          strokeWeight: 3,
-          clickable: false,
-          editable: false
-      });
-      subhorizon_circle.bindTo('center', marker_shadow, 'position');
-    }
-    var vehicle_info = {vehicle_type: vehicle_type,
-                        marker: marker,
-                        marker_shadow: marker_shadow,
-                        image_src: image_src,
-                        horizon_circle: horizon_circle,
-                        subhorizon_circle: subhorizon_circle,
-                        num_positions: 0,
-                        positions: [],
-                        curr_position: position,
-                        line: [],
-                        polyline: null,
-                        prediction: null,
-                        ascent_rate: 0.0,
-                        max_alt: parseFloat(position.gps_alt),
-                        alt_data: new Array(),
-                        path_enabled: vehicle_type == "balloon" && position.vehicle.toLowerCase().indexOf("iss") == -1,
-                        follow: false,
-                        color_index: color_index};
-    vehicles.push(vehicle_info);
-    //marker.setMap(map);
-  }
-  var vehicle_index = $.inArray(position.vehicle, vehicle_names);
-  
-  //
-  // check if sequence already exists
-  //
-  var seq = findPosition(vehicles[vehicle_index].positions, position);
-  if(seq == -1) {
-	  vehicles[vehicle_index].num_positions++;
+// check if the vehicle is already in the list, if not create a new item
+    if($.inArray(position.vehicle, vehicle_names) == -1) {
+        vehicle_names.push(position.vehicle);
+        var marker = null;
+        var marker_shadow = null;
+        var vehicle_type = "";
+        var horizon_circle = null;
+        var subhorizon_circle = null;
+        var point = new google.maps.LatLng(position.gps_lat, position.gps_lon);
+        var image_src = "";
+        var color_index = 0;
+        if(position.vehicle.search(/(chase)|(car)/i) != -1  // whitelist
+           && position.vehicle.search(/icarus/i) == -1) {  // blacklist
+            vehicle_type = "car";
+            color_index = car_index++;
+            var c = color_index % car_colors.length;
+            var image_src = host_url + markers_url + "car-" + car_colors[c] + ".png";
 
-    var prev_position = vehicles[vehicle_index].curr_position;
-    vehicles[vehicle_index].curr_position = insertPosition(vehicles[vehicle_index], position);
-    
-    // calculate ascent rate:
-    if(vehicles[vehicle_index].num_positions == 0) {
-      vehicles[vehicle_index].ascent_rate = 0;
-    } else if(vehicles[vehicle_index].curr_position != prev_position) { // if not out-of-order
-      dt = convert_time(position.gps_time)
-         - convert_time(prev_position.gps_time);
-      if(dt != 0) {
-        rate = (position.gps_alt - prev_position.gps_alt) / dt;
-        vehicles[vehicle_index].ascent_rate = 0.7 * rate
-                                            + 0.3 * vehicles[vehicle_index].ascent_rate;
-      }
+            marker = new google.maps.Marker({
+                icon: image_src,
+                position: point,
+                size: new google.maps.Size(55,25),
+                map: map
+            });
+        } else {
+            vehicle_type = "balloon";
+            color_index = balloon_index++;
+            var c = color_index % balloon_colors.length;
+            
+            image_src = host_url + markers_url + "balloon-" + balloon_colors[c] + ".png";
+            marker_shadow = new google.maps.Marker({
+                map: map,
+                position: point,
+                icon: new google.maps.MarkerImage(
+                    host_url + markers_url + "shadow.png",
+                    new google.maps.Size(24,16),
+                    null,
+                    new google.maps.Point(12,8)
+                ),
+                clickable: false
+            });
+            marker = new google.maps.Marker({
+                map: map,
+                position: point,
+                icon: image_src,
+                clickable: false,
+            });
+            marker.shadow = marker_shadow;
+            marker.balloonColor = balloon_colors[c];
+            marker.setMode = function(mode) {
+                var img;
+                if(mode == "landed") {
+                    img = host_url + markers_url + "landed-" + this.balloonColor + ".png";
+                } else if(mode == "parachute") {
+                    img = host_url + markers_url + "parachute-" + this.balloonColor + ".png";
+                } else {
+                    img = host_url + markers_url + "balloon-" + this.balloonColor + ".png";
+                }
+                this.setIcon(img);
+            }
+            marker.setAltitude = function(alt) {
+                var pos = overlay.getProjection().fromLatLngToDivPixel(this.shadow.getPosition());
+                pos.y -= alt;
+                this.setPosition(overlay.getProjection().fromDivPixelToLatLng(pos));
+            }
+            marker.setAltitude(0);
+                 
+            horizon_circle = new google.maps.Circle({
+                map: map,
+                radius: 1,
+                fillColor: '#00F',
+                fillOpacity: 0.1,
+                strokeColor: '#00F',
+                strokeOpacity: 0.6,
+                strokeWeight: 3,
+                clickable: false,
+                editable: false
+            });
+            horizon_circle.bindTo('center', marker_shadow, 'position');
+            subhorizon_circle = new google.maps.Circle({
+                map: map,
+                radius: 1,
+                fillColor: '#0F0',
+                fillOpacity: 0.1,
+                strokeColor: '#0F0',
+                strokeOpacity: 0.6,
+                strokeWeight: 3,
+                clickable: false,
+                editable: false
+            });
+            subhorizon_circle.bindTo('center', marker_shadow, 'position');
+        }
+        var vehicle_info = {vehicle_type: vehicle_type,
+                            ascent_rate: 0,
+                            marker: marker,
+                            marker_shadow: marker_shadow,
+                            image_src: image_src,
+                            horizon_circle: horizon_circle,
+                            subhorizon_circle: subhorizon_circle,
+                            num_positions: 0,
+                            positions: new google.maps.MVCArray,
+                            curr_position: position,
+                            line: [],
+                            polyline: new google.maps.Polyline({
+                                map: map,
+                                strokeColor: balloon_colors[color_index],
+                                strokeOpacity: 0.8,
+                                strokeOpacity: 3,
+                                clickable: false,
+                                draggable: false,
+                            }),
+                            prediction: null,
+                            ascent_rate: 0.0,
+                            max_alt: parseFloat(position.gps_alt),
+                            alt_data: new Array(),
+                            path_enabled: vehicle_type == "balloon" && position.vehicle.toLowerCase().indexOf("iss") == -1,
+                            follow: false,
+                            color_index: color_index};
+        vehicles.push(vehicle_info);
     }
-	} else { // sequence already exists
-    // Doesn't work in IE7 or IE8 :-(
-    // if (vehicles[vehicle_index].positions[seq].callsign.split(",").indexOf(position.callsign) === -1)
-    if (("," + vehicles[vehicle_index].positions[seq].callsign + ",").indexOf("," + position.callsign + ",") === -1)
-      vehicles[vehicle_index].positions[seq].callsign += "," + position.callsign;
-	}
-  if(parseFloat(position.gps_alt) > vehicles[vehicle_index].max_alt) {
-    vehicles[vehicle_index].max_alt = parseFloat(position.gps_alt);
-  }
+
+    var vehicle_index = $.inArray(position.vehicle, vehicle_names);
+    var vehicle = vehicles[vehicle_index];
+    var new_latlng = new google.maps.LatLng(position.gps_lat, position.gps_lon);
+    
+    // if position array has at least 1 position
+    if(vehicle.num_positions > 0) {
+        if(vehicle.curr_position.gps_lat == position.gps_lat
+           && vehicle.curr_position.gps_lon == position.gps_lon) {
+            if (("," + vehicle.curr_position.callsign + ",").indexOf("," + position.callsign + ",") === -1) {
+              vehicle.curr_position.callsign += "," + position.callsign;
+            }
+        } else {
+            // add the new position
+            vehicle.positions.push(new_latlng);
+            vehicle.num_positions++;
+
+            dt = convert_time(position.gps_time)
+               - convert_time(vehicle.curr_position.gps_time);
+
+            if(dt != 0) {
+                rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
+                vehicle.ascent_rate = 0.7 * rate
+                                      + 0.3 * vehicles[vehicle_index].ascent_rate;
+            }
+
+            vehicle.curr_position = position;
+        }
+    } else {
+        vehicle.positions.push(new_latlng);
+	    vehicle.num_positions++;
+        vehicle.curr_position = position;
+    }
+  
+    // record the highest altitude
+    if(parseFloat(position.gps_alt) > vehicle.max_alt) {
+        vehicle.max_alt = parseFloat(position.gps_alt);
+    }
+
+    return;
 }
 
 function refresh() {
@@ -1015,12 +1010,7 @@ function update(response) {
     return;
   }
   
-  num_updates++;
-  var num_positions = response.positions.position.length;
-  status = "Received " + num_positions + " new position" + (num_positions == 1 ? "" : "s")+ ".";
-
   var updated_position = false;
-  var pictures_added = false;
   for (i = 0; i < response.positions.position.length; i++) {
     var position = response.positions.position[i];
     if (!position.picture) {
@@ -1030,10 +1020,6 @@ function update(response) {
     }
   }
 
-  if(pictures_added) {
-    $('#scroll_pane').animate({scrollLeft: '' + $('#scroll_pane').width() + 'px'}, 1000);
-  }
-  
   if (response.positions.position.length > 0) {
     var position = response.positions.position[response.positions.position.length-1];
     position_id = position.position_id;

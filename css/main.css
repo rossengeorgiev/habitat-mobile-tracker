@@ -11,6 +11,10 @@ html, body {
     overflow: hidden;
 }
 
+#map img {
+    max-width: none;
+}
+
 #loading {
     position: absolute;
     z-index: 99;
