@@ -27,9 +27,8 @@ var signals_seq = -1;
 var car_index = 0;
 var car_colors = ["blue", "red", "green", "yellow"];
 var balloon_index = 0;
-var balloon_colors = ["red", "blue", "green", "yellow"];
-
-var color_table = new Array("#a00", "#00f", "#063", "#f60", "#036", "#C33","#636" ,"#000");
+var balloon_colors_name = ["red", "blue", "green", "yellow", "purple", "orange", "cyan"];
+var balloon_colors = ["green", "blue", "green", "#ff0", "#c700e6", "#ff8a0f", "#0fffca"];
 
 var map = null;
 var overlay = null;
@@ -349,137 +348,6 @@ function updateVehicleInfo(index, position) {
   return true;
 }
 
-function showSignals(index, position) {
-  if(!position) return;
-  if(signals_seq == position.sequence) return;
-  hideSignals();
-  signals_seq = position.sequence;
-  signals = [];
-  if(position.callsign == "") return;
-  var callsigns = position.callsign.split(",");
-  for(var i = 0, ii = callsigns.length; i < ii; i++) {
-  	// check receivers first:
-    var r_index = $.inArray(callsigns[i], receiver_names);
-    if(r_index != -1) {
-      var receiver = receivers[r_index];
-      var latlngs = [];
-      latlngs.push(new google.maps.LatLng(position.gps_lat, position.gps_lon));
-      latlngs.push(new google.maps.LatLng(receiver.lat, receiver.lon));
-      var poly = new GPolyline(latlngs, "#00FF00", 2, 0.5);
-      signals.push(poly);
-      map.addOverlay(poly);
-    } else {
-    	// if nothing found, check vehicles:
-    	var vehicle_index;
-    	var r = new RegExp(callsigns[i], "i"); // check if callsign is contained in vehicle name
-    	for(vehicle_index = 0, iii = vehicle_names.length; vehicle_index < iii; vehicle_index++) {
-    		if(vehicle_names[vehicle_index].search(r) != -1) break;
-    	}
-    	if(vehicle_index != vehicle_names.length
-         && vehicle_names[vehicle_index].toLowerCase() != callsigns[i].toLowerCase()) {
-	      var vehicle_pos = vehicles[vehicle_index].curr_position;
-	      var latlngs = [];
-	      latlngs.push(new google.maps.LatLng(position.gps_lat, position.gps_lon));
-	      latlngs.push(new google.maps.LatLng(vehicle_pos.gps_lat, vehicle_pos.gps_lon));
-	      var poly = new GPolyline(latlngs, "#00FF00", 2, 0.5);
-	      signals.push(poly);
-	      map.addOverlay(poly);
-      }
-    }
-  }
-}
-
-function hideSignals() {
-  if(!signals) return;
-  for(var i = 0, ii = signals.length; i <<i; i++) {
-    map.removeOverlay(signals[i]);
-  }
-  signals = null;
-  signals_seq = -1;
-}
-
-function showSelector(latlng, color) {
-  if(!selector) {
-    selector = new Selector(latlng, {color: color});
-    map.addOverlay(selector);
-  } else {
-  	selector.setPosition(latlng);
-  	selector.setColor(color);
-  }
-}
-
-function hideSelector() {
-	if(selector) {
-	  map.removeOverlay(selector);
-	  selector = null;
-  }
-}
-
-function mouseVehiclePos(latlng) {
-    return;
-	if(!latlng) {
-		return null;
-	}
-	var vehicle_index = -1, pos, best_dist = 9999999999;
-	var p1 = map.fromLatLngToDivPixel(latlng);
-	for(var v = 0, vv = vehicles.length; v < vv; v++) {
-		if(!vehicles[v].path_enabled) {
-			continue;
-		}
-		for(var i = 0, ii =vehicles[v].line.length; i < ii; i++) { // note: skip the last pos
-			var p2 = map.fromLatLngToDivPixel(vehicles[v].line[i]);
-			var dist = Math.sqrt(Math.pow(p2.x-p1.x, 2) + Math.pow(p2.y-p1.y,2));
-			if(dist < best_dist) {
-				best_dist = dist;
-				vehicle_index = v;
-				pos = i;
-			}
-		}
-	}
-	
-	if(vehicle_index != -1 && best_dist < 16) {
-		return {vehicle_index: vehicle_index, pos: pos};
-	} else {
-		return null;
-	}
-}
-
-function mouseMove(latlng) {
-	var result = mouseVehiclePos(latlng);
-	
-	if(result) {
-    if(result.pos < vehicles[result.vehicle_index].line.length-1) { // do not show marker for current pos
-		  showSelector(vehicles[result.vehicle_index].line[result.pos], color_table[result.vehicle_index]);
-		  selector.setHtml(getInfoHtml(result.vehicle_index, vehicles[result.vehicle_index].positions[result.pos]));
-    } else {
-      hideSelector();
-    }
-    showSignals(result.vehicle_index, vehicles[result.vehicle_index].positions[result.pos]);
-	} else {
-		hideSelector();
-    hideSignals();
-	}
-}
-
-function mouseClick(latlng) {
-	if(selector) {
-		if(window_selector) {
-			map.removeOverlay(window_selector);
-			window_selector = null;
-		}
-		window_selector = selector.copy();
-		map.addOverlay(window_selector);
-		window_selector.openInfoWindow();
-	}
-}
-
-function infoWindowCloseEvent() {
-	if(!selector && window_selector) {
-		map.removeOverlay(window_selector);
-		window_selector = null;
-	}
-}
-
 function pad(number, length) {
   var str = '' + number;
   while (str.length < length) {
@@ -554,7 +422,7 @@ function redrawPrediction(vehicle_index) {
     }
 		
     if(vehicle_names[vehicle_index] != "wb8elk2") { // WhiteStar
-        var image_src = host_url + markers_url + "target-" + balloon_colors[vehicles[vehicle_index].color_index] + ".png";
+        var image_src = host_url + markers_url + "target-" + balloon_colors_name[vehicles[vehicle_index].color_index] + ".png";
         /*
         //icon.infoWindowAnchor = new google.maps.Point(13,5);
         
@@ -686,7 +554,7 @@ function addPosition(position) {
             color_index = balloon_index++;
             var c = color_index % balloon_colors.length;
             
-            image_src = host_url + markers_url + "balloon-" + balloon_colors[c] + ".png";
+            image_src = host_url + markers_url + "balloon-" + balloon_colors_name[c] + ".png";
             marker_shadow = new google.maps.Marker({
                 map: map,
                 position: point,
@@ -705,7 +573,7 @@ function addPosition(position) {
                 title: position.vehicle,
             });
             marker.shadow = marker_shadow;
-            marker.balloonColor = balloon_colors[c];
+            marker.balloonColor = balloon_colors_name[c];
             marker.setMode = function(mode) {
                 var img;
                 if(mode == "landed") {
