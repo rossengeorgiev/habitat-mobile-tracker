@@ -18,9 +18,6 @@ rm -f mobile.js
 cat jquery* iscroll.js >> mobile.js
 
 # compile the rest
-java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimizations --nomunge BDCCCircle.js >> mobile.js
-java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimizations --nomunge PolylineEncoder.js >> mobile.js
-java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimizations --nomunge balloonmarker.js >> mobile.js
 java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimizations --nomunge chasecar.lib.js >> mobile.js
 java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimizations --nomunge tracker.js >> mobile.js
 java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimizations --nomunge app.js >> mobile.js

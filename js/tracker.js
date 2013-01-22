@@ -70,35 +70,8 @@ function unload() {
   google.maps.Unload();
 }
 
-var num_pics = 0;
-
-function insertPicture(thumb_url, pic_url, text, title) {
-  var table_pics = $('#picture_table_pics');
-  table_pics.append('<td colspan="2" style="text-align: center;"><a href="' + pic_url + '" rel="lightbox[pics]" title="' + title + '"><img src="' + thumb_url + '" /></a></td>');
-  var table_txts = $('#picture_table_txts');
-  table_txts.append('<td style="border-right: 0; font-size: 15px; font-weight:bold; color: gray;" width="32">' + (num_pics+1) + '</td>');
-  table_txts.append('<td align=left>' + text + '</td>');
-  
-  num_pics++;
-
-  // update slimbox
-  if (!/android|iphone|ipod|series60|symbian|windows ce|blackberry/i.test(navigator.userAgent)) {
-    jQuery(function($) {
-      $("a[rel^='lightbox']").slimbox({/* Put custom options here */}, null, function(el) {
-        return (this == el) || ((this.rel.length > 8) && (this.rel == el.rel));
-      });
-    });
-  }
-
-  //$('#scroll_pane').animate({scrollLeft: '' + $('#scroll_pane').width() + 'px'}, 1000);
-}
-
-function addPicture(vehicle, gps_time, gps_lat, gps_lon, gps_alt, gps_heading, gps_speed, picture) {
-  insertPicture("pics/thumb-" + picture, "pics/" + picture, "<b>Time:</b> " + gps_time.split(" ")[1] + "<br /><b>Altitude:</b> " + gps_alt + " m<br />", "Altitude: " + gps_alt + " m");
-}
-
 function panTo(vehicle_index) {
-  map.panTo(new google.maps.LatLng(vehicles[vehicle_index].curr_position.gps_lat, vehicles[vehicle_index].curr_position.gps_lon));
+  map.panTo(vehicles[vehicle_index].marker_shadow.getPosition());
 }
 
 function optional(caption, value, postfix) {
@@ -181,27 +154,36 @@ function habitat_data(jsondata) {
     if (jsondata === undefined || jsondata === "")
       return "";
 
-    var data = eval("(" + jsondata + ")");
-    var output = [];
+    var data = $.parseJSON(jsondata);
+    var array = [];
+    var output = "";
 
-    for (var key in data) {
-      if (hide_keys[key] === true)
+    for(var key in data) {
+        array.push([key, data[key]]);
+    }
+    
+    array.sort(function(a, b) {
+        return a[0].localeCompare(b[0]);    
+    });
+
+    for(var i = 0, ii = array.length; i < ii; i++) {
+      var k = array[i][0]; // key
+      var v = array[i][1]; // value
+      if (hide_keys[k] === true)
         continue;
 
       var name = "", suffix = "";
-      if (keys[key] !== undefined)
-        name = keys[key];
+      if (keys[k] !== undefined)
+        name = keys[k];
       else
-        name = guess_name(key);
+        name = guess_name(k);
 
-      if (suffixes[key] !== undefined)
-        suffix = " " + suffixes[key];
+      if (suffixes[k] !== undefined)
+        suffix = " " + suffixes[k];
 
-      output.push("<dt>" + data[key] + suffix + "</dt><dd>" + name + "</dd>");
+      output += "<dt>" + v + suffix + "</dt><dd>" + name + "</dd>";
     }
-
-    output.sort();
-    return output.join(" ");
+    return output;
   }
   catch (error)
   {
@@ -238,17 +220,12 @@ function updateZoom() {
 
 
 function followVehicle(index) {
-	if(follow_vehicle != -1) {
-		vehicles[follow_vehicle].follow = false;
-		$('#btn_follow_' + follow_vehicle).removeClass('vehicle_button_enabled');
-	}
+	if(follow_vehicle != -1) vehicles[follow_vehicle].follow = false;
 	
-	if(follow_vehicle == index) {
-		follow_vehicle = -1;
-	} else {
+	if(follow_vehicle != index) {
+        panTo(index);
 		follow_vehicle = index;
 		vehicles[follow_vehicle].follow = true;
-		$('#btn_follow_' + follow_vehicle).addClass('vehicle_button_enabled');
 	}
 }
 
@@ -510,10 +487,15 @@ function pad(number, length) {
   return str;
 }
 
-function addMarker(icon, latlng, html) {
+function addMarker(icon, latlng) {
     var marker = new google.maps.Marker({
         position: latlng,
-        icon: icon,
+        icon: new google.maps.MarkerImage(
+                    icon,
+                    null,
+                    null,
+                    new google.maps.Point(15,15)
+        ),
         map: map,
         clickable: false
     });
@@ -523,21 +505,22 @@ function addMarker(icon, latlng, html) {
 
 function removePrediction(vehicle_index) {
   if(vehicles[vehicle_index].prediction_polyline) {
-    map.removeOverlay(vehicles[vehicle_index].prediction_polyline);
+    vehicles[vehicle_index].prediction_polyline.setMap(null);
     vehicles[vehicle_index].prediction_polyline = null;
   }
   if(vehicles[vehicle_index].prediction_target) {
-    map.removeOverlay(vehicles[vehicle_index].prediction_target);
+    vehicles[vehicle_index].prediction_target.setMap(null);
     vehicles[vehicle_index].prediction_target = null;
   }
   if(vehicles[vehicle_index].prediction_burst) {
-    map.removeOverlay(vehicles[vehicle_index].prediction_burst);
+    vehicles[vehicle_index].prediction_burst.setMap(null);
     vehicles[vehicle_index].prediction_burst = null;
   }
 }
 
 function redrawPrediction(vehicle_index) {
-	var data = vehicles[vehicle_index].prediction.data;
+    var vehicle = vehicles[vehicle_index];
+	var data = vehicle.prediction.data;
 	if(data.warnings || data.errors) return;
 
     var line = [];
@@ -554,19 +537,25 @@ function redrawPrediction(vehicle_index) {
             burst_index = i;
         }
     }
-    removePrediction(vehicle_index);
-    //map.addOverlay(polyline);
+
+    if(vehicle.prediction_polyline) {
+        vehicle.prediction_polyline.setPath(line);
+    } else {
+        vehicle.prediction_polyline = new google.maps.Polyline({
+            map: map,
+            path: line,
+            strokeColor: balloon_colors[vehicle.color_index],
+            strokeOpacity: 0.4,
+            strokeWeight: 3,
+            clickable: false,
+            draggable: false,
+        });
+    }
 		
     if(vehicle_names[vehicle_index] != "wb8elk2") { // WhiteStar
         var image_src = host_url + markers_url + "target-" + balloon_colors[vehicles[vehicle_index].color_index] + ".png";
         /*
-        var icon = new google.maps.Icon({
-            url: image_src,
-            anchor: new google.maps.Point(13,13),
-            size: new google.maps.Size(25,25),
-        });
         //icon.infoWindowAnchor = new google.maps.Point(13,5);
-        */
         
         var time = new Date(data[data.length-1].time * 1000);
         var time_string = pad(time.getUTCHours(), 2) + ':' + pad(time.getUTCMinutes(), 2) + ' UTC';
@@ -574,17 +563,20 @@ function redrawPrediction(vehicle_index) {
                    + '<p style="font-size: 10pt;">'
                    + data[data.length-1].lat + ', ' + data[data.length-1].lon + ' at ' + time_string
                    + '</p>';
-        vehicles[vehicle_index].prediction_target = addMarker(image_src, latlng, html);
+        */
+        var html = "";
+        if(vehicle.prediction_target) {
+            vehicle.prediction_target.setPosition(latlng);
+        } else {
+            vehicle.prediction_target = addMarker(image_src, latlng);
+        }
     } else {
-        vehicles[vehicle_index].prediction_target = null;
+        if(vehicle.prediction_target) vehicle.prediction_target = null;
     }
   
     if(burst_index != 0 && vehicle_names[vehicle_index] != "wb8elk2") {
-        var icon = new google.maps.Icon({
-            url: host_url + markers_url + "balloon-pop.png",
-            size: new google.maps.Size(35,32),
-            anchor: new google.maps.Point(18,15)   
-        });
+        var icon = host_url + markers_url + "balloon-pop.png";
+        /*
         //icon.infoWindowAnchor = new google.maps.Point(18,5);
         
         var time = new Date(data[burst_index].time * 1000);
@@ -593,12 +585,15 @@ function redrawPrediction(vehicle_index) {
                          + '<p style="font-size: 10pt;">'
                          + data[burst_index].lat + ', ' + data[burst_index].lon + ', ' + Math.round(data[burst_index].alt) + ' m at ' + time_string
                          + '</p>';
-        vehicles[vehicle_index].prediction_burst = addMarker(icon, latlng_burst, html);
+        */
+        if(vehicle.prediction_target) {
+            vehicle.prediction_burst.setPosition(latlng);
+        } else {
+            vehicle.prediction_burst = addMarker(image_src, latlng);
+        }
     } else {
-        vehicles[vehicle_index].prediction_burst = null;
+        if(vehicle.prediction_burst) vehicle.prediction_burst = null;
     }
-		
-    vehicles[vehicle_index].prediction_polyline = polyline;
 }
 
 function updatePolyline(vehicle_index) {
@@ -706,7 +701,7 @@ function addPosition(position) {
                 map: map,
                 position: point,
                 icon: image_src,
-                clickable: false,
+                title: position.vehicle,
             });
             marker.shadow = marker_shadow;
             marker.balloonColor = balloon_colors[c];
@@ -732,9 +727,9 @@ function addPosition(position) {
                 map: map,
                 radius: 1,
                 fillColor: '#00F',
-                fillOpacity: 0.1,
+                fillOpacity: 0,
                 strokeColor: '#00F',
-                strokeOpacity: 0.6,
+                strokeOpacity: 0.5,
                 strokeWeight: 3,
                 clickable: false,
                 editable: false
@@ -744,7 +739,7 @@ function addPosition(position) {
                 map: map,
                 radius: 1,
                 fillColor: '#0F0',
-                fillOpacity: 0.1,
+                fillOpacity: 0,
                 strokeColor: '#0F0',
                 strokeOpacity: 0.6,
                 strokeWeight: 3,
@@ -768,7 +763,7 @@ function addPosition(position) {
                                 map: map,
                                 strokeColor: balloon_colors[color_index],
                                 strokeOpacity: 0.8,
-                                strokeOpacity: 3,
+                                strokeWeight: 3,
                                 clickable: false,
                                 draggable: false,
                             }),
@@ -784,34 +779,39 @@ function addPosition(position) {
 
     var vehicle_index = $.inArray(position.vehicle, vehicle_names);
     var vehicle = vehicles[vehicle_index];
-    var new_latlng = new google.maps.LatLng(position.gps_lat, position.gps_lon);
-    
-    // if position array has at least 1 position
-    if(vehicle.num_positions > 0) {
-        if(vehicle.curr_position.gps_lat == position.gps_lat
-           && vehicle.curr_position.gps_lon == position.gps_lon) {
-            if (("," + vehicle.curr_position.callsign + ",").indexOf("," + position.callsign + ",") === -1) {
-              vehicle.curr_position.callsign += "," + position.callsign;
+
+    if(vehicle.vehicle_type == "balloon") {
+        var new_latlng = new google.maps.LatLng(position.gps_lat, position.gps_lon);
+        
+        // if position array has at least 1 position
+        if(vehicle.num_positions > 0) {
+            if(vehicle.curr_position.gps_lat == position.gps_lat
+               && vehicle.curr_position.gps_lon == position.gps_lon) {
+                if (("," + vehicle.curr_position.callsign + ",").indexOf("," + position.callsign + ",") === -1) {
+                  vehicle.curr_position.callsign += "," + position.callsign;
+                }
+            } else {
+                // add the new position
+                vehicle.positions.push(new_latlng);
+                vehicle.num_positions++;
+
+                dt = convert_time(position.gps_time)
+                   - convert_time(vehicle.curr_position.gps_time);
+
+                if(dt != 0) {
+                    rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
+                    vehicle.ascent_rate = 0.7 * rate
+                                          + 0.3 * vehicles[vehicle_index].ascent_rate;
+                }
+
+                vehicle.curr_position = position;
             }
         } else {
-            // add the new position
             vehicle.positions.push(new_latlng);
             vehicle.num_positions++;
-
-            dt = convert_time(position.gps_time)
-               - convert_time(vehicle.curr_position.gps_time);
-
-            if(dt != 0) {
-                rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
-                vehicle.ascent_rate = 0.7 * rate
-                                      + 0.3 * vehicles[vehicle_index].ascent_rate;
-            }
-
             vehicle.curr_position = position;
         }
-    } else {
-        vehicle.positions.push(new_latlng);
-	    vehicle.num_positions++;
+    } else { // if car
         vehicle.curr_position = position;
     }
   
@@ -845,81 +845,74 @@ function refresh() {
 }
 
 function refreshReceivers() {
-  //$('#status_bar').html('<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing receivers ...');
-
-  $.ajax({
-    type: "GET",
-    url: receivers_url,
-    data: "",
-    dataType: "json",
-    success: function(response, textStatus) {
-                updateReceivers(response);
-             },
-    complete: function(request, textStatus) {
-                // remove the spinner
-                //$('status_bar').removeClass('ajax_loading');
-                //$('#status_bar').html(status);
-                periodical_listeners = setTimeout(refreshReceivers, 60 * 1000);
-           }
-  });
+    $.ajax({
+        type: "GET",
+        url: receivers_url,
+        data: "",
+        dataType: "json",
+        success: function(response, textStatus) {
+                    updateReceivers(response);
+                 },
+        complete: function(request, textStatus) {
+                    // remove the spinner
+                    //$('status_bar').removeClass('ajax_loading');
+                    //$('#status_bar').html(status);
+                    periodical_listeners = setTimeout(refreshReceivers, 60 * 1000);
+               }
+    });
 }
 
 function refreshPredictions() {
-  //$('#status_bar').html('<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing predictions ...');
-
-  $.ajax({
-    type: "GET",
-    url: predictions_url,
-    data: "",
-    dataType: "json",
-    success: function(response, textStatus) {
-                updatePredictions(response);
-             },
-    complete: function(request, textStatus) {
-                // remove the spinner
-                //$('status_bar').removeClass('ajax_loading');
-                //$('#status_bar').html(status);
-                periodical_predictions = setTimeout(refreshPredictions, 2 * timer_seconds * 1000);
-           }
-  });
+    $.ajax({
+        type: "GET",
+        url: predictions_url,
+        data: "",
+        dataType: "json",
+        success: function(response, textStatus) {
+                    updatePredictions(response);
+                 },
+        complete: function(request, textStatus) {
+                    // remove the spinner
+                    //$('status_bar').removeClass('ajax_loading');
+                    //$('#status_bar').html(status);
+                    periodical_predictions = setTimeout(refreshPredictions, 2 * timer_seconds * 1000);
+               }
+    });
 }
 
 var periodical, periodical_receivers, periodical_predictions;
-var timer_seconds = 30;
+var timer_seconds = 3;
 
 function startAjax() {
-  // prevent insane clicks to start numerous requests
-  clearTimeout(periodical);
-  clearTimeout(periodical_receivers);
-  clearTimeout(periodical_predictions);
-
-  /* a bit of fancy styles */
-  //$('status_bar').innerHTML = '<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing ...';
-
-  // the periodical starts here, the * 1000 is because milliseconds required
-  
-  //periodical = setInterval(refresh, timer_seconds * 1000);
-  refresh();
-
-  //periodical_listeners = setInterval(refreshReceivers, 60 * 1000);
-  refreshReceivers();
-  
-  //periodical_predictions = setInterval(refreshPredictions, 2 * timer_seconds * 1000);
-  refreshPredictions();
+    // prevent insane clicks to start numerous requests
+    clearTimeout(periodical);
+    clearTimeout(periodical_receivers);
+    clearTimeout(periodical_predictions);
+    
+    // the periodical starts here, the * 1000 is because milliseconds required
+    
+    //periodical = setInterval(refresh, timer_seconds * 1000);
+    refresh();
+    
+    //periodical_listeners = setInterval(refreshReceivers, 60 * 1000);
+    refreshReceivers();
+    
+    //periodical_predictions = setInterval(refreshPredictions, 2 * timer_seconds * 1000);
+    refreshPredictions();
 }
 
 function stopAjax() {
-  // stop our timed ajax
-  clearTimeout(periodical);
+    // stop our timed ajax
+    clearTimeout(periodical);
 }
 
 function centerAndZoomOnBounds(bounds) {
     var center = bounds.getCenter();
     var newZoom = map.getBoundsZoomLevel(bounds);
     if (map.getZoom() != newZoom) {
-      map.setCenter(center, newZoom);
+        map.setCenter(center, newZoom);
     } else {
-      map.panTo(center);
+        map.panTo(center);
     }
 }
 
@@ -936,6 +929,7 @@ function updateCurrentPosition(lat, lon) {
             size:  new google.maps.Size(19,40),
             anchor: new google.maps.Point(9,40),
             map: map,
+            title: "Your current position",
             animation: google.maps.Animation.DROP
         });
     } else {
@@ -955,6 +949,7 @@ function updateReceiverMarker(receiver) {
         size: new google.maps.Size(26,32),
         anchor: new google.maps.Point(13,30),
         map: map,
+        title: receiver.name,
         animation: google.maps.Animation.DROP
     });
   } else {
@@ -963,43 +958,42 @@ function updateReceiverMarker(receiver) {
 }
 
 function updateReceivers(r) {
-  for(var i = 0, ii = r.length; i < ii; i++) {
-    var lat = parseFloat(r[i].lat);
-    var lon = parseFloat(r[i].lon);
-    if(lat < -90 || lat > 90 || lon < -180 || lon > 180) continue;
-    var r_index = $.inArray(r[i].name, receiver_names);
-    var receiver = null;
-    if(r_index == -1) {
-      receiver_names.push(r[i].name);
-      r_index = receiver_names.length - 1;
-      receivers[r_index] = {marker: null};
-    } 
-    receiver = receivers[r_index];
-    receiver.name = r[i].name;
-    receiver.lat = lat;
-    receiver.lon = lon;
-    receiver.alt = parseFloat(r[i].alt);
-    receiver.description = r[i].description;
-    updateReceiverMarker(receiver);  
-  }
-}
+    for(var i = 0, ii = r.length; i < ii; i++) {
+        var lat = parseFloat(r[i].lat);
+        var lon = parseFloat(r[i].lon);
+        if(lat < -90 || lat > 90 || lon < -180 || lon > 180) continue;
+        var r_index = $.inArray(r[i].name, receiver_names);
+        var receiver = null;
+        if(r_index == -1) {
+            receiver_names.push(r[i].name);
+            r_index = receiver_names.length - 1;
+            receivers[r_index] = {marker: null};
+        } 
+        receiver = receivers[r_index];
+        receiver.name = r[i].name;
+        receiver.lat = lat;
+        receiver.lon = lon;
+        receiver.alt = parseFloat(r[i].alt);
+        receiver.description = r[i].description;
+        updateReceiverMarker(receiver);  
+        }
+    }
 
 function updatePredictions(r) {
-    return; // skip for now
     for(var i = 0, ii = r.length; i < ii; i++) {
 		var vehicle_index = $.inArray(r[i].vehicle, vehicle_names);
 		if(vehicle_index != -1) {
 			if(vehicles[vehicle_index].prediction && vehicles[vehicle_index].prediction.time == r[i].time) {
 				continue;
 			}
-      vehicles[vehicle_index].prediction = r[i];
-      if(parseInt(vehicles[vehicle_index].prediction.landed) == 0) {
-		  	vehicles[vehicle_index].prediction.data = eval('(' + r[i].data + ')');
-			  redrawPrediction(vehicle_index);
-      } else {
-        removePrediction(vehicle_index); 
-      }
-		}
+            vehicles[vehicle_index].prediction = r[i];
+            if(parseInt(vehicles[vehicle_index].prediction.landed) == 0) {
+                vehicles[vehicle_index].prediction.data = eval('(' + r[i].data + ')');
+                redrawPrediction(vehicle_index);
+            } else {
+                removePrediction(vehicle_index); 
+            }
+	    }
 	}
 }
 
@@ -1051,15 +1045,3 @@ function update(response) {
   
   if(listScroll) listScroll.refresh();
 }
-
-function redrawPlot(vehicle_index) {
-  var tabname = vehicle_names[vehicle_index].replace("/", "_");
-  $.plot($("#graph-"+tabname),
-         [{ data: vehicles[vehicle_index].alt_data, color: color_table[vehicle_index]
-            /*,label: vehicle_names[vehicle_index]*/}],
-                   { xaxis:
-                   { mode: "time" },
-                   grid: { borderWidth: 1, borderColor: "gray",
-                           backgroundColor: { colors: ["#fff", "#eee"] }}});
-}
-

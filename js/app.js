@@ -164,7 +164,7 @@ $(window).ready(function() {
             }
             
             // pan to selected vehicle
-            panTo(parseInt(e.attr('class').match(/vehicle(\d+)/)[1]));
+            followVehicle(parseInt(e.attr('class').match(/vehicle(\d+)/)[1]));
         }
     });
 
