@@ -14,6 +14,7 @@ var receivers = [];
 var num_updates = 0;
 var got_positions = false;
 var zoomed_in = false;
+var expanded_onload = false;
 var max_positions = 0; // maximum number of positions that ajax request should return (0 means no maximum)
 var selector = null;
 var window_selector = null;
@@ -222,8 +223,9 @@ function updateZoom() {
 function followVehicle(index) {
 	if(follow_vehicle != -1) vehicles[follow_vehicle].follow = false;
 	
+    panTo(index);
+
 	if(follow_vehicle != index) {
-        panTo(index);
 		follow_vehicle = index;
 		vehicles[follow_vehicle].follow = true;
 	}
@@ -281,19 +283,23 @@ function updateVehicleInfo(index, position) {
 
   var image = vehicles[index].image_src;
 
-  //var container = $('vehicle' + index);
   var elm = $('.vehicle' + index);
   if (elm.length == 0) {
-    var active = (index == 0) ? 'active' : '';
+    var active = '';
+    if(!expanded_onload && vehicles[index].vehicle_type == "balloon") {
+        active = 'active';
+        expanded_onload = true;    
+    }
     $('.portrait').append('<div class="row '+active+' vehicle'+index+'"></div>');
     $('.landscape').append('<div class="row '+active+' vehicle'+index+'"></div>');
-    
+
   }
 
   var ascent_text = position.gps_alt != 0 ? vehicles[index].ascent_rate.toFixed(1) + ' m/s' : '';
   
   var coords_text;
   var ua =  navigator.userAgent.toLowerCase();
+  // determine how to link the vehicle coordinates to a native app, if on a mobile device
   if(ua.indexOf('iphone') > -1) { 
       coords_text = '<a id="launch_mapapp" href="http://maps.google.com/?q='+position.gps_lat+','+position.gps_lon+'">'
                     + roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6) +'</a>'
@@ -489,38 +495,6 @@ function convert_time(gps_time) {
   return date.getTime() / 1000; // seconds since 1/1/1970 @ 12:00 AM
 }
 
-function findPosition(positions, other) {
-  var sequence = other.sequence;
-	if (!sequence || sequence == '' || sequence == 0) {
-		return -1;
-	}
-	for(var i = 0, ii = positions.length; i < ii; i++) {
-		if(positions[i].sequence != sequence) continue;
-		if(positions[i].gps_lat != other.gps_lat) continue;
-		if(positions[i].gps_lon != other.gps_lon) continue;
-		if(positions[i].gps_time != other.gps_time) continue;
-    return i;
-	}
-	return -1;
-}
-
-  
-
-function insertPosition(vehicle, position) {
-  var i = vehicle.positions.length;
-  while(i--) {
-    if(i >= 0 && convert_time(vehicle.positions[i].server_time) < convert_time(position.server_time)) {
-      break;
-    }
-  }
-  vehicle.positions.splice(i+1, 0, position);
-  // add the point to form new lines
-  vehicle.line.splice(i+1, 0, new google.maps.LatLng(position.gps_lat, position.gps_lon));
-    var curr_time = convert_time(position.server_time)*1000;
-    vehicle.alt_data.splice(i+1, 0, new Array(curr_time, position.gps_alt));
-  return vehicle.positions[vehicle.positions.length-1];
-}
-
 function addPosition(position) { 
 
   position.sequence = position.sequence ? parseInt(position.sequence, 10) : null;
@@ -625,7 +599,7 @@ function addPosition(position) {
                             horizon_circle: horizon_circle,
                             subhorizon_circle: subhorizon_circle,
                             num_positions: 0,
-                            positions: new google.maps.MVCArray,
+                            positions: [],
                             curr_position: position,
                             line: [],
                             polyline: new google.maps.Polyline({
@@ -750,7 +724,7 @@ function refreshPredictions() {
 }
 
 var periodical, periodical_receivers, periodical_predictions;
-var timer_seconds = 30;
+var timer_seconds = 3;
 
 function startAjax() {
     // prevent insane clicks to start numerous requests
@@ -773,16 +747,6 @@ function startAjax() {
 function stopAjax() {
     // stop our timed ajax
     clearTimeout(periodical);
-}
-
-function centerAndZoomOnBounds(bounds) {
-    var center = bounds.getCenter();
-    var newZoom = map.getBoundsZoomLevel(bounds);
-    if (map.getZoom() != newZoom) {
-        map.setCenter(center, newZoom);
-    } else {
-        map.panTo(center);
-    }
 }
 
 var currentPosition = null;
@@ -900,15 +864,28 @@ function update(response) {
   }
   
   if (got_positions && !zoomed_in) {
-    map.panTo(vehicles[0].marker.getPosition());
-    /*
-  	if(vehicles[0].polyline) {
-    	centerAndZoomOnBounds(vehicles[0].polyline.getBounds());
-    } else {
-    	map.setCenter(vehicles[0].line[0]);
-    	map.setZoom(10);
-    }
-    */
+    // find a the first balloon
+    var i = 0;    
+    while(!vehicles[i].marker_shadow) i++;
+
+    // find the bounds of the ballons first and last positions
+    var bounds = new google.maps.LatLngBounds();
+    bounds.extend(vehicles[i].marker.getPosition());
+    bounds.extend(vehicles[i].positions[0]);
+    
+    // fit the map to those bounds
+    map.fitBounds(bounds);
+
+    // limit the zoom level to 11
+    if(map.getZoom() > 11) map.setZoom(11);
+
+    // pan and follow that balloon
+    followVehicle(i);
+
+    // scroll list to the expanded element
+    listScroll.refresh();
+    listScroll.scrollToElement('.portrait .vehicle'+i);
+
     zoomed_in = true;
   }
   
