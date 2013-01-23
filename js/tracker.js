@@ -71,7 +71,8 @@ function unload() {
 }
 
 function panTo(vehicle_index) {
-  map.panTo(vehicles[vehicle_index].marker_shadow.getPosition());
+  if(vehicles[vehicle_index].marker_shadow) map.panTo(vehicles[vehicle_index].marker_shadow.getPosition());
+  else map.panTo(vehicles[vehicle_index].marker.getPosition());
 }
 
 function optional(caption, value, postfix) {
