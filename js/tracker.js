@@ -50,6 +50,9 @@ function load() {
         zoomContro: true,
         scrollwheel: true
     });
+    
+    nite.init(map);
+    setInterval(function() { nite.refresh(); }, 300000); // 5min
 	
     // we need a dummy overlay to access getProjection()	
     overlay = new google.maps.OverlayView();
