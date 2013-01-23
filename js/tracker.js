@@ -29,7 +29,7 @@ var car_index = 0;
 var car_colors = ["blue", "red", "green", "yellow"];
 var balloon_index = 0;
 var balloon_colors_name = ["red", "blue", "green", "yellow", "purple", "orange", "cyan"];
-var balloon_colors = ["green", "blue", "green", "#ff0", "#c700e6", "#ff8a0f", "#0fffca"];
+var balloon_colors = ["red", "blue", "green", "#ff0", "#c700e6", "#ff8a0f", "#0fffca"];
 
 var map = null;
 var overlay = null;
