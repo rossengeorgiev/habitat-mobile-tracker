@@ -73,3 +73,6 @@
 .icon-question:before         { content: "\f004"; }
 .icon-location:before         { content: "\f005"; }
 .icon-target:before           { content: "\f006"; }
+.icon-earth:before            { content: "\f007"; }
+.icon-daylight:before         { content: "\f008"; }
+
