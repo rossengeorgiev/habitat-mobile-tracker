@@ -417,7 +417,7 @@ function redrawPrediction(vehicle_index) {
         }
     }
 
-    if(vehicle.prediction_polyline) {
+    if(typeof vehicle.prediction_polyline !== 'undefined') {
         vehicle.prediction_polyline.setPath(line);
     } else {
         vehicle.prediction_polyline = new google.maps.Polyline({
@@ -444,7 +444,7 @@ function redrawPrediction(vehicle_index) {
                    + '</p>';
         */
         var html = "";
-        if(vehicle.prediction_target) {
+        if(typeof vehicle.prediction_target !== 'undefined') {
             vehicle.prediction_target.setPosition(latlng);
         } else {
             vehicle.prediction_target = addMarker(image_src, latlng);
@@ -465,7 +465,7 @@ function redrawPrediction(vehicle_index) {
                          + data[burst_index].lat + ', ' + data[burst_index].lon + ', ' + Math.round(data[burst_index].alt) + ' m at ' + time_string
                          + '</p>';
         */
-        if(vehicle.prediction_target) {
+        if(typeof vehicle.prediction_burst !== 'undefined') {
             vehicle.prediction_burst.setPosition(latlng);
         } else {
             vehicle.prediction_burst = addMarker(image_src, latlng);
