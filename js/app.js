@@ -201,6 +201,11 @@ $(window).ready(function() {
             box.show();
         }
         checkSize();
+    })
+    .on('click', '.daylight', function() {
+        $('.nav .home').click();
+        if(nite.isVisible()) { nite.hide(); }
+        else { nite.show(); }
     });
 
     // toggle functionality for switch button

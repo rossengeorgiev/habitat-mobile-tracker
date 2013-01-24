@@ -52,6 +52,7 @@ function load() {
     });
     
     nite.init(map);
+    nite.hide();
     setInterval(function() { nite.refresh(); }, 60000); // 1min
 	
     // we need a dummy overlay to access getProjection()	
