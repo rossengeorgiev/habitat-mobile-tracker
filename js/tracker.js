@@ -52,7 +52,7 @@ function load() {
     });
     
     nite.init(map);
-    setInterval(function() { nite.refresh(); }, 300000); // 5min
+    setInterval(function() { nite.refresh(); }, 60000); // 1min
 	
     // we need a dummy overlay to access getProjection()	
     overlay = new google.maps.OverlayView();
@@ -224,14 +224,23 @@ function updateZoom() {
 }
 
 
+function stopFollow() {
+	if(follow_vehicle != -1) {
+        vehicles[follow_vehicle].follow = false;
+        follow_vehicle = -1;
+    }
+}
+
 function followVehicle(index) {
 	if(follow_vehicle != -1) vehicles[follow_vehicle].follow = false;
 	
-    panTo(index);
-
-	if(follow_vehicle != index) {
+	if(follow_vehicle == index) {
+        vehicles[follow_vehicle].follow = false;
+        follow_vehicle = -1;
+    } else if(follow_vehicle != index) {
 		follow_vehicle = index;
 		vehicles[follow_vehicle].follow = true;
+        panTo(index);
 	}
 }
 
@@ -608,7 +617,7 @@ function addPosition(position) {
                             line: [],
                             polyline: new google.maps.Polyline({
                                 map: map,
-                                strokeColor: balloon_colors[color_index],
+                                strokeColor: balloon_colors[c],
                                 strokeOpacity: 0.8,
                                 strokeWeight: 3,
                                 clickable: false,
@@ -620,7 +629,7 @@ function addPosition(position) {
                             alt_data: new Array(),
                             path_enabled: vehicle_type == "balloon" && position.vehicle.toLowerCase().indexOf("iss") == -1,
                             follow: false,
-                            color_index: color_index};
+                            color_index: c};
         vehicles.push(vehicle_info);
     }
 

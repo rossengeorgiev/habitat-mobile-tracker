@@ -150,6 +150,11 @@ $(window).ready(function() {
             e.find('.data').hide();
 
             listScroll.refresh();
+
+            // disable following only we are collapsing the followed vehicle
+            if(follow_vehicle == parseInt(e.attr('class').match(/vehicle(\d+)/)[1])) {
+                followVehicle(parseInt(e.attr('class').match(/vehicle(\d+)/)[1]));
+            }
         } else {
             // expand data for selected vehicle
             e.addClass('active');
@@ -267,7 +272,11 @@ $(window).ready(function() {
         $("#locate-me,.chasecar").show();
         $("#locate-me").click(function() {
             if(map && currentPosition) {
+                // disable following of vehicles
+                stopFollow();
+                // open map
                 $('.nav .home').click();
+                // pan map to our current location
                 map.panTo(new google.maps.LatLng(currentPosition.lat, currentPosition.lon));    
             } else {
                 alert("No position available");
