@@ -16,22 +16,15 @@ Author: Daniel Saul [@danielsaul](https://github.com/danielsaul)
 
 ## Currently Supported Devices
 
-### iPhone 3G, 3Gs; iPad1,2
-* displays coordinates and marker with your current location  
-  great for in the field tracking 
-* fully supported as home screen bookmark, or though safari 
-(testbed `test-iphone3g.html`, FF+Chrome)
+### iOS, Anroid, Deskstops
 
-### Desktop PC
-* Any modern browser
-* no support of IE, we said modern after all
+* Modern browser required (IE not supported)
+* Browsers supporting _Geolocation API_ will have `Chase car mode` available
+* For best expirence on _iOS devices_, add the webapp to your home screen.
+This will hide Safari's UI and make it look like a native app. I think it also allows it to run in the background.
 
-## Other tested devices
 
-### Levovo A750 `Android v2.3.6`
-* default browser: `not ok`
-* Firefox: `OK`, no map gestures
-* Opera: `OK`, no map gestures
-* Chrome: `N/A`
+## iPhone demo page
 
+Portrait and landscape test. Just open `test-iphone3g.html` in your browser of choice
 
