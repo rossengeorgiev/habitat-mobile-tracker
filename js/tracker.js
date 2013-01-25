@@ -29,12 +29,20 @@ var car_index = 0;
 var car_colors = ["blue", "red", "green", "yellow"];
 var balloon_index = 0;
 var balloon_colors_name = ["red", "blue", "green", "yellow", "purple", "orange", "cyan"];
-var balloon_colors = ["red", "blue", "green", "#ff0", "#c700e6", "#ff8a0f", "#0fffca"];
+var balloon_colors = ["#f00", "blue", "green", "#ff0", "#c700e6", "#ff8a0f", "#0fffca"];
 
 var map = null;
 var overlay = null;
 
 var notamOverlay = null;
+
+// order of map elements
+var Z_RANGE = 1;
+var Z_STATION = 2;
+var Z_PATH = 3;
+var Z_SHADOW = 4;
+var Z_CAR = 5;
+var Z_PAYLOAD = 6;
 
 function load() {
     //initialize map object
@@ -204,6 +212,9 @@ function updateAltitude(index) {
   var pixel_altitude = 0;
   var zoom = map.getZoom();
   var position = vehicles[index].curr_position;
+
+  if(vehicles[index].marker.mode == 'landed') return;
+
   if(zoom > 18) zoom = 18;
   if(position.gps_alt > 0) {
     pixel_altitude = Math.round(position.gps_alt/(1000/3)*(zoom/18.0));
@@ -253,8 +264,8 @@ function roundNumber(number, digits) {
 
 function updateVehicleInfo(index, position) {
   var latlng = new google.maps.LatLng(position.gps_lat, position.gps_lon);
-  vehicles[index].marker.setPosition(latlng);
   if(vehicles[index].marker_shadow) vehicles[index].marker_shadow.setPosition(latlng);
+  vehicles[index].marker.setPosition(latlng);
   if(vehicles[index].vehicle_type == "balloon") {
     updateAltitude(index);
     var horizon_km = Math.sqrt(12.756 * position.gps_alt);
@@ -274,12 +285,22 @@ function updateVehicleInfo(index, position) {
       vehicles[index].subhorizon_circle.setRadius(Math.round(subhorizon_km)*1000);
     }
 
-    var landed =  vehicles[index].max_alt > 1000
-               && vehicles[index].ascent_rate < 1.0
-               && position.gps_alt < 300;
-
+    // indicates whenever a payload has landed
+    var landed = (
+                     vehicles[index].max_alt > 1500         // if it has gone up
+                     && vehicles[index].ascent_rate < 1.0   // and has negative ascent_rate, aka is descending
+                     && position.gps_alt < 350              // and is under 350 meters altitude
+                 ) || (                                     // or
+                     position.gps_alt < 600                 // under 600m and has no position update for more than 30 minutes
+                     && (new Date((new Date()).toISOString())).getTime() - (new Date(position.gps_time + " UTC")).getTime() > 1800000
+                 );           
+     
     if(landed) {
       vehicles[index].marker.setMode("landed");
+      vehicles[index].marker.shadow.setVisible(false);
+      vehicles[index].horizon_circle.setVisible(false);
+      vehicles[index].subhorizon_circle.setVisible(false);
+      
     } else if(vehicles[index].ascent_rate > -3.0 ||
               vehicle_names[vehicle_index] == "wb8elk2") {
     	vehicles[index].marker.setMode("balloon");
@@ -379,6 +400,7 @@ function pad(number, length) {
 function addMarker(icon, latlng) {
     var marker = new google.maps.Marker({
         position: latlng,
+        zIndex: Z_SHADOW,
         icon: new google.maps.MarkerImage(
                     icon,
                     null,
@@ -432,6 +454,7 @@ function redrawPrediction(vehicle_index) {
     } else {
         vehicle.prediction_polyline = new google.maps.Polyline({
             map: map,
+            zIndex: Z_PATH,
             path: line,
             strokeColor: balloon_colors[vehicle.color_index],
             strokeOpacity: 0.4,
@@ -510,10 +533,7 @@ function convert_time(gps_time) {
 }
 
 function addPosition(position) { 
-
-  position.sequence = position.sequence ? parseInt(position.sequence, 10) : null;
-  
-// check if the vehicle is already in the list, if not create a new item
+    // check if the vehicle is already in the list, if not create a new item
     if($.inArray(position.vehicle, vehicle_names) == -1) {
         vehicle_names.push(position.vehicle);
         var marker = null;
@@ -533,8 +553,8 @@ function addPosition(position) {
 
             marker = new google.maps.Marker({
                 icon: image_src,
+                zIndex: Z_CAR,
                 position: point,
-                size: new google.maps.Size(55,25),
                 map: map
             });
         } else {
@@ -545,6 +565,7 @@ function addPosition(position) {
             image_src = host_url + markers_url + "balloon-" + balloon_colors_name[c] + ".png";
             marker_shadow = new google.maps.Marker({
                 map: map,
+                zIndex: Z_SHADOW,
                 position: point,
                 icon: new google.maps.MarkerImage(
                     host_url + markers_url + "shadow.png",
@@ -556,16 +577,20 @@ function addPosition(position) {
             });
             marker = new google.maps.Marker({
                 map: map,
+                zIndex: Z_PAYLOAD,
                 position: point,
                 icon: image_src,
                 title: position.vehicle,
             });
             marker.shadow = marker_shadow;
             marker.balloonColor = balloon_colors_name[c];
+            marker.mode = 'balloon';
             marker.setMode = function(mode) {
+                this.mode = mode;
                 var img;
                 if(mode == "landed") {
-                    img = host_url + markers_url + "landed-" + this.balloonColor + ".png";
+                    img = host_url + markers_url + "payload-" + this.balloonColor + ".png";
+                    img = new google.maps.MarkerImage(img, null, null, new google.maps.Point(8, 15));
                 } else if(mode == "parachute") {
                     img = host_url + markers_url + "parachute-" + this.balloonColor + ".png";
                 } else {
@@ -582,11 +607,12 @@ function addPosition(position) {
                  
             horizon_circle = new google.maps.Circle({
                 map: map,
+                zIndex: Z_RANGE,
                 radius: 1,
                 fillColor: '#00F',
-                fillOpacity: 0,
+                fillOpacity: 0.05,
                 strokeColor: '#00F',
-                strokeOpacity: 0.5,
+                strokeOpacity: 0.6,
                 strokeWeight: 3,
                 clickable: false,
                 editable: false
@@ -595,10 +621,11 @@ function addPosition(position) {
             subhorizon_circle = new google.maps.Circle({
                 map: map,
                 radius: 1,
+                zIndex: Z_RANGE,
                 fillColor: '#0F0',
-                fillOpacity: 0,
+                fillOpacity: 0.05,
                 strokeColor: '#0F0',
-                strokeOpacity: 0.6,
+                strokeOpacity: 0.8,
                 strokeWeight: 3,
                 clickable: false,
                 editable: false
@@ -618,6 +645,7 @@ function addPosition(position) {
                             line: [],
                             polyline: new google.maps.Polyline({
                                 map: map,
+                                zIndex: Z_PATH,
                                 strokeColor: balloon_colors[c],
                                 strokeOpacity: 0.8,
                                 strokeWeight: 3,
@@ -642,15 +670,13 @@ function addPosition(position) {
         
         // if position array has at least 1 position
         if(vehicle.num_positions > 0) {
-            if(vehicle.curr_position.gps_lat == position.gps_lat
-               && vehicle.curr_position.gps_lon == position.gps_lon) {
+            if((new Date(vehicle.curr_position.gps_time)).getTime() >= (new Date(position.gps_time)).getTime()) {
+            //if(vehicle.curr_position.gps_lat == position.gps_lat
+             //  && vehicle.curr_position.gps_lon == position.gps_lon) {
                 if (("," + vehicle.curr_position.callsign + ",").indexOf("," + position.callsign + ",") === -1) {
                   vehicle.curr_position.callsign += "," + position.callsign;
                 }
             } else {
-                // add the new position
-                vehicle.positions.push(new_latlng);
-                vehicle.num_positions++;
 
                 dt = convert_time(position.gps_time)
                    - convert_time(vehicle.curr_position.gps_time);
@@ -661,7 +687,14 @@ function addPosition(position) {
                                           + 0.3 * vehicles[vehicle_index].ascent_rate;
                 }
 
-                vehicle.curr_position = position;
+                if(vehicle.curr_position.gps_lat != position.gps_lat
+                   || vehicle.curr_position.gps_lon != position.gps_lon) {
+                    // add the new position
+                    vehicle.positions.push(new_latlng);
+                    vehicle.num_positions++;
+
+                    vehicle.curr_position = position;
+                }
             }
         } else {
             vehicle.positions.push(new_latlng);
@@ -772,6 +805,7 @@ function updateCurrentPosition(lat, lon) {
         currentPosition = {marker: null, lat: lat, lon: lon};
         currentPosition.marker = new google.maps.Marker({
             icon: "img/marker-you.png",
+            zIndex: Z_CAR,
             position: latlng,
             size:  new google.maps.Size(19,40),
             anchor: new google.maps.Point(9,40),
@@ -792,6 +826,7 @@ function updateReceiverMarker(receiver) {
     //icon.infoWindowAnchor = new google.maps.Point(13,3);
     receiver.marker = new google.maps.Marker({
         icon:  host_url + markers_url + "antenna-green.png",
+        zIndex: Z_STATION,
         position: latlng,
         size: new google.maps.Size(26,32),
         anchor: new google.maps.Point(13,30),
