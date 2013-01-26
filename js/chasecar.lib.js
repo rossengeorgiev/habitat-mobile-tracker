@@ -72,7 +72,6 @@ ChaseCar.putListenerInfo = function(callsign) {
 // @callsign string
 // @position object (geolocation position object)
 ChaseCar.updatePosition = function(callsign, position) {
-    console.log(position);
     if(!position || !position.coords) return;
     
     ChaseCar.request({
