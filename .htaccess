@@ -1,3 +1,11 @@
 <IfModule mod_deflate.c>
     SetOutputFilter DEFLATE
 </IfModule>
+
+AddType text/cache-manifest .manifest
+AddType text/cache-manifest .appcache
+
+AddType application/x-font-woff .woff
+AddType application/x-font-ttf .ttf
+AddType application/vnd.ms-fontobject .eot
+AddType image/svg+xml .svg

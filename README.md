@@ -6,6 +6,14 @@ Also, works great on desktops, laptops or netbooks. It is build upon
 
 [Live version](http://habhub.org/mt/)
 
+## Geo position
+
+The app will ask for permission to use your location.
+This is requird for some of the features. It is **important** to note that
+your location will not be made available or send to anyone. Unless you enable
+ the `chase car mode`, which will periodically upload it to habitat. _The app
+will always start with `chase car mode` disabled._
+
 ## Design
 
 Author: Daniel Saul [@danielsaul](https://github.com/danielsaul)
