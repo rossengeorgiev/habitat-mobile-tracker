@@ -439,7 +439,7 @@ function redrawPrediction(vehicle_index) {
     var max_alt = -99999;
     var latlng_burst = null;
     var	burst_index = 0;
-    for(var i = 0, ii = data.length; i <ii; i++) {
+    for(var i = 0, ii = data.length; i < ii; i++) {
         latlng = new google.maps.LatLng(data[i].lat, data[i].lon);
         line.push(latlng); 
         if(parseFloat(data[i].alt) > max_alt) {
@@ -463,9 +463,8 @@ function redrawPrediction(vehicle_index) {
             draggable: false,
         });
     }
-		
+    var image_src; 		
     if(vehicle_names[vehicle_index] != "wb8elk2") { // WhiteStar
-        var image_src = host_url + markers_url + "target-" + balloon_colors_name[vehicles[vehicle_index].color_index] + ".png";
         /*
         //icon.infoWindowAnchor = new google.maps.Point(13,5);
         
@@ -477,9 +476,10 @@ function redrawPrediction(vehicle_index) {
                    + '</p>';
         */
         var html = "";
-        if(typeof vehicle.prediction_target !== 'undefined') {
+        if(vehicle.prediction_target) {
             vehicle.prediction_target.setPosition(latlng);
         } else {
+            image_src = host_url + markers_url + "target-" + balloon_colors_name[vehicles[vehicle_index].color_index] + ".png";
             vehicle.prediction_target = addMarker(image_src, latlng);
         }
     } else {
@@ -487,7 +487,6 @@ function redrawPrediction(vehicle_index) {
     }
   
     if(burst_index != 0 && vehicle_names[vehicle_index] != "wb8elk2") {
-        var icon = host_url + markers_url + "balloon-pop.png";
         /*
         //icon.infoWindowAnchor = new google.maps.Point(18,5);
         
@@ -498,10 +497,11 @@ function redrawPrediction(vehicle_index) {
                          + data[burst_index].lat + ', ' + data[burst_index].lon + ', ' + Math.round(data[burst_index].alt) + ' m at ' + time_string
                          + '</p>';
         */
-        if(typeof vehicle.prediction_burst !== 'undefined') {
-            vehicle.prediction_burst.setPosition(latlng);
+        if(vehicle.prediction_burst) {
+            vehicle.prediction_burst.setPosition(latlng_burst);
         } else {
-            vehicle.prediction_burst = addMarker(image_src, latlng);
+            image_src = host_url + markers_url + "balloon-pop.png";
+            vehicle.prediction_burst = addMarker(image_src, latlng_burst);
         }
     } else {
         if(vehicle.prediction_burst) vehicle.prediction_burst = null;
@@ -662,7 +662,10 @@ function addPosition(position) {
                             alt_data: new Array(),
                             path_enabled: vehicle_type == "balloon" && position.vehicle.toLowerCase().indexOf("iss") == -1,
                             follow: false,
-                            color_index: c};
+                            color_index: c,
+                            prediction_traget: null,
+                            prediction_burst: null,
+                            };
         vehicles.push(vehicle_info);
     }
 
