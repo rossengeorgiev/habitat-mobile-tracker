@@ -771,7 +771,7 @@ function refreshPredictions() {
 }
 
 var periodical, periodical_receivers, periodical_predictions;
-var timer_seconds = 30;
+var timer_seconds = 14;
 
 function startAjax() {
     // prevent insane clicks to start numerous requests
