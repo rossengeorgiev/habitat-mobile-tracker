@@ -377,7 +377,7 @@ function updateVehicleInfo(index, position) {
   // mid for landscape
   var l    = '<dt>'+ascent_text+'</dt><dd>rate</dd>'
            + '<dt>'+position.gps_alt+'m ('+vehicles[index].max_alt+'m)</dt><dd>altitude (max)</dd>'
-           + '<dt>'+position.gps_time+'</dt><dd>time</dd>'
+           + '<dt>'+position.gps_time+'</dt><dd>datetime</dd>'
            + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
            + habitat_data(position.data) 
            + c // recievers if any
@@ -514,6 +514,7 @@ function updatePolyline(vehicle_index) {
 
 function convert_time(gps_time) {
   // example: "2009-05-28 20:29:47"
+  /*
   year = parseInt(gps_time.substring(0, 4), 10);
   month = parseInt(gps_time.substring(5, 7), 10);
   day = parseInt(gps_time.substring(8, 10), 10);
@@ -528,11 +529,14 @@ function convert_time(gps_time) {
   date.setUTCHours(hour);
   date.setUTCMinutes(minute);
   date.setUTCSeconds(second);
+  */
   
-  return date.getTime() / 1000; // seconds since 1/1/1970 @ 12:00 AM
+  return (new Date(gps_time)).getTime() / 1000; // seconds since 1/1/1970 @ 12:00 AM
 }
 
 function addPosition(position) { 
+    position.gps_time = position.gps_time.replace(/(\d+)-(\d+)-(\d+)/,"$2/$3/$1");
+
     // check if the vehicle is already in the list, if not create a new item
     if($.inArray(position.vehicle, vehicle_names) == -1) {
         vehicle_names.push(position.vehicle);
@@ -930,6 +934,9 @@ function update(response) {
 
     // pan and follow that balloon
     followVehicle(i);
+
+    // expand list element
+    $('.vehicle'+i).addClass('active');
 
     // scroll list to the expanded element
     listScroll.refresh();
