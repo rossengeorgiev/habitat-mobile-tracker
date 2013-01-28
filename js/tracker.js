@@ -44,6 +44,20 @@ var Z_SHADOW = 4;
 var Z_CAR = 5;
 var Z_PAYLOAD = 6;
 
+
+var offline = {
+    get: function(key) {
+        if(typeof localStorage == 'undefined') return null;
+        
+        return JSON.parse(localStorage.getItem(key));
+    },
+    set: function(key, object) {
+        if(typeof localStorage == 'undefined') return null;
+
+        return localStorage.setItem(key, JSON.stringify(object));
+    },
+};
+
 function load() {
     //initialize map object
     map = new google.maps.Map(document.getElementById('map'), {
@@ -60,7 +74,7 @@ function load() {
     });
     
     nite.init(map);
-    nite.hide();
+    if(!offline.get('opt_daylight')) nite.hide();
     setInterval(function() { nite.refresh(); }, 60000); // 1min
 	
     // we need a dummy overlay to access getProjection()	
@@ -357,15 +371,15 @@ function updateVehicleInfo(index, position) {
            + '</div>' // right
            + '</div>' // data
            + '';
-  var c    = '<dt class="recievers">Recieved by:</dt><dd class="recievers">'
+  var c    = '<dt class="receivers">Recieved by:</dt><dd class="receivers">'
            + position.callsign.split(",").join(", ") + '</dd>'
 
   if(!position.callsign) c = '';
 
   // mid for portrait
-  var p    = '<dt>'+position.gps_time+'</dt><dd>time</dd>'
+  var p    = '<dt>'+position.gps_time+'</dt><dd>datetime</dd>'
            + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
-           + c // recievers if any
+           + c // receivers if any
            + '</dl>'
            + '</div>' // left
            + '<div class="right">'
@@ -380,7 +394,7 @@ function updateVehicleInfo(index, position) {
            + '<dt>'+position.gps_time+'</dt><dd>datetime</dd>'
            + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
            + habitat_data(position.data) 
-           + c // recievers if any
+           + c // receivers if any
            + '';
 
 
@@ -730,14 +744,14 @@ function refresh() {
     data: "format=json&position_id=" + position_id + "&max_positions=" + max_positions,
     dataType: "json",
     success: function(response, textStatus) {
-                update(response);
-                //$('#status_bar').html(status);
-             },
+        update(response);
+    },
+    error: function() {
+        if(!zoomed_in && offline.get('opt_offline')) update(offline.get('positions'));
+    },
     complete: function(request, textStatus) {
-                // remove the spinner
-                //$('status_bar').removeClass('ajax_loading');
-                periodical = setTimeout(refresh, timer_seconds * 1000);
-           }
+        periodical = setTimeout(refresh, timer_seconds * 1000);
+    }
   });
 }
 
@@ -748,14 +762,15 @@ function refreshReceivers() {
         data: "",
         dataType: "json",
         success: function(response, textStatus) {
-                    updateReceivers(response);
-                 },
+            offline.set('receivers', response); 
+            updateReceivers(response);
+        },
+        error: function() {
+            if(offline.get('opt_offline')) updateReceivers(offline.get('receivers'));
+        },
         complete: function(request, textStatus) {
-                    // remove the spinner
-                    //$('status_bar').removeClass('ajax_loading');
-                    //$('#status_bar').html(status);
-                    periodical_listeners = setTimeout(refreshReceivers, 60 * 1000);
-               }
+            periodical_listeners = setTimeout(refreshReceivers, 60 * 1000);
+        }
     });
 }
 
@@ -766,14 +781,15 @@ function refreshPredictions() {
         data: "",
         dataType: "json",
         success: function(response, textStatus) {
-                    updatePredictions(response);
-                 },
+            offline.set('predictions', response); 
+            updatePredictions(response);
+        },
+        error: function() {
+            if(offline.get('opt_offline')) updatePredictions(offline.get('predictions'));
+        },
         complete: function(request, textStatus) {
-                    // remove the spinner
-                    //$('status_bar').removeClass('ajax_loading');
-                    //$('#status_bar').html(status);
-                    periodical_predictions = setTimeout(refreshPredictions, 2 * timer_seconds * 1000);
-               }
+            periodical_predictions = setTimeout(refreshPredictions, 2 * timer_seconds * 1000);
+        }
     });
 }
 
@@ -847,6 +863,8 @@ function updateReceiverMarker(receiver) {
 }
 
 function updateReceivers(r) {
+    if(!r) return;
+
     for(var i = 0, ii = r.length; i < ii; i++) {
         var lat = parseFloat(r[i].lat);
         var lon = parseFloat(r[i].lon);
@@ -869,6 +887,8 @@ function updateReceivers(r) {
     }
 
 function updatePredictions(r) {
+    if(!r) return;
+
     for(var i = 0, ii = r.length; i < ii; i++) {
 		var vehicle_index = $.inArray(r[i].vehicle, vehicle_names);
 		if(vehicle_index != -1) {
@@ -877,7 +897,7 @@ function updatePredictions(r) {
 			}
             vehicles[vehicle_index].prediction = r[i];
             if(parseInt(vehicles[vehicle_index].prediction.landed) == 0) {
-                vehicles[vehicle_index].prediction.data = eval('(' + r[i].data + ')');
+                vehicles[vehicle_index].prediction.data = $.parseJSON(r[i].data);
                 redrawPrediction(vehicle_index);
             } else {
                 removePrediction(vehicle_index); 
@@ -908,11 +928,22 @@ function update(response) {
     position_id = position.position_id;
   }
   
-	if (updated_position) {
-	  for (vehicle_index = 0; vehicle_index < vehicle_names.length; vehicle_index++) {
+  if (updated_position) {
+      // create a dummy response object for postions
+      var lastPositions = { positions: { position: [] } };
+      var lastPPointer = lastPositions.positions.position;
+
+      for (vehicle_index = 0; vehicle_index < vehicle_names.length; vehicle_index++) {
 	  	updatePolyline(vehicle_index);
 	    updateVehicleInfo(vehicle_index, vehicles[vehicle_index].curr_position);
+
+        // remember last position for each vehicle
+        lastPPointer.push(vehicles[vehicle_index].curr_position);
 	  }
+
+      // store the in localStorage
+      offline.set('positions', lastPositions);
+
 	  if(follow_vehicle != -1) {
 	  	var pos = vehicles[follow_vehicle].curr_position;
 	  	map.panTo(new google.maps.LatLng(pos.gps_lat, pos.gps_lon));
@@ -926,8 +957,8 @@ function update(response) {
 
     // find the bounds of the ballons first and last positions
     var bounds = new google.maps.LatLngBounds();
-    bounds.extend(vehicles[i].marker.getPosition());
     bounds.extend(vehicles[i].positions[0]);
+    bounds.extend(vehicles[i].marker.getPosition());
     
     // fit the map to those bounds
     map.fitBounds(bounds);

@@ -1,14 +1,31 @@
+// handle cachin events and display a loading bar
+var loadReload = false;
+var loadComplete = function(e) {
+    if(loadReload && e.type == 'updateready') {
+        if(confirm("Reload app?")) {
+            window.location.href = window.location.href;
+            return;
+        }
+    }
+
+    loadReload = false;
+
+    $('#loading .complete').stop(true,true).animate({width: 200}, {complete: function() {
+        $('#loading,#settingsbox,#aboutbox,#chasebox').hide(); // welcome screen
+        $('header,#main,#map').show(); // interface elements
+        checkSize();
+        
+        if(!map) load();
+    }});
+}
+
+var cache = window.applicationCache;
+cache.addEventListener('checking', function() { $('#loading .bar,#loading').show(); $('#loading .complete').css({width: 0}); }, false);
+cache.addEventListener('noupdate', loadComplete, false);
+cache.addEventListener('updateready', loadComplete, false);
+cache.addEventListener('progress', function(e) { $('#loading .complete').stop(true,true).animate({width: (200/e.total)*e.loaded}); }, false);
+
 var listScroll;
-var nLoadedImages = 0;
-var preloadTimer;
-var preloadImages = [ 
-    "img/logo.png",    
-    "img/marker-you.png",    
-    "img/markers/antenna-green.png",    
-    "img/markers/balloon-red.png",    
-    "img/markers/balloon-blue.png",    
-    "img/markers/shadow.png"
-];
 var GPS_ts = null;
 var GPS_lat = null;
 var GPS_lon = null;
@@ -32,19 +49,17 @@ function checkSize() {
 
     if($('.landscape:visible').length) {
         $('#main,#map').height(h-hh-5);
-        $('body').height(h);
+        $('body,#loading').height(h);
         $('#map').width(w-sw-1);
     } else { // portrait mode
         if(h < 420) h = 420;
-        $('body').height(h);
+        $('body,#loading').height(h);
         $('#map').height(h-hh-5-180);
         $('#map').width(w);
         $('#main').height(180); // 180px is just enough to hold one expanded vehicle
     }
 
-    //if(map) map.checkResize();
-
-    // this should hide the address bar, when possible
+    // this should hide the address bar on mobile phones, when possible
     window.scrollTo(0,1);
 }
 
@@ -54,6 +69,13 @@ window.onchangeorientation = checkSize;
 // functions
 
 var positionUpdateHandle = function() {
+    if(CHASE_enabled && !CHASE_listenerSent) { 
+        if(offline.get('opt_station')) {
+            ChaseCar.putListenerInfo(callsign);
+            CHASE_listenerSent = true;
+        }
+    }
+
     navigator.geolocation.getCurrentPosition(function(position) {
         var lat = position.coords.latitude;
         var lon = position.coords.longitude;
@@ -179,7 +201,7 @@ $(window).ready(function() {
         var e = $(this);
         var box = $('#main,#map');
         if(box.is(':hidden')) {
-            $('#chasecarbox,#aboutbox').hide();
+            $('#chasecarbox,#aboutbox,#settingsbox').hide();
             box.show();
         }
         checkSize();
@@ -188,7 +210,7 @@ $(window).ready(function() {
         var e = $(this);
         var box = $('#chasecarbox');
         if(box.is(':hidden')) {
-            $('#map,#main,#aboutbox').hide();
+            $('#map,#main,#aboutbox,#settingsbox').hide();
             box.show();
         }
         checkSize();
@@ -197,19 +219,22 @@ $(window).ready(function() {
         var e = $(this);
         var box = $('#aboutbox');
         if(box.is(':hidden')) {
-            $('#map,#main,#chasecarbox').hide();
+            $('#map,#main,#chasecarbox,#settingsbox').hide();
             box.show();
         }
         checkSize();
     })
-    .on('click', '.daylight', function() {
-        $('.nav .home').click();
-        if(nite.isVisible()) { nite.hide(); }
-        else { nite.show(); }
+    .on('click', '.settings', function() {
+        var e = $(this);
+        var box = $('#settingsbox');
+        if(box.is(':hidden')) {
+            $('#map,#main,#chasecarbox,#aboutbox').hide();
+            box.show();
+        }
     });
 
     // toggle functionality for switch button
-    $(".switch").click(function() {
+    $("#sw_chasecar").click(function() {
         var e = $(this);
         var field = $('#cc_callsign');
 
@@ -234,8 +259,10 @@ $(window).ready(function() {
             // this gets a station on the map, under the car marker
             // im still not sure its nessesary
             if(!CHASE_listenerSent) { 
-                //ChaseCar.putListenerInfo(callsign);
-                CHASE_listenerSent = true;
+                if(offline.get('opt_station')) {
+                    ChaseCar.putListenerInfo(callsign);
+                    CHASE_listenerSent = true;
+                }
             }
             // if already have a position push it to habitat
             if(GPS_ts) {
@@ -251,21 +278,68 @@ $(window).ready(function() {
     // remember callsign as a cookie
     $("#cc_callsign").on('change keyup', function() {
         callsign = $(this).val().trim();
-        document.cookie = "mtCallsign=" + callsign + "; expires=Fri, 13 Jul 2033 03:33:33 UTC; path=/";
+        offline.set('callsign', callsign); // put in localStorage       
         CHASE_listenerSent = false;
     });
 
-    // read callsign cookie and load the value
-    var cookiejar = document.cookie.split(";");
+    // load value from localStorage
+    callsign = offline.get('callsign');
+    $('#cc_callsign').val(callsign);
 
-    for (var i = 0; i < cookiejar.length; i++) {
-        var cookie = cookiejar[i].split('=');
-        if(cookie[0] == "mtCallsign") {
-            callsign = cookie[1];
-            $('#cc_callsign').val(callsign);
-            break;
+    // settings page
+
+    // daylight overlay
+    $('#sw_daylight').click(function() {
+        var e = $(this);
+        var name = e.attr('id').replace('sw', 'opt');
+        var on;
+        
+        if(e.hasClass('on')) {
+            e.removeClass('on').addClass('off');
+            on = 0;
+            nite.hide();
+        } else {
+            e.removeClass('off').addClass('on');
+            on = 1;
+            nite.show();
         }
-    }
+
+        offline.set(name, on);        
+    });
+
+    if(offline.get('opt_daylight')) $('#sw_daylight').removeClass('off').addClass('on');
+    
+    // offline and mobile
+    $('#sw_offline, #sw_station').click(function() {
+        var e = $(this);
+        var name = e.attr('id').replace('sw', 'opt');
+        var on;
+        
+        if(e.hasClass('on')) {
+            e.removeClass('on').addClass('off');
+            on = 0;
+        } else {
+            e.removeClass('off').addClass('on');
+            on = 1;
+        }
+
+        offline.set(name, on);        
+    });
+
+    if(offline.get('opt_offline')) $('#sw_offline').removeClass('off').addClass('on');
+    if(offline.get('opt_station')) $('#sw_station').removeClass('off').addClass('on');
+
+    // force re-cache
+    $('#sw_cache').click(function() {
+        var e = $(this).removeClass('off').addClass('on');
+        if(confirm("Force re-cache?")) {
+            window.scrollTo(0,1);
+            $("#settingsbox").hide();
+            loadReload = true;
+            applicationCache.update();
+        }
+        e.removeClass('on').addClass('off');
+    });
 
     // We are able to get GPS position on idevices, if the user allows
     // The position is displayed in top right corner of the screen
@@ -293,30 +367,4 @@ $(window).ready(function() {
         // immediatelly check for position
         positionUpdateHandle();
     }
-
-    // preload images
-    for(var i = 0, ii = preloadImages.length; i < ii; i++) {
-        var image = new Image();
-        image.onLoad = (function() { nLoadedImages++; })();
-        image.src = preloadImages[i];
-    }
-
-    // check if images have loaded
-    preloadTimer = setInterval(function() {
-        if(nLoadedImages < preloadImages.length) return;
-        clearInterval(preloadTimer);
-
-        // app stars with a welcome screen
-        // after images are loaded we can show the interface
-        setTimeout(function() {
-            $('#loading').hide(); // welcome screen
-            $('header,#main,#map').show(); // interface elements
-            
-            // try hiding the address bar
-            window.scrollTo(0,1);
-        }, 500);
-    }, 100);
-
-    // finally load map
-    load();
 });

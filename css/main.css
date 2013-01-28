@@ -20,7 +20,29 @@ html, body {
     z-index: 99;
     width: 100%;
     height: 100%;
-    background: #00A3D3 url('../img/logo.png') no-repeat center center;
+    background: #00A3D3;
+}
+#loading > div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 198px;
+    height: 200px;
+    margin-top: -100px;
+    margin-left: -99px;
+}
+#loading .bar {
+    position: relative;
+    width: 200px;
+    height: 5px; 
+    border-radius: 3px;
+    background: #005C76;
+}
+#loading .complete {
+    width: 0px;
+    height: 5px;
+    border-radius: 3px;
+    background: #fff;
 }
 
 header {
@@ -115,8 +137,13 @@ header > div {
 .row .header .arrow:after { content: "▲"; }
 .row.active .header .arrow:after { content: "▼"; }
 
-#main .row { background-color: #f4f4f4; margin: 0; padding: 0; position: relative; }
-#main .row  .header {
+#main .row {
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+#main .row .header {
     position: relative;
     z-index: 4;
     cursor: pointer;
@@ -160,6 +187,7 @@ header > div {
 #cc_callsign {
     text-align: right;
     padding: 4px 10px;
+    margin: 0;
 }
 .slimContainer {
     margin: 20px auto;
@@ -173,14 +201,20 @@ header > div {
     width: 100%;
     display: block;
     margin: 5px;
+    vertical-align: middle;
+}
+.slimContainer .row.info {
+    margin-top: 10px;
 }
 .slimContainer .row > span {
     float: left;
 }
+.slimContainer .row.option > span {
+    line-height: 30px;
+}
 .slimContainer .row > span.r {
     float: right;
 }
-
 
 /* iOS styled switch buttons
  */
@@ -190,7 +224,6 @@ header > div {
     width: 77px;
     border: 1px solid #979797;
     border-radius: 20px;
-    margin-top: -5px;
     box-shadow: inset 0 1px 3px #BABABA, inset 0 12px 3px 2px rgba(232, 232, 232, 0.5);
     cursor: pointer;
     overflow: hidden;
@@ -310,11 +343,11 @@ header > div {
         line-height: 11px;
         font-size: 11px;
     }
-    #main .data dl > dt.recievers { 
+    #main .data dl > dt.receivers { 
         font-size: 10px;
         font-weight: normal;
     }
-    #main .data dl > dd.recievers { 
+    #main .data dl > dd.receivers { 
         font-size: 10px;
     }
     #main .row .data img {
@@ -364,11 +397,11 @@ header > div {
         line-height: 11px;
         font-size: 11px;
     }
-    #main .data dl > dt.recievers { 
+    #main .data dl > dt.receivers { 
         font-size: 10px;
         font-weight: normal;
     }
-    #main .data dl > dd.recievers { 
+    #main .data dl > dd.receivers { 
         font-size: 10px;
     }
 }
