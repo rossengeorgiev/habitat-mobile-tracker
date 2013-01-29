@@ -44,6 +44,10 @@ var Z_SHADOW = 4;
 var Z_CAR = 5;
 var Z_PAYLOAD = 6;
 
+// localStorage vars
+var ls_receivers = false;
+var ls_pred = false;
+
 
 var offline = {
     get: function(key) {
@@ -766,7 +770,7 @@ function refreshReceivers() {
             updateReceivers(response);
         },
         error: function() {
-            if(!zoomed_in && offline.get('opt_offline')) updateReceivers(offline.get('receivers'));
+            if(!ls_receivers && offline.get('opt_offline')) updateReceivers(offline.get('receivers'));
         },
         complete: function(request, textStatus) {
             periodical_listeners = setTimeout(refreshReceivers, 60 * 1000);
@@ -785,7 +789,7 @@ function refreshPredictions() {
             updatePredictions(response);
         },
         error: function() {
-            if(!zoomed_in && offline.get('opt_offline')) updatePredictions(offline.get('predictions'));
+            if(!ls_pred && offline.get('opt_offline')) updatePredictions(offline.get('predictions'));
         },
         complete: function(request, textStatus) {
             periodical_predictions = setTimeout(refreshPredictions, 2 * timer_seconds * 1000);
@@ -864,6 +868,7 @@ function updateReceiverMarker(receiver) {
 
 function updateReceivers(r) {
     if(!r) return;
+    ls_receivers = true;
 
     for(var i = 0, ii = r.length; i < ii; i++) {
         var lat = parseFloat(r[i].lat);
@@ -888,6 +893,7 @@ function updateReceivers(r) {
 
 function updatePredictions(r) {
     if(!r) return;
+    ls_pred = true;
 
     for(var i = 0, ii = r.length; i < ii; i++) {
 		var vehicle_index = $.inArray(r[i].vehicle, vehicle_names);

@@ -24,6 +24,7 @@ cache.addEventListener('checking', function() { $('#loading .bar,#loading').show
 cache.addEventListener('noupdate', loadComplete, false);
 cache.addEventListener('updateready', loadComplete, false);
 cache.addEventListener('cached', loadComplete, false);
+cache.addEventListener('error', loadComplete, false);
 cache.addEventListener('progress', function(e) { $('#loading .complete').stop(true,true).animate({width: (200/e.total)*e.loaded}); }, false);
 
 var listScroll;
