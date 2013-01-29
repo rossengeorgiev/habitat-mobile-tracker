@@ -23,6 +23,7 @@ var cache = window.applicationCache;
 cache.addEventListener('checking', function() { $('#loading .bar,#loading').show(); $('#loading .complete').css({width: 0}); }, false);
 cache.addEventListener('noupdate', loadComplete, false);
 cache.addEventListener('updateready', loadComplete, false);
+cache.addEventListener('cached', loadComplete, false);
 cache.addEventListener('progress', function(e) { $('#loading .complete').stop(true,true).animate({width: (200/e.total)*e.loaded}); }, false);
 
 var listScroll;
