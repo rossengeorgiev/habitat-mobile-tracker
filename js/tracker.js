@@ -766,7 +766,7 @@ function refreshReceivers() {
             updateReceivers(response);
         },
         error: function() {
-            if(offline.get('opt_offline')) updateReceivers(offline.get('receivers'));
+            if(!zoomed_in && offline.get('opt_offline')) updateReceivers(offline.get('receivers'));
         },
         complete: function(request, textStatus) {
             periodical_listeners = setTimeout(refreshReceivers, 60 * 1000);
@@ -785,7 +785,7 @@ function refreshPredictions() {
             updatePredictions(response);
         },
         error: function() {
-            if(offline.get('opt_offline')) updatePredictions(offline.get('predictions'));
+            if(!zoomed_in && offline.get('opt_offline')) updatePredictions(offline.get('predictions'));
         },
         complete: function(request, textStatus) {
             periodical_predictions = setTimeout(refreshPredictions, 2 * timer_seconds * 1000);
