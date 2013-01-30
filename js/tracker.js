@@ -14,7 +14,6 @@ var receivers = [];
 var num_updates = 0;
 var got_positions = false;
 var zoomed_in = false;
-var expanded_onload = false;
 var max_positions = 0; // maximum number of positions that ajax request should return (0 means no maximum)
 var selector = null;
 var window_selector = null;
@@ -338,13 +337,8 @@ function updateVehicleInfo(index, position) {
 
   var elm = $('.vehicle' + index);
   if (elm.length == 0) {
-    var active = '';
-    if(!expanded_onload && vehicles[index].vehicle_type == "balloon") {
-        active = 'active';
-        expanded_onload = true;    
-    }
-    $('.portrait').append('<div class="row '+active+' vehicle'+index+'"></div>');
-    $('.landscape').append('<div class="row '+active+' vehicle'+index+'"></div>');
+    $('.portrait').append('<div class="row vehicle'+index+'"></div>');
+    $('.landscape').append('<div class="row vehicle'+index+'"></div>');
 
   }
 
