@@ -342,7 +342,8 @@ function updateVehicleInfo(index, position) {
 
   }
 
-  var ascent_text = position.gps_alt != 0 ? vehicles[index].ascent_rate.toFixed(1) + ' m/s' : '';
+  var imp = offline.get('opt_imperial');
+  var ascent_text = imp ? (vehicles[index].ascent_rate * 196.850394).toFixed(1) + ' ft/min' : vehicles[index].ascent_rate.toFixed(1) + ' m/s';
   
   var coords_text;
   var ua =  navigator.userAgent.toLowerCase();
@@ -358,6 +359,8 @@ function updateVehicleInfo(index, position) {
   } else {
       coords_text = roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6);
   }
+
+
   // start
   var a    = '<div class="header"><span>' + vehicle_names[index] + '</span><i class="arrow"></i></div>'
            + '<div class="data">'
@@ -382,13 +385,13 @@ function updateVehicleInfo(index, position) {
            + '</div>' // left
            + '<div class="right">'
            + '<dl>'
-           + '<dt>'+ascent_text+'</dt><dd>rate</dd>'
-           + '<dt>'+position.gps_alt+' m</dt><dd>altitude</dd>'
-           + '<dt>'+vehicles[index].max_alt+' m</dt><dd>max alt</dd>'
+           + (position.gps_alt != 0 ? '<dt>'+ascent_text+'</dt><dd>rate</dd>' : '')
+           + '<dt>'+((imp) ? parseInt(3.2808399 * position.gps_alt) + ' ft': position.gps_alt + ' m')+'</dt><dd>altitude</dd>'
+           + '<dt>'+((imp) ? parseInt(3.2808399 * vehicles[index].max_alt) + ' ft': vehicles[index].max_alt + ' m')+'</dt><dd>max alt</dd>'
            + '';
   // mid for landscape
-  var l    = '<dt>'+ascent_text+'</dt><dd>rate</dd>'
-           + '<dt>'+position.gps_alt+'m ('+vehicles[index].max_alt+'m)</dt><dd>altitude (max)</dd>'
+  var l    = (position.gps_alt != 0 ? '<dt>'+ascent_text+'</dt><dd>rate</dd>' : '')
+           + '<dt>'+((imp) ? parseInt(3.2808399 * position.gps_alt) + 'ft': position.gps_alt + 'm')+' ('+((imp) ? parseInt(3.2808399 * vehicles[index].max_alt) + 'ft' : vehicles[index].max_alt + 'm')+')</dt><dd>altitude (max)</dd>'
            + '<dt>'+position.gps_time+'</dt><dd>datetime</dd>'
            + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
            + habitat_data(position.data) 
@@ -906,6 +909,12 @@ function updatePredictions(r) {
 	}
 }
 
+function refreshUI() {
+    for (var i = 0, ii = vehicle_names.length; i < ii; i++) {
+        updateVehicleInfo(i, vehicles[i].curr_position);
+    }
+}
+
 var status = "";
 
 function update(response) {
@@ -941,7 +950,7 @@ function update(response) {
         lastPPointer.push(vehicles[vehicle_index].curr_position);
 	  }
 
-      // store the in localStorage
+      // store in localStorage
       offline.set('positions', lastPositions);
 
 	  if(follow_vehicle != -1) {
