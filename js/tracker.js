@@ -574,7 +574,8 @@ function addPosition(position) {
                 icon: image_src,
                 zIndex: Z_CAR,
                 position: point,
-                map: map
+                map: map,
+                title: position.vehicle
             });
         } else {
             vehicle_type = "balloon";
