@@ -121,11 +121,17 @@ header > div {
     float: right;
     color: #aaa;
     }
-#main .header span {
-    overflow: hidden; 
-    display: block;
-    width: 90%;
-    float: left;
+#main .header {
+    height: 20px;
+    padding: 10px;
+    border-bottom: 2px solid #33b5e5;
+    position: relative;
+    z-index: 4;
+    cursor: pointer;
+    background-color: #fff;
+}
+#main .vehicle0 .header {
+    border-top: 2px solid #33b5e5;
 }
 #main .header.empty {
     text-align: center;
@@ -133,6 +139,12 @@ header > div {
     height: 120px;
     line-height: 100px;
     border: 0;
+}
+#main .header span {
+    overflow: hidden; 
+    display: block;
+    width: 90%;
+    float: left;
 }
 .row .header .arrow:after { content: "▲"; }
 .row.active .header .arrow:after { content: "▼"; }
@@ -144,10 +156,6 @@ header > div {
     position: relative;
 }
 #main .row .header {
-    position: relative;
-    z-index: 4;
-    cursor: pointer;
-    background-color: #fff;
  }
 #main .row:hover .header { color: #33b5e5; font-weight: bold; }
 #main .row .data { display: none; width: 100%; }
@@ -159,10 +167,17 @@ header > div {
 }
 #main .row .data img { 
     position: absolute;
-    z-index: 3;
+    z-index: 2;
     bottom: 40%;
     right: 25%;
     opacity: 0.6;
+}
+#main .row .header .graph { 
+    position: absolute;
+    bottom: -1px;
+    right: 25px;
+    width: 60px;
+    height: 40px;
 }
 #main .row .data dt > i { 
     font-size: 12px;
@@ -315,11 +330,6 @@ header > div {
         border-right: 1px solid #ddd;
         overflow: hidden;
     }
-    #main .header {
-        height: 20px;
-        padding: 10px;
-        border-bottom: 2px solid #33b5e5;
-    }
     #main .data {
         height: 100%;
         padding-bottom: 5px;
@@ -364,11 +374,6 @@ header > div {
     #main {
         height: 180px;
     }
-    #main .header {
-        height: 20px;
-        padding: 10px;
-        border-bottom: 2px solid #33b5e5;
-    }
     #main .data {
         height: 140px;
     }
@@ -403,6 +408,9 @@ header > div {
     }
     #main .data dl > dd.receivers { 
         font-size: 10px;
+    }
+    #main .row .header .graph { 
+        width: 150px;
     }
 }
 

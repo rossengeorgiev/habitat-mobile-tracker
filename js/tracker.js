@@ -8,6 +8,8 @@ var markers_url = "img/markers/";
 var vehicle_names = [];
 var vehicles = [];
 
+var graph_url = "http://chart.googleapis.com/chart?chf=bg,s,67676700&chxr=0,0,46|1,0,0|2,0,45&chxs=0,676767,0,0,_,000000|1,676767,0,0,t,676767|2,676767,0,0,_,676767&chxt=r,y,x&chs=150x40&cht=lc&chco=33B5E5&chds=0,{AA}&chls=2&chm=B,33B5E533,0,0,0,-1&chd=t:";
+
 var receiver_names = [];
 var receivers = [];  
 
@@ -362,7 +364,10 @@ function updateVehicleInfo(index, position) {
 
 
   // start
-  var a    = '<div class="header"><span>' + vehicle_names[index] + '</span><i class="arrow"></i></div>'
+  var a    = '<div class="header">'
+           + '<span>' + vehicle_names[index] + '</span>'
+           + '<img class="graph" src="img/blank.png">'
+           + '<i class="arrow"></i></div>'
            + '<div class="data">'
            + '<img src="'+image+'" />'
            + '<div class="left">'
@@ -675,12 +680,13 @@ function addPosition(position) {
                             prediction: null,
                             ascent_rate: 0.0,
                             max_alt: parseFloat(position.gps_alt),
-                            alt_data: new Array(),
                             path_enabled: vehicle_type == "balloon" && position.vehicle.toLowerCase().indexOf("iss") == -1,
                             follow: false,
                             color_index: c,
                             prediction_traget: null,
                             prediction_burst: null,
+                            alt_list: [0],
+                            alt_rate: 0
                             };
         vehicles.push(vehicle_info);
     }
@@ -708,6 +714,13 @@ function addPosition(position) {
                     rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
                     vehicle.ascent_rate = 0.7 * rate
                                           + 0.3 * vehicles[vehicle_index].ascent_rate;
+
+                    if(Math.abs(vehicle.alt_rate - rate) >= 0.5) {
+                        vehicle.alt_rate = rate;
+                        vehicle.alt_list.push(parseInt(vehicle.curr_position.gps_alt));
+                    } else {
+                        vehicle.alt_list[vehicle.alt_list.length-1] = parseInt(vehicle.curr_position.gps_alt);
+                    }
                 }
 
                 if(vehicle.curr_position.gps_lat != position.gps_lat
@@ -946,6 +959,8 @@ function update(response) {
       for (vehicle_index = 0; vehicle_index < vehicle_names.length; vehicle_index++) {
 	  	updatePolyline(vehicle_index);
 	    updateVehicleInfo(vehicle_index, vehicles[vehicle_index].curr_position);
+        
+        $('.vehicle'+vehicle_index+' .graph').attr('src', graph_url.replace("{AA}",vehicles[vehicle_index].max_alt)  + vehicles[vehicle_index].alt_list.join(','));
 
         // remember last position for each vehicle
         lastPPointer.push(vehicles[vehicle_index].curr_position);

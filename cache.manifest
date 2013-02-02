@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# version 25
+# version 26
 
 # gogole maps files
 http://maps.google.com/maps/api/js?v=3.10&sensor=false&key=AIzaSyCOqkcNey4CCyG4X0X5qxHAhCgD8g5DwXg
@@ -17,6 +17,7 @@ http://maps.gstatic.com/mapfiles/arrow-down.png
 
 # app files
 img/logo.png
+img/blank.png
 img/marker-you.png
 img/markers/antenna-green.png
 img/markers/balloon-blue.png
