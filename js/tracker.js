@@ -714,12 +714,13 @@ function addPosition(position) {
                     rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
                     vehicle.ascent_rate = 0.7 * rate
                                           + 0.3 * vehicles[vehicle_index].ascent_rate;
-
-                    if(Math.abs(vehicle.alt_rate - rate) >= 0.5) {
-                        vehicle.alt_rate = rate;
-                        vehicle.alt_list.push(parseInt(vehicle.curr_position.gps_alt));
-                    } else {
-                        vehicle.alt_list[vehicle.alt_list.length-1] = parseInt(vehicle.curr_position.gps_alt);
+                    if(vehicle.vehicle_type != "car") {
+                        if(Math.abs(vehicle.alt_rate - rate) >= 0.5) {
+                            vehicle.alt_rate = rate;
+                            vehicle.alt_list.push(parseInt(vehicle.curr_position.gps_alt));
+                        } else {
+                            vehicle.alt_list[vehicle.alt_list.length-1] = parseInt(vehicle.curr_position.gps_alt);
+                        }
                     }
                 }
 
@@ -960,7 +961,9 @@ function update(response) {
 	  	updatePolyline(vehicle_index);
 	    updateVehicleInfo(vehicle_index, vehicles[vehicle_index].curr_position);
         
-        $('.vehicle'+vehicle_index+' .graph').attr('src', graph_url.replace("{AA}",vehicles[vehicle_index].max_alt)  + vehicles[vehicle_index].alt_list.join(','));
+        if(vehicles[vehicle_index].vehicle_type != "car") {
+            $('.vehicle'+vehicle_index+' .graph').attr('src', graph_url.replace("{AA}",vehicles[vehicle_index].max_alt)  + vehicles[vehicle_index].alt_list.join(','));
+        }
 
         // remember last position for each vehicle
         lastPPointer.push(vehicles[vehicle_index].curr_position);
