@@ -8,7 +8,7 @@ var markers_url = "img/markers/";
 var vehicle_names = [];
 var vehicles = [];
 
-var graph_url = "http://chart.googleapis.com/chart?chf=bg,s,67676700&chxr=0,0,46|1,0,0|2,0,45&chxs=0,676767,0,0,_,000000|1,676767,0,0,t,676767|2,676767,0,0,_,676767&chxt=r,y,x&chs=150x40&cht=lc&chco=33B5E5&chds=0,{AA}&chls=2&chm=B,33B5E533,0,0,0,-1&chd=t:";
+var graph_url = "http://chart.googleapis.com/chart?chf=bg,s,67676700&chxr=0,0,46|1,0,0|2,0,45&chxs=0,676767,0,0,_,000000|1,676767,0,0,t,676767|2,676767,0,0,_,676767&chxt=r,y,x&chs=150x40&cht=lc&chco=33B5E5&chds=0,{AA}&chls=2&chm=B,33B5E533,0,0,0,-1&chd=";
 
 var receiver_names = [];
 var receivers = [];  
@@ -554,6 +554,21 @@ function convert_time(gps_time) {
   return (new Date(gps_time)).getTime() / 1000; // seconds since 1/1/1970 @ 12:00 AM
 }
 
+var GChartString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+function GChartEncodeData(valueArray,maxValue) {
+    var chartData = ['s:'];
+    for (var i = 0; i < valueArray.length; i++) {
+        var currentValue = valueArray[i];
+
+        if (!isNaN(currentValue) && currentValue >= 0) {
+            chartData.push(GChartString.charAt(Math.round((GChartString.length-1) * currentValue / maxValue)));
+        } else {
+            chartData.push('_');
+        }
+    }
+    return chartData.join('');
+}
+
 function addPosition(position) { 
     position.gps_time = position.gps_time.replace(/(\d+)-(\d+)-(\d+)/,"$2/$3/$1");
 
@@ -686,7 +701,8 @@ function addPosition(position) {
                             prediction_traget: null,
                             prediction_burst: null,
                             alt_list: [0],
-                            alt_rate: 0
+                            alt_last: 0,
+                            alt_max: 0
                             };
         vehicles.push(vehicle_info);
     }
@@ -714,12 +730,16 @@ function addPosition(position) {
                     rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
                     vehicle.ascent_rate = 0.7 * rate
                                           + 0.3 * vehicles[vehicle_index].ascent_rate;
+
+                    // if vehicle is not a car, record altitude
                     if(vehicle.vehicle_type != "car") {
-                        if(Math.abs(vehicle.alt_rate - rate) >= 0.5) {
-                            vehicle.alt_rate = rate;
-                            vehicle.alt_list.push(parseInt(vehicle.curr_position.gps_alt));
-                        } else {
-                            vehicle.alt_list[vehicle.alt_list.length-1] = parseInt(vehicle.curr_position.gps_alt);
+                        // only record altitude values in 10minute interval
+                        if(convert_time(vehicle.curr_position.gps_time) - vehicle.alt_last >= 600000) { // 600000ms = 10minutes
+                            var alt = parseInt(vehicle.curr_position.gps_alt);
+
+                            if(alt > vehicle.alt_max) vehicle.alt_max = alt; // larged value in the set is required for encoding later
+
+                            vehicle.alt_list.push(alt); // push value to the list
                         }
                     }
                 }
@@ -938,7 +958,7 @@ function update(response) {
   }
   
   var updated_position = false;
-  for (i = 0; i < response.positions.position.length; i++) {
+  for (var i = 0; i < response.positions.position.length; i++) {
     var position = response.positions.position[i];
     if (!position.picture) {
       addPosition(position);
@@ -957,16 +977,21 @@ function update(response) {
       var lastPositions = { positions: { position: [] } };
       var lastPPointer = lastPositions.positions.position;
 
-      for (vehicle_index = 0; vehicle_index < vehicle_names.length; vehicle_index++) {
-	  	updatePolyline(vehicle_index);
-	    updateVehicleInfo(vehicle_index, vehicles[vehicle_index].curr_position);
+      for (var i = 0, ii = vehicle_names.length; i < ii; i++) {
+	  	updatePolyline(i);
+	    updateVehicleInfo(i, vehicles[i].curr_position);
         
-        if(vehicles[vehicle_index].vehicle_type != "car") {
-            $('.vehicle'+vehicle_index+' .graph').attr('src', graph_url.replace("{AA}",vehicles[vehicle_index].max_alt)  + vehicles[vehicle_index].alt_list.join(','));
+        // update the altitude profile, only if its a balloon
+        if(vehicles[i].vehicle_type != "car") {
+            var graph_src = graph_url.replace("{AA}",vehicles[i].max_alt); // top range, buttom is always 0
+            graph_src += GChartEncodeData(vehicles[i].alt_list, vehicles[i].alt_max); // encode datapoint to preserve bandwith
+            
+            // update img element
+            $('.vehicle'+i+' .graph').attr('src', graph_src);
         }
 
         // remember last position for each vehicle
-        lastPPointer.push(vehicles[vehicle_index].curr_position);
+        lastPPointer.push(vehicles[i].curr_position);
 	  }
 
       // store in localStorage

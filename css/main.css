@@ -124,6 +124,7 @@ header > div {
 #main .header {
     height: 20px;
     padding: 10px;
+    padding-right: 9px;
     border-bottom: 2px solid #33b5e5;
     position: relative;
     z-index: 4;
