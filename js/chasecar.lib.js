@@ -33,7 +33,7 @@ ChaseCar.request = function(doc) {
         if(ChaseCar.ucount == ChaseCar.uused && !ChaseCar.uuidsRequested) {
             ChaseCar.uuidsRequested = true; // blocks further uuids request until the current one completes
             ChaseCar.getUUIDS(function() {
-                    ChaseCar.uuidsRequested = false; 
+                    ChaseCar.uuidsRequested = false;
                     ChaseCar.request();
                 });
             return;
@@ -41,7 +41,7 @@ ChaseCar.request = function(doc) {
             ChaseCar.uused++;
             // get one uuid and one doc from the queue and push to habitat
             var uuid = ChaseCar._uuids.shift(), doc = ChaseCar.queue.shift();
-            
+
             // update doc with uuids and time of upload
             doc._id = uuid;
             doc.time_uploaded = (new Date()).toISOString();
@@ -61,7 +61,7 @@ ChaseCar.request = function(doc) {
 // @callsign string
 ChaseCar.putListenerInfo = function(callsign) {
     if(!callsign) return;
-    
+
     ChaseCar.request({
             'type': "listener_information",
             'time_created': (new Date()).toISOString(),
@@ -73,17 +73,22 @@ ChaseCar.putListenerInfo = function(callsign) {
 // @position object (geolocation position object)
 ChaseCar.updatePosition = function(callsign, position) {
     if(!position || !position.coords) return;
-    
+
     ChaseCar.request({
             'type': "listener_telemetry",
             'time_created': (new Date()).toISOString(),
-            'data': { 
+            'data': {
                 'callsign': callsign,
                 'chase': true,
                 'latitude': position.coords.latitude,
                 'longitude': position.coords.longitude,
                 'altitude': ((!!position.coords.altitude) ? position.coords.altitude : 0),
-                'speed': ((!!position.coords.speed) ? position.coords.speed : 0)
+                'speed': ((!!position.coords.speed) ? position.coords.speed : 0),
+                'client': {
+                    'name': 'Habitat Mobile Tracker',
+                    'version': '{VER}',
+                    'agent': navigator.userAgent
+                }
             }
         });
 }

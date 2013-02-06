@@ -1,11 +1,11 @@
 CACHE MANIFEST
-# version 28
+# version 30
 
 # gogole maps files
 http://maps.google.com/maps/api/js?v=3.10&sensor=false&key=AIzaSyCOqkcNey4CCyG4X0X5qxHAhCgD8g5DwXg
 http://maps.gstatic.com/intl/en_us/mapfiles/api-3/10/20/main.js
 http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/10/20/%7Bcommon,map,util,geometry,poly,overlay%7D.js
-http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/10/20/%7Bcommon,util,stats%7D.js  
+http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/10/20/%7Bcommon,util,stats%7D.js
 http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/10/20/%7Bcommon,map,util,geometry,poly,overlay,stats%7D.js
 http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/10/20/%7Bstats%7D.js
 http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/10/20/%7Bonion%7D.js
