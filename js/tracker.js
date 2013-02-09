@@ -321,7 +321,7 @@ function updateVehicleInfo(index, position) {
       vehicles[index].subhorizon_circle.setVisible(false);
 
     } else if(vehicles[index].ascent_rate > -3.0 ||
-              vehicle_names[vehicle_index] == "wb8elk2") {
+              vehicle_names[index] == "wb8elk2") {
     	vehicles[index].marker.setMode("balloon");
     } else {
     	vehicles[index].marker.setMode("parachute");
