@@ -734,7 +734,8 @@ function addPosition(position) {
                     // if vehicle is not a car, record altitude
                     if(vehicle.vehicle_type != "car") {
                         // only record altitude values in 10minute interval
-                        if(convert_time(vehicle.curr_position.gps_time) - vehicle.alt_last >= 600000) { // 600000ms = 10minutes
+                        if(convert_time(vehicle.curr_position.gps_time) - vehicle.alt_last >= 150) { // 150s = 2.5minutes
+                            vehicle.alt_last = convert_time(vehicle.curr_position.gps_time);
                             var alt = parseInt(vehicle.curr_position.gps_alt);
 
                             if(alt > vehicle.alt_max) vehicle.alt_max = alt; // larged value in the set is required for encoding later
@@ -1023,7 +1024,6 @@ function update(response) {
         // limit the zoom level to 11
         if(map.getZoom() > 11) map.setZoom(11);
     }
-    console.log(i);
 
     // pan and follow the vehicle
     followVehicle(i);
