@@ -10,17 +10,23 @@ var loadComplete = function(e) {
 
     loadReload = false;
 
-    $('#loading .complete').stop(true,true).animate({width: 200}, {complete: function() {
-        $('#loading,#settingsbox,#aboutbox,#chasebox').hide(); // welcome screen
-        $('header,#main,#map').show(); // interface elements
-        checkSize();
-        
-        if(!map) load();
-    }});
+    $('#loading .complete').stop(true,true).animate({width: 200}, {complete: trackerInit });
 }
 
+// loads the tracker interface
+function trackerInit() {
+    $('#loading,#settingsbox,#aboutbox,#chasebox').hide(); // welcome screen
+    $('header,#main,#map').show(); // interface elements
+    checkSize();
+
+    if(!map) load();
+}
+
+// if for some reason, applicationCache is not working, load the app after a 5s timeout
+var initTimer = setTimeout(trackerInit, 5000);
+
 var cache = window.applicationCache;
-cache.addEventListener('checking', function() { $('#loading .bar,#loading').show(); $('#loading .complete').css({width: 0}); }, false);
+cache.addEventListener('checking', function() { clearTimeout(initTimer); $('#loading .bar,#loading').show(); $('#loading .complete').css({width: 0}); }, false);
 cache.addEventListener('noupdate', loadComplete, false);
 cache.addEventListener('updateready', loadComplete, false);
 cache.addEventListener('cached', loadComplete, false);
@@ -71,7 +77,7 @@ window.onchangeorientation = checkSize;
 // functions
 
 var positionUpdateHandle = function() {
-    if(CHASE_enabled && !CHASE_listenerSent) { 
+    if(CHASE_enabled && !CHASE_listenerSent) {
         if(offline.get('opt_station')) {
             ChaseCar.putListenerInfo(callsign);
             CHASE_listenerSent = true;
@@ -95,7 +101,7 @@ var positionUpdateHandle = function() {
                 // generate friendly timestamp
                 var hours = Math.floor(delta_ts / 3600);
                 var minutes = Math.floor(delta_ts / 60) % 60;
-                var ts_str = (delta_ts >= 60) ? 
+                var ts_str = (delta_ts >= 60) ?
                                     ((hours)?hours+'h ':'')
                                     + ((minutes)?minutes+'m':'')
                                     + ' ago'
@@ -127,7 +133,7 @@ var positionUpdateHandle = function() {
 
         // add/update marker on the map (tracker.js)
         updateCurrentPosition(lat, lon);
-         
+
         // round the coordinates
         lat = parseInt(lat * 1000000)/1000000;  // 6 decimal places
         lon = parseInt(lon * 1000000)/1000000;  // 6 decimal places
@@ -144,7 +150,7 @@ var positionUpdateHandle = function() {
         $('#cc_alt').text(alt + " m");
         $('#cc_accuracy').text(accuracy + " m");
         $('#cc_speed').text(speed + " m/s");
-    }, 
+    },
     function() {
         // when there is no location
         $('#app_name b').html('mobile<br/>tracker');
@@ -185,13 +191,13 @@ $(window).ready(function() {
             e.find('.data').show();
 
             listScroll.refresh();
-            
+
             // auto scroll when expanding an item
             if($('.portrait:visible').length) {
                 var eName = "." + e.parent().attr('class') + " ." + e.attr('class').match(/vehicle\d+/)[0];
                 listScroll.scrollToElement(eName);
             }
-            
+
             // pan to selected vehicle
             followVehicle(parseInt(e.attr('class').match(/vehicle(\d+)/)[1]));
         }
@@ -248,7 +254,7 @@ $(window).ready(function() {
             CHASE_enabled = false;
 
             // blue man reappers :)
-            if(currentPosition && currentPosition.marker) currentPosition.marker.setVisible(true); 
+            if(currentPosition && currentPosition.marker) currentPosition.marker.setVisible(true);
         // turning the switch on
         } else {
             if(callsign.length < 5) { alert('Please enter a valid callsign, at least 5 characters'); return; }
@@ -256,11 +262,11 @@ $(window).ready(function() {
 
             field.attr('disabled','disabled');
             e.removeClass('off').addClass('on');
-            
+
             // push listener doc to habitat
             // this gets a station on the map, under the car marker
             // im still not sure its nessesary
-            if(!CHASE_listenerSent) { 
+            if(!CHASE_listenerSent) {
                 if(offline.get('opt_station')) {
                     ChaseCar.putListenerInfo(callsign);
                     CHASE_listenerSent = true;
@@ -280,7 +286,7 @@ $(window).ready(function() {
     // remember callsign as a cookie
     $("#cc_callsign").on('change keyup', function() {
         callsign = $(this).val().trim();
-        offline.set('callsign', callsign); // put in localStorage       
+        offline.set('callsign', callsign); // put in localStorage
         CHASE_listenerSent = false;
     });
 
@@ -295,7 +301,7 @@ $(window).ready(function() {
         var e = $(this);
         var name = e.attr('id').replace('sw', 'opt');
         var on;
-        
+
         if(e.hasClass('on')) {
             e.removeClass('on').addClass('off');
             on = 0;
@@ -306,17 +312,17 @@ $(window).ready(function() {
             nite.show();
         }
 
-        offline.set(name, on);        
+        offline.set(name, on);
     });
 
     if(offline.get('opt_daylight')) $('#sw_daylight').removeClass('off').addClass('on');
-    
+
     // offline and mobile
     $('#sw_offline, #sw_station, #sw_imperial').click(function() {
         var e = $(this);
         var name = e.attr('id').replace('sw', 'opt');
         var on;
-        
+
         if(e.hasClass('on')) {
             e.removeClass('on').addClass('off');
             on = 0;
@@ -325,7 +331,7 @@ $(window).ready(function() {
             on = 1;
         }
 
-        offline.set(name, on);        
+        offline.set(name, on);
         if(name == "opt_imperial") refreshUI();
     });
 
@@ -347,7 +353,7 @@ $(window).ready(function() {
 
     // We are able to get GPS position on idevices, if the user allows
     // The position is displayed in top right corner of the screen
-    // This should be very handly for in the field tracking 
+    // This should be very handly for in the field tracking
     //setTimeout(function() {updateCurrentPosition(50.27533, 3.335166);}, 5000);
     if(navigator.geolocation) {
         // if we have geolocation services, show the locate me button
@@ -360,14 +366,14 @@ $(window).ready(function() {
                 // open map
                 $('.nav .home').click();
                 // pan map to our current location
-                map.panTo(new google.maps.LatLng(currentPosition.lat, currentPosition.lon));    
+                map.panTo(new google.maps.LatLng(currentPosition.lat, currentPosition.lon));
             } else {
                 alert("No position available");
             }
         });
 
         // check for location update every 30sec
-        setInterval(positionUpdateHandle, 30000); 
+        setInterval(positionUpdateHandle, 30000);
         // immediatelly check for position
         positionUpdateHandle();
     }
