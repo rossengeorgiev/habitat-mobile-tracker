@@ -734,7 +734,7 @@ function addPosition(position) {
                     // if vehicle is not a car, record altitude
                     if(vehicle.vehicle_type != "car") {
                         // only record altitude values in 10minute interval
-                        if(convert_time(vehicle.curr_position.gps_time) - vehicle.alt_last >= 150) { // 150s = 2.5minutes
+                        if(convert_time(vehicle.curr_position.gps_time) - vehicle.alt_last >= 120) { // 120s = 2minutes
                             vehicle.alt_last = convert_time(vehicle.curr_position.gps_time);
                             var alt = parseInt(vehicle.curr_position.gps_alt);
 
@@ -984,7 +984,7 @@ function update(response) {
 
         // update the altitude profile, only if its a balloon
         if(vehicles[i].vehicle_type != "car") {
-            var graph_src = graph_url.replace("{AA}",vehicles[i].max_alt); // top range, buttom is always 0
+            var graph_src = graph_url.replace("{AA}",vehicles[i].alt_max); // top range, buttom is always 0
             graph_src += GChartEncodeData(vehicles[i].alt_list, vehicles[i].alt_max); // encode datapoint to preserve bandwith
 
             // update img element
