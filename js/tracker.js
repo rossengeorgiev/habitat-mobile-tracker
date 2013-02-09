@@ -11,7 +11,7 @@ var vehicles = [];
 var graph_url = "http://chart.googleapis.com/chart?chf=bg,s,67676700&chxr=0,0,46|1,0,0|2,0,45&chxs=0,676767,0,0,_,000000|1,676767,0,0,t,676767|2,676767,0,0,_,676767&chxt=r,y,x&chs=150x40&cht=lc&chco=33B5E5&chds=0,{AA}&chls=2&chm=B,33B5E533,0,0,0,-1&chd=";
 
 var receiver_names = [];
-var receivers = [];  
+var receivers = [];
 
 var num_updates = 0;
 var got_positions = false;
@@ -24,7 +24,7 @@ var selected_vehicle = 0;
 var follow_vehicle = -1;
 
 var signals = null;
-var signals_seq = -1;  
+var signals_seq = -1;
 
 var car_index = 0;
 var car_colors = ["blue", "red", "green", "yellow"];
@@ -53,7 +53,7 @@ var ls_pred = false;
 var offline = {
     get: function(key) {
         if(typeof localStorage == 'undefined') return null;
-        
+
         return JSON.parse(localStorage.getItem(key));
     },
     set: function(key, object) {
@@ -77,12 +77,12 @@ function load() {
         zoomContro: true,
         scrollwheel: true
     });
-    
+
     nite.init(map);
     if(!offline.get('opt_daylight')) nite.hide();
     setInterval(function() { nite.refresh(); }, 60000); // 1min
-	
-    // we need a dummy overlay to access getProjection()	
+
+    // we need a dummy overlay to access getProjection()
     overlay = new google.maps.OverlayView();
     overlay.draw = function() {};
     overlay.setMap(map);
@@ -94,7 +94,7 @@ function load() {
     // only start population the map, once its completely loaded
     google.maps.event.addListenerOnce(map, 'idle', function(){
         startAjax();
-    }); 
+    });
 }
 
 function unload() {
@@ -194,9 +194,9 @@ function habitat_data(jsondata) {
     for(var key in data) {
         array.push([key, data[key]]);
     }
-    
+
     array.sort(function(a, b) {
-        return a[0].localeCompare(b[0]);    
+        return a[0].localeCompare(b[0]);
     });
 
     for(var i = 0, ii = array.length; i < ii; i++) {
@@ -251,7 +251,7 @@ function updateZoom() {
     if(vehicles[index].vehicle_type == "balloon") {
       updateAltitude(index);
     }
-  } 
+  }
 }
 
 
@@ -264,7 +264,7 @@ function stopFollow() {
 
 function followVehicle(index) {
 	if(follow_vehicle != -1) vehicles[follow_vehicle].follow = false;
-	
+
 	if(follow_vehicle == index) {
         vehicles[follow_vehicle].follow = false;
         follow_vehicle = -1;
@@ -288,18 +288,18 @@ function updateVehicleInfo(index, position) {
   if(vehicles[index].vehicle_type == "balloon") {
     updateAltitude(index);
     var horizon_km = Math.sqrt(12.756 * position.gps_alt);
-    vehicles[index].horizon_circle.setRadius(Math.round(horizon_km)*1000);     
+    vehicles[index].horizon_circle.setRadius(Math.round(horizon_km)*1000);
 
     if(vehicles[index].subhorizon_circle) {
       // see: http://ukhas.org.uk/communication:lineofsight
       var el = 5.0; // elevation above horizon
       var rad = 6378.10; // radius of earth
       var h = position.gps_alt / 1000; // height above ground
-      
+
       var elva = el * Math.PI / 180.0;
       var slant = rad*(Math.cos(Math.PI/2+elva)+Math.sqrt(Math.pow(Math.cos(Math.PI/2+elva),2)+h*(2*rad+h)/Math.pow(rad,2)));
       var x = Math.acos((Math.pow(rad,2)+Math.pow(rad+h,2)-Math.pow(slant,2))/(2*rad*(rad+h)))*rad;
-   
+
       var subhorizon_km = x;
       vehicles[index].subhorizon_circle.setRadius(Math.round(subhorizon_km)*1000);
     }
@@ -312,14 +312,14 @@ function updateVehicleInfo(index, position) {
                  ) || (                                     // or
                      position.gps_alt < 600                 // under 600m and has no position update for more than 30 minutes
                      && (new Date((new Date()).toISOString())).getTime() - (new Date(position.gps_time + " UTC")).getTime() > 1800000
-                 );           
-     
+                 );
+
     if(landed) {
       vehicles[index].marker.setMode("landed");
       vehicles[index].marker.shadow.setVisible(false);
       vehicles[index].horizon_circle.setVisible(false);
       vehicles[index].subhorizon_circle.setVisible(false);
-      
+
     } else if(vehicles[index].ascent_rate > -3.0 ||
               vehicle_names[vehicle_index] == "wb8elk2") {
     	vehicles[index].marker.setMode("balloon");
@@ -346,15 +346,15 @@ function updateVehicleInfo(index, position) {
 
   var imp = offline.get('opt_imperial');
   var ascent_text = imp ? (vehicles[index].ascent_rate * 196.850394).toFixed(1) + ' ft/min' : vehicles[index].ascent_rate.toFixed(1) + ' m/s';
-  
+
   var coords_text;
   var ua =  navigator.userAgent.toLowerCase();
   // determine how to link the vehicle coordinates to a native app, if on a mobile device
-  if(ua.indexOf('iphone') > -1) { 
+  if(ua.indexOf('iphone') > -1) {
       coords_text = '<a id="launch_mapapp" href="http://maps.google.com/?q='+position.gps_lat+','+position.gps_lon+'">'
                     + roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6) +'</a>'
                     + ' <i class="icon-location"></i>';
-  } else if(ua.indexOf('android') > -1) { 
+  } else if(ua.indexOf('android') > -1) {
       coords_text = '<a id="launch_mapapp" href="geo:0,0?q='+position.gps_lat+','+position.gps_lon+'">'
                     + roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6) +'</a>'
                     + ' <i class="icon-location"></i>';
@@ -399,13 +399,13 @@ function updateVehicleInfo(index, position) {
            + '<dt>'+((imp) ? parseInt(3.2808399 * position.gps_alt) + 'ft': position.gps_alt + 'm')+' ('+((imp) ? parseInt(3.2808399 * vehicles[index].max_alt) + 'ft' : vehicles[index].max_alt + 'm')+')</dt><dd>altitude (max)</dd>'
            + '<dt>'+position.gps_time+'</dt><dd>datetime</dd>'
            + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
-           + habitat_data(position.data) 
+           + habitat_data(position.data)
            + c // receivers if any
            + '';
 
 
-  $('.portrait .vehicle'+index).html(a + p + b); 
-  $('.landscape .vehicle'+index).html(a + l + b); 
+  $('.portrait .vehicle'+index).html(a + p + b);
+  $('.landscape .vehicle'+index).html(a + l + b);
   return true;
 }
 
@@ -430,7 +430,7 @@ function addMarker(icon, latlng) {
         map: map,
         clickable: false
     });
-      
+
     return marker;
 }
 
@@ -461,7 +461,7 @@ function redrawPrediction(vehicle_index) {
     var	burst_index = 0;
     for(var i = 0, ii = data.length; i < ii; i++) {
         latlng = new google.maps.LatLng(data[i].lat, data[i].lon);
-        line.push(latlng); 
+        line.push(latlng);
         if(parseFloat(data[i].alt) > max_alt) {
             max_alt = parseFloat(data[i].alt);
             latlng_burst = latlng;
@@ -483,11 +483,11 @@ function redrawPrediction(vehicle_index) {
             draggable: false,
         });
     }
-    var image_src; 		
+    var image_src;
     if(vehicle_names[vehicle_index] != "wb8elk2") { // WhiteStar
         /*
         //icon.infoWindowAnchor = new google.maps.Point(13,5);
-        
+
         var time = new Date(data[data.length-1].time * 1000);
         var time_string = pad(time.getUTCHours(), 2) + ':' + pad(time.getUTCMinutes(), 2) + ' UTC';
         var html = '<b>Predicted Landing</b><br />'
@@ -505,11 +505,11 @@ function redrawPrediction(vehicle_index) {
     } else {
         if(vehicle.prediction_target) vehicle.prediction_target = null;
     }
-  
+
     if(burst_index != 0 && vehicle_names[vehicle_index] != "wb8elk2") {
         /*
         //icon.infoWindowAnchor = new google.maps.Point(18,5);
-        
+
         var time = new Date(data[burst_index].time * 1000);
         var time_string = pad(time.getUTCHours(), 2) + ':' + pad(time.getUTCMinutes(), 2) + ' UTC';
         var html = '<b>Predicted Burst</b><br />'
@@ -541,7 +541,7 @@ function convert_time(gps_time) {
   hour = parseInt(gps_time.substring(11, 13), 10);
   minute = parseInt(gps_time.substring(14, 16), 10);
   second = parseInt(gps_time.substring(17), 10);
- 
+
   date = new Date();
   date.setUTCFullYear(year);
   date.setUTCMonth(month-1);
@@ -550,7 +550,7 @@ function convert_time(gps_time) {
   date.setUTCMinutes(minute);
   date.setUTCSeconds(second);
   */
-  
+
   return (new Date(gps_time)).getTime() / 1000; // seconds since 1/1/1970 @ 12:00 AM
 }
 
@@ -569,7 +569,7 @@ function GChartEncodeData(valueArray,maxValue) {
     return chartData.join('');
 }
 
-function addPosition(position) { 
+function addPosition(position) {
     position.gps_time = position.gps_time.replace(/(\d+)-(\d+)-(\d+)/,"$2/$3/$1");
 
     // check if the vehicle is already in the list, if not create a new item
@@ -601,7 +601,7 @@ function addPosition(position) {
             vehicle_type = "balloon";
             color_index = balloon_index++;
             var c = color_index % balloon_colors.length;
-            
+
             image_src = host_url + markers_url + "balloon-" + balloon_colors_name[c] + ".png";
             marker_shadow = new google.maps.Marker({
                 map: map,
@@ -644,7 +644,7 @@ function addPosition(position) {
                 this.setPosition(overlay.getProjection().fromDivPixelToLatLng(pos));
             }
             marker.setAltitude(0);
-                 
+
             horizon_circle = new google.maps.Circle({
                 map: map,
                 zIndex: Z_RANGE,
@@ -712,7 +712,7 @@ function addPosition(position) {
 
     if(vehicle.vehicle_type == "balloon") {
         var new_latlng = new google.maps.LatLng(position.gps_lat, position.gps_lon);
-        
+
         // if position array has at least 1 position
         if(vehicle.num_positions > 0) {
             if((new Date(vehicle.curr_position.gps_time)).getTime() >= (new Date(position.gps_time)).getTime()) {
@@ -761,7 +761,7 @@ function addPosition(position) {
     } else { // if car
         vehicle.curr_position = position;
     }
-  
+
     // record the highest altitude
     if(parseFloat(position.gps_alt) > vehicle.max_alt) {
         vehicle.max_alt = parseFloat(position.gps_alt);
@@ -798,7 +798,7 @@ function refreshReceivers() {
         data: "",
         dataType: "json",
         success: function(response, textStatus) {
-            offline.set('receivers', response); 
+            offline.set('receivers', response);
             updateReceivers(response);
         },
         error: function() {
@@ -817,7 +817,7 @@ function refreshPredictions() {
         data: "",
         dataType: "json",
         success: function(response, textStatus) {
-            offline.set('predictions', response); 
+            offline.set('predictions', response);
             updatePredictions(response);
         },
         error: function() {
@@ -837,15 +837,15 @@ function startAjax() {
     clearTimeout(periodical);
     clearTimeout(periodical_receivers);
     clearTimeout(periodical_predictions);
-    
+
     // the periodical starts here, the * 1000 is because milliseconds required
-    
+
     //periodical = setInterval(refresh, timer_seconds * 1000);
     refresh();
-    
+
     //periodical_listeners = setInterval(refreshReceivers, 60 * 1000);
     refreshReceivers();
-    
+
     //periodical_predictions = setInterval(refreshPredictions, 2 * timer_seconds * 1000);
     refreshPredictions();
 }
@@ -912,14 +912,14 @@ function updateReceivers(r) {
             receiver_names.push(r[i].name);
             r_index = receiver_names.length - 1;
             receivers[r_index] = {marker: null};
-        } 
+        }
         receiver = receivers[r_index];
         receiver.name = r[i].name;
         receiver.lat = lat;
         receiver.lon = lon;
         receiver.alt = parseFloat(r[i].alt);
         receiver.description = r[i].description;
-        updateReceiverMarker(receiver);  
+        updateReceiverMarker(receiver);
         }
     }
 
@@ -938,7 +938,7 @@ function updatePredictions(r) {
                 vehicles[vehicle_index].prediction.data = $.parseJSON(r[i].data);
                 redrawPrediction(vehicle_index);
             } else {
-                removePrediction(vehicle_index); 
+                removePrediction(vehicle_index);
             }
 	    }
 	}
@@ -956,7 +956,7 @@ function update(response) {
   if (response == null || !response.positions) {
     return;
   }
-  
+
   var updated_position = false;
   for (var i = 0; i < response.positions.position.length; i++) {
     var position = response.positions.position[i];
@@ -971,7 +971,7 @@ function update(response) {
     var position = response.positions.position[response.positions.position.length-1];
     position_id = position.position_id;
   }
-  
+
   if (updated_position) {
       // create a dummy response object for postions
       var lastPositions = { positions: { position: [] } };
@@ -980,12 +980,12 @@ function update(response) {
       for (var i = 0, ii = vehicle_names.length; i < ii; i++) {
 	  	updatePolyline(i);
 	    updateVehicleInfo(i, vehicles[i].curr_position);
-        
+
         // update the altitude profile, only if its a balloon
         if(vehicles[i].vehicle_type != "car") {
             var graph_src = graph_url.replace("{AA}",vehicles[i].max_alt); // top range, buttom is always 0
             graph_src += GChartEncodeData(vehicles[i].alt_list, vehicles[i].alt_max); // encode datapoint to preserve bandwith
-            
+
             // update img element
             $('.vehicle'+i+' .graph').attr('src', graph_src);
         }
@@ -1002,24 +1002,30 @@ function update(response) {
 	  	map.panTo(new google.maps.LatLng(pos.gps_lat, pos.gps_lon));
 	  }
   }
-  
+
   if (got_positions && !zoomed_in) {
+    if(vehicles.length == 0) return;
+
     // find a the first balloon
-    var i = 0;    
-    while(!vehicles[i].marker_shadow) i++;
+    var i = -1, ii = vehicles.length;
+    while(++i < ii && !vehicles[i].marker_shadow);
 
-    // find the bounds of the ballons first and last positions
-    var bounds = new google.maps.LatLngBounds();
-    bounds.extend(vehicles[i].positions[0]);
-    bounds.extend(vehicles[i].marker.getPosition());
-    
-    // fit the map to those bounds
-    map.fitBounds(bounds);
+    if(i == ii) { i = 0 }
+    else {
+        // find the bounds of the ballons first and last positions
+        var bounds = new google.maps.LatLngBounds();
+        bounds.extend(vehicles[i].positions[0]);
+        bounds.extend(vehicles[i].marker.getPosition());
 
-    // limit the zoom level to 11
-    if(map.getZoom() > 11) map.setZoom(11);
+        // fit the map to those bounds
+        map.fitBounds(bounds);
 
-    // pan and follow that balloon
+        // limit the zoom level to 11
+        if(map.getZoom() > 11) map.setZoom(11);
+    }
+    console.log(i);
+
+    // pan and follow the vehicle
     followVehicle(i);
 
     // expand list element
@@ -1031,6 +1037,6 @@ function update(response) {
 
     zoomed_in = true;
   }
-  
+
   if(listScroll) listScroll.refresh();
 }
