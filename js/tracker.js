@@ -729,7 +729,7 @@ function addPosition(position) {
                 if(dt != 0) {
                     rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
                     vehicle.ascent_rate = 0.7 * rate
-                                          + 0.3 * vehicles[vehicle_index].ascent_rate;
+                                          + 0.3 * vehicle.ascent_rate;
 
                     // if vehicle is not a car, record altitude
                     if(vehicle.vehicle_type != "car") {
