@@ -391,12 +391,12 @@ function updateVehicleInfo(index, position) {
            + '<div class="right">'
            + '<dl>'
            + (position.gps_alt != 0 ? '<dt>'+ascent_text+'</dt><dd>rate</dd>' : '')
-           + '<dt>'+((imp) ? parseInt(3.2808399 * position.gps_alt) + ' ft': position.gps_alt + ' m')+'</dt><dd>altitude</dd>'
-           + '<dt>'+((imp) ? parseInt(3.2808399 * vehicles[index].max_alt) + ' ft': vehicles[index].max_alt + ' m')+'</dt><dd>max alt</dd>'
+           + '<dt>'+((imp) ? parseInt(3.2808399 * position.gps_alt) + ' ft': parseInt(position.gps_alt) + ' m')+'</dt><dd>altitude</dd>'
+           + '<dt>'+((imp) ? parseInt(3.2808399 * vehicles[index].max_alt) + ' ft': parseInt(vehicles[index].max_alt) + ' m')+'</dt><dd>max alt</dd>'
            + '';
   // mid for landscape
   var l    = (position.gps_alt != 0 ? '<dt>'+ascent_text+'</dt><dd>rate</dd>' : '')
-           + '<dt>'+((imp) ? parseInt(3.2808399 * position.gps_alt) + 'ft': position.gps_alt + 'm')+' ('+((imp) ? parseInt(3.2808399 * vehicles[index].max_alt) + 'ft' : vehicles[index].max_alt + 'm')+')</dt><dd>altitude (max)</dd>'
+           + '<dt>'+((imp) ? parseInt(3.2808399 * position.gps_alt) + 'ft': parseInt(position.gps_alt) + 'm')+' ('+((imp) ? parseInt(3.2808399 * vehicles[index].max_alt) + 'ft' : parseInt(vehicles[index].max_alt) + 'm')+')</dt><dd>altitude (max)</dd>'
            + '<dt>'+position.gps_time+'</dt><dd>datetime</dd>'
            + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
            + habitat_data(position.data)
