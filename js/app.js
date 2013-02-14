@@ -22,8 +22,8 @@ function trackerInit() {
     if(!map) load();
 }
 
-// if for some reason, applicationCache is not working, load the app after a 5s timeout
-var initTimer = setTimeout(trackerInit, 5000);
+// if for some reason, applicationCache is not working, load the app after a 3s timeout
+var initTimer = setTimeout(trackerInit, 3000);
 
 var cache = window.applicationCache;
 cache.addEventListener('checking', function() { clearTimeout(initTimer); $('#loading .bar,#loading').show(); $('#loading .complete').css({width: 0}); }, false);
