@@ -78,6 +78,8 @@ function load() {
         scrollwheel: true
     });
 
+    if(currentPosition) updateCurrentPosition(currentPosition.lat, currentPosition.lon);
+
     nite.init(map);
     if(!offline.get('opt_daylight')) nite.hide();
     setInterval(function() { nite.refresh(); }, 60000); // 1min
@@ -876,6 +878,7 @@ function updateCurrentPosition(lat, lon) {
     } else {
       currentPosition.lat = lat;
       currentPosition.lon = lon;
+      currentPosition.marker.setMap(map);
       currentPosition.marker.setPosition(latlng);
     }
 }
