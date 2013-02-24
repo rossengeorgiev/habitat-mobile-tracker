@@ -703,8 +703,8 @@ function addPosition(position) {
                             prediction_traget: null,
                             prediction_burst: null,
                             alt_list: [0],
-                            alt_last: 0,
-                            alt_max: 0
+                            time_last_alt: 0,
+                            alt_max: 100
                             };
         vehicles.push(vehicle_info);
     }
@@ -718,8 +718,6 @@ function addPosition(position) {
         // if position array has at least 1 position
         if(vehicle.num_positions > 0) {
             if((new Date(vehicle.curr_position.gps_time)).getTime() >= (new Date(position.gps_time)).getTime()) {
-            //if(vehicle.curr_position.gps_lat == position.gps_lat
-             //  && vehicle.curr_position.gps_lon == position.gps_lon) {
                 if (("," + vehicle.curr_position.callsign + ",").indexOf("," + position.callsign + ",") === -1) {
                   vehicle.curr_position.callsign += "," + position.callsign;
                 }
@@ -736,8 +734,8 @@ function addPosition(position) {
                     // if vehicle is not a car, record altitude
                     if(vehicle.vehicle_type != "car") {
                         // only record altitude values in 10minute interval
-                        if(convert_time(vehicle.curr_position.gps_time) - vehicle.alt_last >= 120) { // 120s = 2minutes
-                            vehicle.alt_last = convert_time(vehicle.curr_position.gps_time);
+                        if(convert_time(vehicle.curr_position.gps_time) - vehicle.time_last_alt >= 120) { // 120s = 2minutes
+                            vehicle.time_last_alt = convert_time(vehicle.curr_position.gps_time);
                             var alt = parseInt(vehicle.curr_position.gps_alt);
 
                             if(alt > vehicle.alt_max) vehicle.alt_max = alt; // larged value in the set is required for encoding later
