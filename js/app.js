@@ -74,6 +74,21 @@ function checkSize() {
 window.onresize = checkSize;
 window.onchangeorientation = checkSize;
 
+// detect if mobile
+var is_mobile = false;
+
+if(
+ navigator.userAgent.match(/Android/i)
+ || navigator.userAgent.match(/iPhone/i)
+ || navigator.userAgent.match(/iPod/i)
+ || navigator.userAgent.match(/iPad/i)
+ || navigator.userAgent.match(/Windows Phone/i)
+ || navigator.userAgent.match(/webOS/i)
+ || navigator.userAgent.match(/BlackBerry/i)
+ ) is_mobile = true;
+
+
+
 // functions
 
 var positionUpdateHandle = function() {
@@ -164,7 +179,7 @@ $(window).ready(function() {
     checkSize();
 
     // add inline scroll to vehicle list
-    listScroll = new iScroll('main', { hScrollbar: false, hScroll: false, snap: false });
+    listScroll = new iScroll('main', { hScrollbar: false, hScroll: false, snap: false, scrollbarClass: 'scrollStyle' });
 
     // confirm dialog when launchnig a native map app with coordinates
     $('#main').on('click', '#launch_mapapp', function() {
@@ -355,7 +370,7 @@ $(window).ready(function() {
     // The position is displayed in top right corner of the screen
     // This should be very handly for in the field tracking
     //setTimeout(function() {updateCurrentPosition(50.27533, 3.335166);}, 5000);
-    if(navigator.geolocation) {
+    if(navigator.geolocation && is_mobile) {
         // if we have geolocation services, show the locate me button
         // the button pants the map to the user current location
         $("#locate-me,.chasecar").show();
