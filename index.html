@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" manifest="cache.manifest">
+<html lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>habitat mobile tracker</title>
@@ -10,6 +10,13 @@
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
         <link rel="apple-touch-icon" sizes="144x144" href="img/apple-touch-icon.png" />
+        <!--
+        <link rel="stylesheet" href="css/base.css"/>
+        <link rel="stylesheet" href="css/skeleton.css"/>
+        <link rel="stylesheet" href="css/layout.css"/>
+        <link rel="stylesheet" href="css/habitat-font.css"/>
+        <link rel="stylesheet" href="css/main.css"/>
+        -->
         <link rel="stylesheet" href="css/mobile.css"/>
         <link rel="shortcut icon" href="favicon.ico" />
     </head>
@@ -61,32 +68,32 @@
                 <div class="switch off" id="sw_daylight">
                     <span class="thumb"></span>
                     <input type="checkbox" id="opt_daylight">
-                </div> 
+                </div>
             </div>
             <div class="row option">
                 <span><b>Imperial units</b></span>
                 <div class="switch off" id="sw_imperial">
                     <span class="thumb"></span>
                     <input type="checkbox" id="opt_imperial">
-                </div> 
+                </div>
             </div>
             <div class="row option">
                 <span><b>Availability offline</b></span>
                 <div class="switch off" id="sw_offline">
                     <span class="thumb"></span>
                     <input type="checkbox" id="opt_offline">
-                </div> 
+                </div>
             </div>
             <div class="row option">
                 <span><b>Mobile station</b></span>
                 <div class="switch off" id="sw_station">
                     <span class="thumb"></span>
                     <input type="checkbox" id="opt_station">
-                </div> 
+                </div>
             </div>
             <div class="row info">
                 <span>
-                Chase car equipped with radio reciever 
+                Chase car equipped with radio reciever
                 </span>
             </div>
             <div class="row option">
@@ -94,7 +101,7 @@
                 <div class="switch off" id="sw_cache">
                     <span class="thumb"></span>
                     <input type="checkbox" id="opt_cache">
-                </div> 
+                </div>
             </div>
             <div class="row info">
                 <span>
@@ -113,7 +120,7 @@
                 <div class="switch off" id="sw_chasecar">
                     <span class="thumb"></span>
                     <input type="checkbox" id="chasecar_on">
-                </div> 
+                </div>
             </div>
             <div class="row option">
                 <span>Callsign</span>
@@ -147,18 +154,22 @@
                 <span>Speed</span>
                 <span class="r" id="cc_speed">none</span>
             </div>
-        </div> 
+        </div>
     </div>
-    <div id="map" style="dispaly: none"></div>
-    <div id="main" style="dispaly: none">
+    <div id="map" style="dispaly: none" class="main_screen"></div>
+    <div id="main" style="dispaly: none" class="main_screen">
         <div class="scrollwrapper">
-        <div class="portrait">
-            <div class="row vehicle0"><div class="header empty"><span>No vehicles :(</span></div></div>
-        </div>
-        <div class="landscape">
-            <div class="row vehicle0"><div class="header empty"><span>No vehicles :(</span></div></div>
+            <div class="portrait">
+                <div class="row vehicle0"><div class="header empty"><span>No vehicles :(</span></div></div>
+            </div>
+            <div class="landscape">
+                <div class="row vehicle0"><div class="header empty"><span>No vehicles :(</span></div></div>
+            </div>
         </div>
     </div>
+    <div id="telemetry_graph" style="display: none">
+        <div class="graph_label">Telemetry Graph</div>
+        <div class="holder" style="height: 200px;width: 50px"></div>
     </div>
     <script src="http://maps.google.com/maps/api/js?v=3.10&sensor=false&key=AIzaSyCOqkcNey4CCyG4X0X5qxHAhCgD8g5DwXg" type="text/javascript"></script>
     <script type="text/javascript" language="javascript" src="js/mobile.js"></script>

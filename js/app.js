@@ -1,3 +1,16 @@
+// detect if mobile
+var is_mobile = false;
+
+if(
+ navigator.userAgent.match(/Android/i)
+ || navigator.userAgent.match(/iPhone/i)
+ || navigator.userAgent.match(/iPod/i)
+ || navigator.userAgent.match(/iPad/i)
+ || navigator.userAgent.match(/Windows Phone/i)
+ || navigator.userAgent.match(/webOS/i)
+ || navigator.userAgent.match(/BlackBerry/i)
+ ) is_mobile = true;
+
 // handle cachin events and display a loading bar
 var loadReload = false;
 var loadComplete = function(e) {
@@ -17,7 +30,13 @@ var loadComplete = function(e) {
 function trackerInit() {
     $('#loading,#settingsbox,#aboutbox,#chasebox').hide(); // welcome screen
     $('header,#main,#map').show(); // interface elements
+
+    if(!is_mobile) {
+        $('<script type="text/javascript" language="javascript" src="js/init_plot.js"></script>').appendTo('body');
+        $('#telemetry_graph').addClass("main_screen").attr('style','');
+    }
     checkSize();
+
 
     if(!map) load();
 }
@@ -56,9 +75,14 @@ function checkSize() {
     $('.container').width(w-20);
 
     if($('.landscape:visible').length) {
-        $('#main,#map').height(h-hh-5);
+        $('#main').height(h-hh-5);
+        if($('#telemetry_graph .graph_label').hasClass('active')) {
+            $('#map').height(h-hh-5-200);
+        } else {
+            $('#map').height(h-hh-5);
+        }
         $('body,#loading').height(h);
-        $('#map').width(w-sw-1);
+        $('#map,#telemetry_graph,#telemetry_graph .holder').width(w-sw-1);
     } else { // portrait mode
         if(h < 420) h = 420;
         $('body,#loading').height(h);
@@ -73,20 +97,6 @@ function checkSize() {
 
 window.onresize = checkSize;
 window.onchangeorientation = checkSize;
-
-// detect if mobile
-var is_mobile = false;
-
-if(
- navigator.userAgent.match(/Android/i)
- || navigator.userAgent.match(/iPhone/i)
- || navigator.userAgent.match(/iPod/i)
- || navigator.userAgent.match(/iPad/i)
- || navigator.userAgent.match(/Windows Phone/i)
- || navigator.userAgent.match(/webOS/i)
- || navigator.userAgent.match(/BlackBerry/i)
- ) is_mobile = true;
-
 
 
 // functions
@@ -181,6 +191,18 @@ $(window).ready(function() {
     // add inline scroll to vehicle list
     listScroll = new iScroll('main', { hScrollbar: false, hScroll: false, snap: false, scrollbarClass: 'scrollStyle' });
 
+    $('#telemetry_graph').on('click', '.graph_label', function() {
+        var e = $(this);
+        if(e.hasClass('active')) {
+            e.removeClass('active');
+            var h = $('#map').height() + $('#telemetry_graph').height();
+        } else {
+            e.addClass('active');
+            var h = $('#map').height() - $('#telemetry_graph').height();
+        }
+        $('#map').stop(null,null).animate({'height': h});
+    });
+
     // confirm dialog when launchnig a native map app with coordinates
     $('#main').on('click', '#launch_mapapp', function() {
         return confirm("Launch your maps app?");
@@ -222,7 +244,7 @@ $(window).ready(function() {
     $('.nav')
     .on('click', '.home', function() {
         var e = $(this);
-        var box = $('#main,#map');
+        var box = $('.main_screen');
         if(box.is(':hidden')) {
             $('#chasecarbox,#aboutbox,#settingsbox').hide();
             box.show();
@@ -233,7 +255,7 @@ $(window).ready(function() {
         var e = $(this);
         var box = $('#chasecarbox');
         if(box.is(':hidden')) {
-            $('#map,#main,#aboutbox,#settingsbox').hide();
+            $('.main_screen,#aboutbox,#settingsbox').hide();
             box.show();
         }
         checkSize();
@@ -242,7 +264,7 @@ $(window).ready(function() {
         var e = $(this);
         var box = $('#aboutbox');
         if(box.is(':hidden')) {
-            $('#map,#main,#chasecarbox,#settingsbox').hide();
+            $('.main_screen,#chasecarbox,#settingsbox').hide();
             box.show();
         }
         checkSize();
@@ -251,7 +273,7 @@ $(window).ready(function() {
         var e = $(this);
         var box = $('#settingsbox');
         if(box.is(':hidden')) {
-            $('#map,#main,#chasecarbox,#aboutbox').hide();
+            $('.main_screen,#chasecarbox,#aboutbox').hide();
             box.show();
         }
     });

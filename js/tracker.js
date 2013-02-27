@@ -49,6 +49,8 @@ var Z_PAYLOAD = 6;
 var ls_receivers = false;
 var ls_pred = false;
 
+var plot = null;
+
 
 var offline = {
     get: function(key) {
@@ -274,6 +276,8 @@ function followVehicle(index) {
 		follow_vehicle = index;
 		vehicles[follow_vehicle].follow = true;
         panTo(index);
+
+        updateGraph(index);
 	}
 }
 
@@ -704,7 +708,8 @@ function addPosition(position) {
                             prediction_burst: null,
                             alt_list: [0],
                             time_last_alt: 0,
-                            alt_max: 100
+                            alt_max: 100,
+                            graph_data: []
                             };
         vehicles.push(vehicle_info);
     }
@@ -752,12 +757,14 @@ function addPosition(position) {
                     vehicle.num_positions++;
 
                     vehicle.curr_position = position;
+                    graphAddLastPosition(vehicle_index);
                 }
             }
         } else {
             vehicle.positions.push(new_latlng);
             vehicle.num_positions++;
             vehicle.curr_position = position;
+            graphAddLastPosition(vehicle_index);
         }
     } else { // if car
         vehicle.curr_position = position;
@@ -769,6 +776,55 @@ function addPosition(position) {
     }
 
     return;
+}
+
+function updateGraph(idx) {
+    if(!plot) return;
+
+    plot = $.plot(plot_holder, vehicles[idx].graph_data, plot_options);
+}
+
+function graphAddLastPosition(idx) {
+    if(!plot) return;
+
+    var data = vehicles[idx].graph_data;
+    var new_data = vehicles[idx].curr_position;
+    var ts = (new Date(new_data.gps_time)).getTime(); // flot needs miliseconds for time
+    var series_idx = 1;
+
+    if(data[0] === undefined) {
+        data[0] = {
+                    label: "altitude = 0",
+                    hoverable: true,
+                    clickable: true,
+                    color: '#33B5E5',
+                    yaxis: 1,
+                    lines: { show:true, fill: true, fillColor: "rgba(51, 181, 229, 0.1)" },
+                    data: []
+                  };
+    }
+
+    // push latest altitude
+    data[0].data.push([ts, parseInt(new_data.gps_alt)]);
+    var json = $.parseJSON(new_data.data);
+
+    $.each(json, function(k, v) {
+        if(isNaN(v)) return;
+        if(series_idx > 7) return;
+
+        var i = series_idx++;
+
+        if(data[i] === undefined) {
+            data[i] = {
+                        label: k + " = 0",
+                        hoverable: true,
+                        clickable: true,
+                        yaxis: i + 1,
+                        data: []
+                      };
+        }
+        data[i].data.push([ts, parseFloat(v)]);
+    });
 }
 
 function refresh() {

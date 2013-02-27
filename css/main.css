@@ -335,9 +335,36 @@ header > div {
     top: 3px;
 }
 
+#telemetry_graph {
+    display: none;
+}
+
 @media only screen and (min-width: 321px) {
     .portrait { display: none; }
     .landscape { display: block; }
+    #telemetry_graph {
+        display: block;
+        float: right;
+        height: 200px;
+        width: 280px;
+        background: #fff;
+        position: relative;
+    }
+    #telemetry_graph .graph_label {
+        position: absolute;
+        top: -21px;
+        left: 0px;
+        height: 21px;
+        padding: 0px 5px;
+        background: #00a3d3;
+        z-index: 20;
+        font-weight: bold;
+        font-size: 11px;
+        color: #fff;
+        border-radius: 0px 5px 0 0;
+        box-shadow: 1px -1px 5px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+    }
     #map {
         float: right;
         height: 245px;
