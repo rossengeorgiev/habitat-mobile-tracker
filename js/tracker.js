@@ -795,8 +795,6 @@ function graphAddLastPosition(idx) {
     if(data[0] === undefined) {
         data[0] = {
                     label: "altitude = 0",
-                    hoverable: true,
-                    clickable: true,
                     color: '#33B5E5',
                     yaxis: 1,
                     lines: { show:true, fill: true, fillColor: "rgba(51, 181, 229, 0.1)" },
@@ -817,11 +815,11 @@ function graphAddLastPosition(idx) {
         if(data[i] === undefined) {
             data[i] = {
                         label: k + " = 0",
-                        hoverable: true,
-                        clickable: true,
                         yaxis: i + 1,
                         data: []
                       };
+
+           if(isInt(v)) $.extend(true, data[i], { noInterpolate: true, lines: { steps: true }});
         }
         data[i].data.push([ts, parseFloat(v)]);
     });
@@ -1096,4 +1094,8 @@ function update(response) {
   }
 
   if(listScroll) listScroll.refresh();
+}
+
+function isInt(n) {
+   return n % 1 === 0;
 }

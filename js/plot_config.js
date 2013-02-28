@@ -79,20 +79,22 @@ function updateLegend() {
             }
         }
 
-        // Now Interpolate
+        var y;
+        if(series.noInterpolate > 0) { y = series.data[j - 1][1]; }
+        else {
+            var p1 = series.data[j - 1],
+                p2 = series.data[j];
 
-        var y,
-            p1 = series.data[j - 1],
-            p2 = series.data[j];
-
-        if (p1 == null) {
-            y = p2[1];
-        } else if (p2 == null) {
-            y = p1[1];
-        } else {
-            y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
+            if (p1 == null) {
+                y = p2[1];
+            } else if (p2 == null) {
+                y = p1[1];
+            } else {
+                y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
+            }
+            y = y.toFixed(2);
         }
-        legend.eq(i).text(series.label.replace(/=.*/, "= " + y.toFixed(2)));
+        legend.eq(i).text(series.label.replace(/=.*/, "= " + y));
     }
 }
 
