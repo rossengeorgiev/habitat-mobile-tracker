@@ -77,9 +77,9 @@ function updateLegend() {
         }
 
         var y;
-        if(series.noInterpolate > 0) { y = series.data[j - 1][1]; }
+        if(series.noInterpolate > 0) { y = series.data[((j==0)?j:j-1)][1]; }
         else {
-            var p1 = series.data[j - 1],
+            var p1 = (j==0) ? null : series.data[j-1];
                 p2 = series.data[j];
 
             if (p1 == null) {
