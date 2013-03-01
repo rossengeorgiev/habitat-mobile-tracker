@@ -829,8 +829,8 @@ function graphAddLastPosition(idx) {
 
            if(isInt(v)) $.extend(true, data[i], { noInterpolate: true, lines: { steps: true }});
         }
-        data[i].data.push([ts, v]);
-        if(v < 0) delete plot_options.yaxes[i+1].min;
+        data[i].data.push([ts, parseFloat(v)]);
+        if(parseFloat(v) < 0) delete plot_options.yaxes[i+1].min;
     });
 }
 
