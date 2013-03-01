@@ -412,6 +412,10 @@ function updateVehicleInfo(index, position) {
 
   $('.portrait .vehicle'+index).html(a + p + b);
   $('.landscape .vehicle'+index).html(a + l + b);
+
+  // update graph is current vehicles is followed
+  if(vehicles[index].follow) updateGraph(index);
+
   return true;
 }
 
@@ -792,11 +796,12 @@ function graphAddLastPosition(idx) {
     var ts = (new Date(new_data.gps_time)).getTime(); // flot needs miliseconds for time
     var series_idx = 1;
 
+    // altitude is always the first series
     if(data[0] === undefined) {
         data[0] = {
                     label: "altitude = 0",
                     color: '#33B5E5',
-                    yaxis: 1,
+                    yaxis: series_idx,
                     lines: { show:true, fill: true, fillColor: "rgba(51, 181, 229, 0.1)" },
                     data: []
                   };
@@ -804,11 +809,14 @@ function graphAddLastPosition(idx) {
 
     // push latest altitude
     data[0].data.push([ts, parseInt(new_data.gps_alt)]);
+    if(parseInt(new_data.gps_alt) < 0) delete plot_options.yaxes[series_idx-1].min;
+
+    // the rest of the series is from the data field
     var json = $.parseJSON(new_data.data);
 
     $.each(json, function(k, v) {
-        if(isNaN(v)) return;
-        if(series_idx > 7) return;
+        if(isNaN(v)) return;        // only take data that is numerical
+        if(series_idx > 7) return;  // up to 7 seperate data plots
 
         var i = series_idx++;
 
@@ -821,7 +829,8 @@ function graphAddLastPosition(idx) {
 
            if(isInt(v)) $.extend(true, data[i], { noInterpolate: true, lines: { steps: true }});
         }
-        data[i].data.push([ts, parseFloat(v)]);
+        data[i].data.push([ts, v]);
+        if(v < 0) delete plot_options.yaxes[i+1].min;
     });
 }
 

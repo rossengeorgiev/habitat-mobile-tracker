@@ -21,18 +21,15 @@ var plot_options = {
         mode: "x"
     },
     yaxes: [
-        {show: false},
-        {show: false},
-        {show: false},
-        {show: false},
-        {show: false},
-        {show: false},
-        {show: false},
-        {show: false},
-        {show: false},
-        {show: false},
-        {show: false},
-        {show: false},
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+        {show: false, min: 0 },
     ],
     xaxes: [
         {
