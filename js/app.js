@@ -11,9 +11,13 @@ if(
  || navigator.userAgent.match(/BlackBerry/i)
  ) is_mobile = true;
 
+$.ajaxSetup({ cache: true });
+
 // handle cachin events and display a loading bar
 var loadReload = false;
 var loadComplete = function(e) {
+    clearTimeout(initTimer);
+
     if(loadReload && e.type == 'updateready') {
         if(confirm("Reload app?")) {
             window.location.href = window.location.href;
@@ -32,12 +36,11 @@ function trackerInit() {
     $('header,#main,#map').show(); // interface elements
 
     if(!is_mobile) {
-        $('<script type="text/javascript" language="javascript" src="js/init_plot.js"></script>').appendTo('body');
+        $.getScript("js/init_plot.js", function() { checkSize(); if(!map) load(); });
         $('#telemetry_graph').addClass("main_screen").attr('style','');
+        return;
     }
     checkSize();
-
-
     if(!map) load();
 }
 

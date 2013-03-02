@@ -718,7 +718,7 @@ function addPosition(position) {
                             };
 
         // deep copy yaxes config for graph
-        $.each($.extend(false, plot_options.yaxes, {}), function(k,v) { vehicle_info.graph_yaxes.push(v) });
+        if(plot) $.each($.extend(false, plot_options.yaxes, {}), function(k,v) { vehicle_info.graph_yaxes.push(v) });
 
         vehicles.push(vehicle_info);
     }
