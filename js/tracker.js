@@ -713,10 +713,16 @@ function addPosition(position) {
                             alt_list: [0],
                             time_last_alt: 0,
                             alt_max: 100,
-                            graph_data: []
+                            graph_data: [],
+                            graph_yaxes: []
                             };
+
+        // deep copy yaxes config for graph
+        $.each($.extend(false, plot_options.yaxes, {}), function(k,v) { vehicle_info.graph_yaxes.push(v) });
+
         vehicles.push(vehicle_info);
     }
+
 
     var vehicle_index = $.inArray(position.vehicle, vehicle_names);
     var vehicle = vehicles[vehicle_index];
@@ -785,7 +791,8 @@ function addPosition(position) {
 function updateGraph(idx) {
     if(!plot) return;
 
-    plot = $.plot(plot_holder, vehicles[idx].graph_data, plot_options);
+    // replot graph, with this vehicle data, and this vehicles yaxes config
+    plot = $.plot(plot_holder, vehicles[idx].graph_data, $.extend(false, plot_options, {yaxes:vehicles[idx].graph_yaxes}));
 }
 
 function graphAddLastPosition(idx) {
@@ -809,7 +816,7 @@ function graphAddLastPosition(idx) {
 
     // push latest altitude
     data[0].data.push([ts, parseInt(new_data.gps_alt)]);
-    if(parseInt(new_data.gps_alt) < 0) delete plot_options.yaxes[series_idx-1].min;
+    if(parseInt(new_data.gps_alt) < 0) delete vehicles[idx].graph_yaxes[series_idx-1].min;
 
     // the rest of the series is from the data field
     var json = $.parseJSON(new_data.data);
@@ -830,7 +837,7 @@ function graphAddLastPosition(idx) {
            if(isInt(v)) $.extend(true, data[i], { noInterpolate: true, lines: { steps: true }});
         }
         data[i].data.push([ts, parseFloat(v)]);
-        if(parseFloat(v) < 0) delete plot_options.yaxes[i+1].min;
+        if(parseFloat(v) < 0) delete vehicles[idx].graph_yaxes[i].min;
     });
 }
 
