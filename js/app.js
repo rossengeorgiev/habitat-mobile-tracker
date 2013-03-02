@@ -208,7 +208,13 @@ $(window).ready(function() {
         return confirm("Launch your maps app?");
     });
 
-    // expand list items
+    // follow vehicle by clicking on data
+    $('#main').on('click', '.row .data', function() {
+        var e = $(this).parent();
+        followVehicle(parseInt(e.attr('class').match(/vehicle(\d+)/)[1]));
+    });
+
+    // expand/collapse data when header is clicked
     $('#main').on('click', '.row .header', function() {
         var e = $(this).parent();
         if(e.hasClass('active')) {
