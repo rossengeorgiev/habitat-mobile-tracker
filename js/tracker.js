@@ -413,9 +413,6 @@ function updateVehicleInfo(index, position) {
   $('.portrait .vehicle'+index).html(a + p + b);
   $('.landscape .vehicle'+index).html(a + l + b);
 
-  // update graph is current vehicles is followed
-  if(vehicles[index].follow) updateGraph(index);
-
   return true;
 }
 
@@ -713,6 +710,7 @@ function addPosition(position) {
                             alt_list: [0],
                             time_last_alt: 0,
                             alt_max: 100,
+                            graph_data_updated: false,
                             graph_data: [],
                             graph_yaxes: []
                             };
@@ -798,10 +796,21 @@ function updateGraph(idx) {
 function graphAddLastPosition(idx) {
     if(!plot) return;
 
+    vehicles[idx].graph_data_updated = true;
     var data = vehicles[idx].graph_data;
     var new_data = vehicles[idx].curr_position;
     var ts = (new Date(new_data.gps_time)).getTime(); // flot needs miliseconds for time
     var series_idx = 1;
+
+    //insert gap when there are 2mins, or more, without telemetry
+    if(vehicles[idx].graph_data.length) {
+        var ts_last_idx = vehicles[idx].graph_data[0].data.length - 1;
+        var ts_last = vehicles[idx].graph_data[0].data[ts_last_idx][0];
+
+        if(ts_last + 120000 < ts) {
+            $.each(vehicles[idx].graph_data, function(k,v) { v.data.push([ts_last+1, null]); })
+        }
+    }
 
     // altitude is always the first series
     if(data[0] === undefined) {
@@ -1065,6 +1074,9 @@ function update(response) {
         // remember last position for each vehicle
         lastPPointer.push(vehicles[i].curr_position);
 	  }
+
+      // update graph is current vehicles is followed
+      if(follow_vehicle != -1 && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle);
 
       // store in localStorage
       offline.set('positions', lastPositions);
