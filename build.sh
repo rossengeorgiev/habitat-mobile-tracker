@@ -26,7 +26,7 @@ java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimization
 java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimizations --nomunge app.js >> mobile.js
 
 #compile plot lib and config
-java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimizations --nomunge jquery.flot.js >> init_plot.js
+java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimizations --nomunge _jquery.flot.js >> init_plot.js
 java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimizations --nomunge plot_config.js >> init_plot.js
 
 cd ..
