@@ -817,7 +817,7 @@ function graphAddLastPosition(idx) {
         var ts_last = data[0].data[ts_last_idx][0];
 
         if(ts_last + 120000 < ts) {
-            $.each(data, function(k,v) { v.data.push([ts_last+1, null]); })
+            $.each(data, function(k,v) { v.data.push([ts_last+1, null]); v.nulls += 1; })
         }
     }
 
@@ -828,6 +828,7 @@ function graphAddLastPosition(idx) {
                     color: '#33B5E5',
                     yaxis: series_idx,
                     lines: { show:true, fill: true, fillColor: "rgba(51, 181, 229, 0.1)" },
+                    nulls: 0,
                     data: []
                   };
     }

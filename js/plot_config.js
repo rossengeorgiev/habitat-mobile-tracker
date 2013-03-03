@@ -108,6 +108,9 @@ function updateLegend() {
     }
 
     if(follow_vehicle != -1 && vehicles[follow_vehicle].positions.length) {
+        // adjust index for null data points
+        j = j - vehicles[follow_vehicle].graph_data[0].nulls;
+        // update position
         polyMarker.setPosition(vehicles[follow_vehicle].positions[j]);
     }
 }
