@@ -92,7 +92,7 @@ function updateLegend() {
             }
             y = y.toFixed(2);
 
-            if(p1[1] == null || p2[1] == null) y = null;
+            if((p1 && p1[1] == null) || (p2 && p2[1] == null)) y = null;
         }
         legend.eq(i).text(series.label.replace(/=.*/, "= " + y));
     }
