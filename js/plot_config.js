@@ -124,12 +124,13 @@ $(plot_holder).bind("plothover",  function (event, pos, item) {
 
 // double click on the plot clears selection
 $(plot_holder).bind("dblclick", function () {
+    if(plot_options.xaxis) delete plot_options.xaxis;
     plot = $.plot("#telemetry_graph .holder", plot.getData(), plot_options);
 });
 
 // limit range after selection
 $(plot_holder).bind("plotselected", function (event, ranges) {
-    plot = $.plot("#telemetry_graph .holder", plot.getData(), $.extend(true, {}, plot_options, {
+    plot = $.plot("#telemetry_graph .holder", plot.getData(), $.extend(true, plot_options, {
         xaxis: {
             min: ranges.xaxis.from,
             max: ranges.xaxis.to

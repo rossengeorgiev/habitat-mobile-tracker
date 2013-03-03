@@ -813,11 +813,11 @@ function graphAddLastPosition(idx) {
 
     //insert gap when there are 2mins, or more, without telemetry
     if(vehicles[idx].graph_data.length) {
-        var ts_last_idx = vehicles[idx].graph_data[0].data.length - 1;
-        var ts_last = vehicles[idx].graph_data[0].data[ts_last_idx][0];
+        var ts_last_idx = data[0].data.length - 1;
+        var ts_last = data[0].data[ts_last_idx][0];
 
         if(ts_last + 120000 < ts) {
-            $.each(vehicles[idx].graph_data, function(k,v) { v.data.push([ts_last+1, null]); })
+            $.each(data, function(k,v) { v.data.push([ts_last+1, null]); })
         }
     }
 
@@ -857,6 +857,15 @@ function graphAddLastPosition(idx) {
         data[i].data.push([ts, parseFloat(v)]);
         if(parseFloat(v) < 0) delete vehicles[idx].graph_yaxes[i].min;
     });
+
+    // if a selection is made, that reaches the end, new data will be appended as it comes
+    if(plot_options.xaxis && follow_vehicle == idx) {
+        var prev_idx = data[0].data.length - 2;
+        var prev_ts = data[0].data[prev_idx][0];
+
+        // update the selection upper limit to the latest timestamp
+        if(prev_ts == plot_options.xaxis.max) plot_options.xaxis.max = ts;
+    }
 }
 
 function refresh() {
