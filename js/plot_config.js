@@ -44,6 +44,7 @@ var plot_options = {
 plot = $.plot(plot_holder, {}, plot_options);
 var updateLegendTimeout = null;
 var latestPosition = null;
+var polyMarker = null;
 
 // updates legend with extrapolated values under the mouse position
 function updateLegend() {
@@ -94,6 +95,20 @@ function updateLegend() {
             if(p1[1] == null || p2[1] == null) y = null;
         }
         legend.eq(i).text(series.label.replace(/=.*/, "= " + y));
+    }
+
+    if(!polyMarker) {
+        polyMarker = new google.maps.Marker({
+            clickable: false,
+            flat: true,
+            map: map,
+            visible: true,
+            icon: null
+        });
+    }
+
+    if(follow_vehicle != -1 && vehicles[follow_vehicle].positions.length) {
+        polyMarker.setPosition(vehicles[follow_vehicle].positions[j]);
     }
 }
 

@@ -796,6 +796,8 @@ function addPosition(position) {
 function updateGraph(idx) {
     if(!plot) return;
 
+    if(polyMarker) polyMarker.setPosition(null);
+
     // replot graph, with this vehicle data, and this vehicles yaxes config
     plot = $.plot(plot_holder, vehicles[idx].graph_data, $.extend(false, plot_options, {yaxes:vehicles[idx].graph_yaxes}));
 }
