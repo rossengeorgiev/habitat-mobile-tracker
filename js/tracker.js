@@ -280,7 +280,7 @@ function followVehicle(index) {
 		vehicles[follow_vehicle].follow = true;
         panTo(index);
 
-        updateGraph(index);
+        updateGraph(index, true);
 	}
 }
 
@@ -793,10 +793,12 @@ function addPosition(position) {
     return;
 }
 
-function updateGraph(idx) {
+function updateGraph(idx, reset_selection) {
     if(!plot) return;
 
     if(polyMarker) polyMarker.setPosition(null);
+
+    if(reset_selection) delete plot_options.xaxis;
 
     // replot graph, with this vehicle data, and this vehicles yaxes config
     plot = $.plot(plot_holder, vehicles[idx].graph_data, $.extend(false, plot_options, {yaxes:vehicles[idx].graph_yaxes}));
@@ -1095,7 +1097,7 @@ function update(response) {
 	  }
 
       // update graph is current vehicles is followed
-      if(follow_vehicle != -1 && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle);
+      if(follow_vehicle != -1 && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, false);
 
       // store in localStorage
       offline.set('positions', lastPositions);
