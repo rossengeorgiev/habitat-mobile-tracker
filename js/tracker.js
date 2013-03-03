@@ -355,6 +355,7 @@ function updateVehicleInfo(index, position) {
 
   var imp = offline.get('opt_imperial');
   var ascent_text = imp ? (vehicles[index].ascent_rate * 196.850394).toFixed(1) + ' ft/min' : vehicles[index].ascent_rate.toFixed(1) + ' m/s';
+  var hrate_text = imp ? (vehicles[index].horizontal_rate * 196.850394).toFixed(1) + ' ft/min' : vehicles[index].horizontal_rate.toFixed(1) + ' m/s';
 
   var coords_text;
   var ua =  navigator.userAgent.toLowerCase();
@@ -399,12 +400,12 @@ function updateVehicleInfo(index, position) {
            + '</div>' // left
            + '<div class="right">'
            + '<dl>'
-           + (position.gps_alt != 0 ? '<dt>'+ascent_text+'</dt><dd>rate</dd>' : '')
+           + (position.gps_alt != 0 ? '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>' : '')
            + '<dt>'+((imp) ? parseInt(3.2808399 * position.gps_alt) + ' ft': parseInt(position.gps_alt) + ' m')+'</dt><dd>altitude</dd>'
            + '<dt>'+((imp) ? parseInt(3.2808399 * vehicles[index].max_alt) + ' ft': parseInt(vehicles[index].max_alt) + ' m')+'</dt><dd>max alt</dd>'
            + '';
   // mid for landscape
-  var l    = (position.gps_alt != 0 ? '<dt>'+ascent_text+'</dt><dd>rate</dd>' : '')
+  var l    = (position.gps_alt != 0 ? '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>' : '')
            + '<dt>'+((imp) ? parseInt(3.2808399 * position.gps_alt) + 'ft': parseInt(position.gps_alt) + 'm')+' ('+((imp) ? parseInt(3.2808399 * vehicles[index].max_alt) + 'ft' : parseInt(vehicles[index].max_alt) + 'm')+')</dt><dd>altitude (max)</dd>'
            + '<dt>'+position.gps_time+'</dt><dd>datetime</dd>'
            + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
@@ -704,6 +705,7 @@ function addPosition(position) {
                             }),
                             prediction: null,
                             ascent_rate: 0.0,
+                            horizontal_rate: 0.0,
                             max_alt: parseFloat(position.gps_alt),
                             path_enabled: vehicle_type == "balloon" && position.vehicle.toLowerCase().indexOf("iss") == -1,
                             follow: false,
@@ -739,25 +741,27 @@ function addPosition(position) {
                 }
             } else {
 
-                dt = convert_time(position.gps_time)
+                var dt = convert_time(position.gps_time)
                    - convert_time(vehicle.curr_position.gps_time);
 
                 if(dt != 0) {
-                    rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
+                    // calcualte vertical rate
+                    var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
                     vehicle.ascent_rate = 0.7 * rate
                                           + 0.3 * vehicle.ascent_rate;
 
-                    // if vehicle is not a car, record altitude
-                    if(vehicle.vehicle_type != "car") {
-                        // only record altitude values in 10minute interval
-                        if(convert_time(vehicle.curr_position.gps_time) - vehicle.time_last_alt >= 120) { // 120s = 2minutes
-                            vehicle.time_last_alt = convert_time(vehicle.curr_position.gps_time);
-                            var alt = parseInt(vehicle.curr_position.gps_alt);
+                    // calculate horizontal rate
+                    vehicle.horizontal_rate = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(position.gps_lat, position.gps_lon),
+                                                                                                    new google.maps.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon)) / dt;
 
-                            if(alt > vehicle.alt_max) vehicle.alt_max = alt; // larged value in the set is required for encoding later
+                    // only record altitude values in 2minute interval
+                    if(convert_time(vehicle.curr_position.gps_time) - vehicle.time_last_alt >= 120) { // 120s = 2minutes
+                        vehicle.time_last_alt = convert_time(vehicle.curr_position.gps_time);
+                        var alt = parseInt(vehicle.curr_position.gps_alt);
 
-                            vehicle.alt_list.push(alt); // push value to the list
-                        }
+                        if(alt > vehicle.alt_max) vehicle.alt_max = alt; // larged value in the set is required for encoding later
+
+                        vehicle.alt_list.push(alt); // push value to the list
                     }
                 }
 
