@@ -77,6 +77,9 @@ function load() {
         panControl: false,
         scaleControl: false,
         zoomContro: true,
+        zoomControlOptions: {
+            style: google.maps.ZoomControlStyle.LARGE
+        },
         scrollwheel: true
     });
 
