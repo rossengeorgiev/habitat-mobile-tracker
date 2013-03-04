@@ -813,17 +813,20 @@ function graphAddLastPosition(idx) {
     var ts = (new Date(new_data.gps_time)).getTime(); // flot needs miliseconds for time
     var series_idx = 1;
 
-    //insert gap when there are 2mins, or more, without telemetry
     if(vehicles[idx].graph_data.length) {
         var ts_last_idx = data[0].data.length - 1;
         var ts_last = data[0].data[ts_last_idx][0];
 
+        //insert gap when there are 2mins, or more, without telemetry
         if(ts_last + 120000 < ts) {
             $.each(data, function(k,v) { v.data.push([ts_last+1, null]); v.nulls += 1; })
         }
+
+        // update the selection upper limit to the latest timestamp, only if the upper limit is equal to the last timestamp
+        if(plot_options.xaxis && follow_vehicle == idx && ts_last == plot_options.xaxis.max) plot_options.xaxis.max = ts;
     }
 
-    // altitude is always the first series
+    // altitude is always first in the series
     if(data[0] === undefined) {
         data[0] = {
                     label: "altitude = 0",
@@ -857,18 +860,10 @@ function graphAddLastPosition(idx) {
 
            if(isInt(v)) $.extend(true, data[i], { noInterpolate: true, lines: { steps: true }});
         }
+
         data[i].data.push([ts, parseFloat(v)]);
         if(parseFloat(v) < 0) delete vehicles[idx].graph_yaxes[i].min;
     });
-
-    // if a selection is made, that reaches the end, new data will be appended as it comes
-    if(plot_options.xaxis && follow_vehicle == idx) {
-        var prev_idx = data[0].data.length - 2;
-        var prev_ts = data[0].data[prev_idx][0];
-
-        // update the selection upper limit to the latest timestamp
-        if(prev_ts == plot_options.xaxis.max) plot_options.xaxis.max = ts;
-    }
 }
 
 function refresh() {
