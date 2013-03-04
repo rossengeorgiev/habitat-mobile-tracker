@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# version 89
+# version 90
 
 # gogole maps files
 http://maps.google.com/maps/api/js?v=3.10&sensor=false&key=AIzaSyCOqkcNey4CCyG4X0X5qxHAhCgD8g5DwXg
@@ -14,6 +14,7 @@ http://maps.gstatic.com/mapfiles/openhand_8_8.cur
 http://maps.gstatic.com/mapfiles/transparent.png
 http://maps.gstatic.com/mapfiles/undo_poly.png
 http://maps.gstatic.com/mapfiles/arrow-down.png
+http://maps.gstatic.com/mapfiles/markers2/marker_sprite.png
 
 # app files
 img/logo.png
