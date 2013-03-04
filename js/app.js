@@ -61,7 +61,7 @@ var GPS_lat = null;
 var GPS_lon = null;
 var GPS_alt = null;
 var GPS_speed = null;
-var CHASE_enabled = false;
+var CHASE_enabled = null;
 var CHASE_listenerSent = false;
 var CHASE_timer = 0
 var callsign = "";
@@ -104,7 +104,19 @@ window.onchangeorientation = checkSize;
 
 // functions
 
-var positionUpdateHandle = function() {
+function positionUpdateError(error) {
+    switch(error.code)
+    {
+        case error.PERMISSION_DENIED:
+            alert("no permission to use your location");
+            $('#sw_chasecar').click(); // turn off chase car
+            break;
+        default:
+        break;
+    }
+}
+
+var positionUpdateHandle = function(position) {
     if(CHASE_enabled && !CHASE_listenerSent) {
         if(offline.get('opt_station')) {
             ChaseCar.putListenerInfo(callsign);
@@ -112,7 +124,7 @@ var positionUpdateHandle = function() {
         }
     }
 
-    navigator.geolocation.getCurrentPosition(function(position) {
+    //navigator.geolocation.getCurrentPosition(function(position) {
         var lat = position.coords.latitude;
         var lon = position.coords.longitude;
         var alt = (position.coords.altitude) ? position.coords.altitude : 0;
@@ -141,10 +153,13 @@ var positionUpdateHandle = function() {
         }
 
         // save position and update only if different is available
-        if(GPS_lat != lat
+        if(CHASE_timer < (new Date()).getTime()
+           && (
+           GPS_lat != lat
            || GPS_lon != lon
            || GPS_alt != alt
            || GPS_speed != speed)
+        )
         {
             GPS_lat = lat;
             GPS_lon = lon;
@@ -155,6 +170,7 @@ var positionUpdateHandle = function() {
 
             if(CHASE_enabled) {
                 ChaseCar.updatePosition(callsign, position);
+                CHASE_timer = (new Date()).getTime() + 15000;
             }
         }
         else { return; }
@@ -178,11 +194,13 @@ var positionUpdateHandle = function() {
         $('#cc_alt').text(alt + " m");
         $('#cc_accuracy').text(accuracy + " m");
         $('#cc_speed').text(speed + " m/s");
+    /*
     },
     function() {
         // when there is no location
         $('#app_name b').html('mobile<br/>tracker');
     });
+    */
 }
 
 
@@ -297,7 +315,9 @@ $(window).ready(function() {
             field.removeAttr('disabled');
             e.removeClass('on').addClass('off');
 
-            CHASE_enabled = false;
+            if(navigator.geolocation) navigator.geolocation.clearWatch(CHASE_enabled);
+            CHASE_enabled = null;
+            //CHASE_enabled = false;
 
             // blue man reappers :)
             if(currentPosition && currentPosition.marker) currentPosition.marker.setVisible(true);
@@ -322,7 +342,9 @@ $(window).ready(function() {
             if(GPS_ts) {
                 ChaseCar.updatePosition(callsign, { coords: { latitude: GPS_lat, longitude: GPS_lon, altitude: GPS_alt, speed: GPS_speed }});
             }
-            CHASE_enabled = true;
+
+            if(navigator.geolocation) CHASE_enabled = navigator.geolocation.watchPosition(positionUpdateHandle, positionUpdateError);
+            //CHASE_enabled = true;
 
             // hide the blue man
             if(currentPosition && currentPosition.marker) currentPosition.marker.setVisible(false);
@@ -418,9 +440,10 @@ $(window).ready(function() {
             }
         });
 
+        navigator.geolocation.getCurrentPosition(positionUpdateHandle);
         // check for location update every 30sec
-        setInterval(positionUpdateHandle, 30000);
+        //setInterval(positionUpdateHandle, 30000);
         // immediatelly check for position
-        positionUpdateHandle();
+        //positionUpdateHandle();
     }
 });
