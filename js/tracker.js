@@ -811,7 +811,6 @@ function graphAddLastPosition(idx) {
     var data = vehicles[idx].graph_data;
     var new_data = vehicles[idx].curr_position;
     var ts = (new Date(new_data.gps_time)).getTime(); // flot needs miliseconds for time
-    var series_idx = 1;
 
     if(vehicles[idx].graph_data.length) {
         var ts_last_idx = data[0].data.length - 1;
@@ -826,12 +825,13 @@ function graphAddLastPosition(idx) {
         if(plot_options.xaxis && follow_vehicle == idx && ts_last == plot_options.xaxis.max) plot_options.xaxis.max = ts;
     }
 
+    var i = 0;
     // altitude is always first in the series
-    if(data[0] === undefined) {
-        data[0] = {
+    if(data[i] === undefined) {
+        data[i] = {
                     label: "altitude = 0",
                     color: '#33B5E5',
-                    yaxis: series_idx,
+                    yaxis: i+1,
                     lines: { show:true, fill: true, fillColor: "rgba(51, 181, 229, 0.1)" },
                     nulls: 0,
                     data: []
@@ -840,20 +840,20 @@ function graphAddLastPosition(idx) {
 
     // push latest altitude
     data[0].data.push([ts, parseInt(new_data.gps_alt)]);
-    if(parseInt(new_data.gps_alt) < 0) delete vehicles[idx].graph_yaxes[series_idx-1].min;
+    if(parseInt(new_data.gps_alt) < 0) delete vehicles[idx].graph_yaxes[i].min;
+    i++;
 
     // the rest of the series is from the data field
     var json = $.parseJSON(new_data.data);
 
     $.each(json, function(k, v) {
-        if(isNaN(v)) return;        // only take data that is numerical
-        if(series_idx > 7) return;  // up to 7 seperate data plots
-
-        var i = series_idx++;
+        if(isNaN(v) || v=="") return;        // only take data that is numerical
+        if(i >= 8) return;  // up to 8 seperate data plots
 
         if(data[i] === undefined) {
             data[i] = {
                         label: k + " = 0",
+                        key: k,
                         yaxis: i + 1,
                         data: []
                       };
@@ -861,8 +861,12 @@ function graphAddLastPosition(idx) {
            if(isInt(v)) $.extend(true, data[i], { noInterpolate: true, lines: { steps: true }});
         }
 
+        if(k != data[i].key) return;
+
         data[i].data.push([ts, parseFloat(v)]);
         if(parseFloat(v) < 0) delete vehicles[idx].graph_yaxes[i].min;
+
+        i++;
     });
 }
 

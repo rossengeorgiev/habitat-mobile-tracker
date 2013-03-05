@@ -49,7 +49,7 @@ var polyMarker = null;
 // updates legend with extrapolated values under the mouse position
 function updateLegend() {
     var legend = $(plot_holder + " .legendLabel");
-    $(plot_holder + " .legend table").css({'background-color':"rgba(255,255,255,0.9)"});
+    $(plot_holder + " .legend table").css({'background-color':"rgba(255,255,255,0.9)","pointer-events":"none"});
     legend.each(function() {
         $(this).css({'padding-left':'3px'});
     });
@@ -107,6 +107,12 @@ function updateLegend() {
         });
     }
 
+    for (j = 0; j < dataset[0].data.length; ++j) {
+        if (dataset[0].data[j][0] > pos.x) {
+            break;
+        }
+    }
+
     if(follow_vehicle != -1 && vehicles[follow_vehicle].positions.length) {
         // adjust index for null data points
         j = j - vehicles[follow_vehicle].graph_data[0].nulls;
@@ -121,7 +127,7 @@ $(plot_holder).bind("plothover",  function (event, pos, item) {
     plot.lockCrosshair();
     plot.setCrosshair(pos);
     if (!updateLegendTimeout) {
-        updateLegendTimeout = setTimeout(updateLegend, 50);
+        updateLegendTimeout = setTimeout(updateLegend, 100);
     }
 });
 
