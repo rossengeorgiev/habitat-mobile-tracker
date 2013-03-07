@@ -339,7 +339,7 @@ header > div {
     display: none;
 }
 
-@media only screen and (min-width: 321px) {
+@media only screen and (min-width: 361px) {
     .portrait { display: none; }
     .landscape { display: block; }
     #telemetry_graph {
@@ -412,7 +412,7 @@ header > div {
         top: 50px;
     }
 }
-@media only screen and (max-width: 320px) {
+@media only screen and (max-width: 360px) {
     .portrait { display: block; }
     .landscape { display: none; }
     #map{
