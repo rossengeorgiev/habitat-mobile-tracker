@@ -8,7 +8,7 @@ var markers_url = "img/markers/";
 var vehicle_names = [];
 var vehicles = [];
 
-var graph_url = "http://chart.googleapis.com/chart?chf=bg,s,67676700&chxr=0,0,46|1,0,0|2,0,45&chxs=0,676767,0,0,_,000000|1,676767,0,0,t,676767|2,676767,0,0,_,676767&chxt=r,y,x&chs=150x40&cht=lc&chco=33B5E5&chds=0,{AA}&chls=2&chm=B,33B5E533,0,0,0,-1&chd=";
+var graph_url = "http://chart.googleapis.com/chart?chf=bg,s,67676700&chxr=0,0,46|1,0,0|2,0,45&chxs=0,676767,0,0,_,000000|1,676767,0,0,t,676767|2,676767,0,0,_,676767&chxt=r,y,x&chs=300x80&cht=lc&chco=33B5E5&chds=0,{AA}&chls=2&chm=B,33B5E533,0,0,0,-1&chd=";
 
 var receiver_names = [];
 var receivers = [];

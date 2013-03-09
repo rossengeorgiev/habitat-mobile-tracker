@@ -143,15 +143,15 @@ header > div {
 #main .header {
     height: 20px;
     padding: 10px;
-    padding-right: 9px;
-    border-bottom: 2px solid #33b5e5;
+    padding-right: 4px;
+    border-bottom: 1px solid #33b5e5;
     position: relative;
     z-index: 4;
     cursor: pointer;
     background-color: #fff;
 }
 #main .vehicle0 .header {
-    border-top: 2px solid #33b5e5;
+    border-top: 1px solid #33b5e5;
 }
 #main .header.empty {
     text-align: center;
@@ -195,7 +195,7 @@ header > div {
 #main .row .header .graph {
     position: absolute;
     bottom: -1px;
-    right: 25px;
+    right: 19px;
     width: 60px;
     height: 40px;
 }
@@ -458,6 +458,7 @@ header > div {
     }
     #main .row .header .graph {
         width: 150px;
+        height: 40px;
     }
 }
 
