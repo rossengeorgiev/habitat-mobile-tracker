@@ -41,6 +41,10 @@ html, body {
     height: 100%;
     background: #00A3D3;
 }
+#loading img {
+    width: 198px;
+    height: 178px;
+}
 #loading > div {
     position: absolute;
     top: 50%;
@@ -143,7 +147,7 @@ header > div {
 #main .header {
     height: 20px;
     padding: 10px;
-    padding-right: 4px;
+    padding-right: 3px;
     border-bottom: 1px solid #33b5e5;
     position: relative;
     z-index: 4;
@@ -191,11 +195,17 @@ header > div {
     bottom: 40%;
     right: 25%;
     opacity: 0.6;
+    width: 46px;
+    height: 84px;
+}
+#main .row .data img.car {
+    width: 55px;
+    height: 25px;
 }
 #main .row .header .graph {
     position: absolute;
     bottom: -1px;
-    right: 19px;
+    right: 18px;
     width: 60px;
     height: 40px;
 }

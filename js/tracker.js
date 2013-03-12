@@ -379,7 +379,7 @@ function updateVehicleInfo(index, position) {
            + '<img class="graph" src="img/blank.png">'
            + '<i class="arrow"></i></div>'
            + '<div class="data">'
-           + '<img src="'+image+'" />'
+           + '<img class="'+((vehicles[index].vehicle_type=="car")?'car':'')+'" src="'+image+'" />'
            + '<div class="left">'
            + '<dl>';
   // end
@@ -431,13 +431,13 @@ function pad(number, length) {
 function addMarker(icon, latlng) {
     var marker = new google.maps.Marker({
         position: latlng,
+        optimized: false,
         zIndex: Z_SHADOW,
-        icon: new google.maps.MarkerImage(
-                    icon,
-                    null,
-                    null,
-                    new google.maps.Point(15,15)
-        ),
+        icon: {
+            url: icon,
+            scaledSize: new google.maps.Point(15,15),
+            size: new google.maps.Point(15,15)
+        },
         map: map,
         clickable: false
     });
@@ -602,10 +602,15 @@ function addPosition(position) {
             var image_src = host_url + markers_url + "car-" + car_colors[c] + ".png";
 
             marker = new google.maps.Marker({
-                icon: image_src,
+                icon: {
+                    url: image_src,
+                    size: new google.maps.Size(55,25),
+                    scaledSize: new google.maps.Size(55,25)
+                },
                 zIndex: Z_CAR,
                 position: point,
                 map: map,
+                optimized: false,
                 title: position.vehicle
             });
         } else {
@@ -617,17 +622,19 @@ function addPosition(position) {
             marker_shadow = new google.maps.Marker({
                 map: map,
                 zIndex: Z_SHADOW,
+                optimized: false,
                 position: point,
-                icon: new google.maps.MarkerImage(
-                    host_url + markers_url + "shadow.png",
-                    new google.maps.Size(24,16),
-                    null,
-                    new google.maps.Point(12,8)
-                ),
+                icon: {
+                    url: host_url + markers_url + "shadow.png",
+                    size: new google.maps.Size(24,16),
+                    scaledSize: new google.maps.Size(24,16),
+                    anchor: new google.maps.Point(12,8)
+                },
                 clickable: false
             });
             marker = new google.maps.Marker({
                 map: map,
+                optimized: false,
                 zIndex: Z_PAYLOAD,
                 position: point,
                 icon: image_src,
@@ -640,12 +647,24 @@ function addPosition(position) {
                 this.mode = mode;
                 var img;
                 if(mode == "landed") {
-                    img = host_url + markers_url + "payload-" + this.balloonColor + ".png";
-                    img = new google.maps.MarkerImage(img, null, null, new google.maps.Point(8, 15));
+                    img = {
+                            url: host_url + markers_url + "payload-" + this.balloonColor + ".png",
+                            size: new google.maps.Size(17,18),
+                            scaledSize: new google.maps.Size(17,18),
+                            anchor: new google.maps.Point(8,14)
+                        };
                 } else if(mode == "parachute") {
-                    img = host_url + markers_url + "parachute-" + this.balloonColor + ".png";
+                    img = {
+                            url: host_url + markers_url + "parachute-" + this.balloonColor + ".png",
+                            size: new google.maps.Size(46,84),
+                            scaledSize: new google.maps.Size(46,84)
+                        };
                 } else {
-                    img = host_url + markers_url + "balloon-" + this.balloonColor + ".png";
+                    img = {
+                            url: host_url + markers_url + "balloon-" + this.balloonColor + ".png",
+                            size: new google.maps.Size(46,84),
+                            scaledSize: new google.maps.Size(46,84)
+                        };
                 }
                 this.setIcon(img);
             }
@@ -963,12 +982,16 @@ function updateCurrentPosition(lat, lon) {
     if(!currentPosition) {
         currentPosition = {marker: null, lat: lat, lon: lon};
         currentPosition.marker = new google.maps.Marker({
-            icon: "img/marker-you.png",
+            icon: {
+                url: "img/marker-you.png",
+                size: new google.maps.Size(21,50),
+                scaledSize: new google.maps.Size(21,50),
+                anchor: new google.maps.Point(10,25)
+            },
             zIndex: Z_CAR,
             position: latlng,
-            size:  new google.maps.Size(19,40),
-            anchor: new google.maps.Point(9,40),
             map: map,
+            optimized: false,
             title: "Your current position",
             animation: google.maps.Animation.DROP
         });
@@ -985,12 +1008,16 @@ function updateReceiverMarker(receiver) {
   if(!receiver.marker) {
     //icon.infoWindowAnchor = new google.maps.Point(13,3);
     receiver.marker = new google.maps.Marker({
-        icon:  host_url + markers_url + "antenna-green.png",
+        icon: {
+            url: host_url + markers_url + "antenna-green.png",
+            size: new google.maps.Size(26,32),
+            scaledSize: new google.maps.Size(26,32),
+            anchor: new google.maps.Point(13,30),
+        },
         zIndex: Z_STATION,
         position: latlng,
-        size: new google.maps.Size(26,32),
-        anchor: new google.maps.Point(13,30),
         map: map,
+        optimized: false,
         title: receiver.name,
         animation: google.maps.Animation.DROP
     });

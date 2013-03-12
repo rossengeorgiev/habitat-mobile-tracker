@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# version 108
+# version 125
 
 # gogole maps files
 http://maps.google.com/maps/api/js?v=3.10&sensor=false&key=AIzaSyCOqkcNey4CCyG4X0X5qxHAhCgD8g5DwXg
@@ -22,10 +22,12 @@ img/blank.png
 img/marker-you.png
 img/apple-touch-icon.png
 img/markers/antenna-green.png
-img/markers/balloon-blue.png
-img/markers/balloon-orange.png
-img/markers/balloon-purple.png
 img/markers/balloon-red.png
+img/markers/balloon-blue.png
+img/markers/balloon-green.png
+img/markers/balloon-purple.png
+img/markers/balloon-cyan.png
+img/markers/balloon-orange.png
 img/markers/balloon-yellow.png
 img/markers/car-blue.png
 img/markers/car-green.png
