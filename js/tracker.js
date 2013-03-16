@@ -435,8 +435,9 @@ function addMarker(icon, latlng) {
         zIndex: Z_SHADOW,
         icon: {
             url: icon,
-            scaledSize: new google.maps.Point(15,15),
-            size: new google.maps.Point(15,15)
+            scaledSize: new google.maps.Size(20,20),
+            size: new google.maps.Size(20,20),
+            anchor: new google.maps.Point(10, 10)
         },
         map: map,
         clickable: false
@@ -510,7 +511,7 @@ function redrawPrediction(vehicle_index) {
         if(vehicle.prediction_target) {
             vehicle.prediction_target.setPosition(latlng);
         } else {
-            image_src = host_url + markers_url + "target-" + balloon_colors_name[vehicles[vehicle_index].color_index] + ".png";
+            image_src = host_url + markers_url + "target-" + balloon_colors_name[vehicle.color_index] + ".png";
             vehicle.prediction_target = addMarker(image_src, latlng);
         }
     } else {
