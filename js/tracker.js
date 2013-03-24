@@ -642,7 +642,7 @@ function addPosition(position) {
                 title: position.vehicle,
             });
             marker.shadow = marker_shadow;
-            marker.balloonColor = balloon_colors_name[c];
+            marker.balloonColor = (position.vehicle == "PIE") ? "rpi" : balloon_colors_name[c];
             marker.mode = 'balloon';
             marker.setMode = function(mode) {
                 this.mode = mode;
