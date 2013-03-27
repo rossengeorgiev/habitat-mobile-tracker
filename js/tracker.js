@@ -865,6 +865,7 @@ function graphAddLastPosition(idx) {
 
     // the rest of the series is from the data field
     var json = $.parseJSON(new_data.data);
+    if(!json) return;
 
     $.each(json, function(k, v) {
         if(isNaN(v) || v=="") return;        // only take data that is numerical
