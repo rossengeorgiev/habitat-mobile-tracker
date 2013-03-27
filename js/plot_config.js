@@ -127,7 +127,7 @@ $(plot_holder).bind("plothover",  function (event, pos, item) {
     plot.lockCrosshair();
     plot.setCrosshair(pos);
     if (!updateLegendTimeout) {
-        updateLegendTimeout = setTimeout(updateLegend, 100);
+        updateLegendTimeout = setTimeout(updateLegend, 40);
     }
 });
 
