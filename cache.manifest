@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# version 131
+# version 132
 
 # gogole maps files
 http://maps.google.com/maps/api/js?v=3.10&sensor=false&key=AIzaSyCOqkcNey4CCyG4X0X5qxHAhCgD8g5DwXg
@@ -29,6 +29,7 @@ img/markers/balloon-purple.png
 img/markers/balloon-cyan.png
 img/markers/balloon-orange.png
 img/markers/balloon-yellow.png
+img/markers/balloon-rpi.png
 img/markers/car-blue.png
 img/markers/car-green.png
 img/markers/car-red.png
@@ -40,6 +41,7 @@ img/markers/parachute-yellow.png
 img/markers/parachute-cyan.png
 img/markers/parachute-orange.png
 img/markers/parachute-purple.png
+img/markers/parachute-rpi.png
 img/markers/payload-blue.png
 img/markers/payload-cyan.png
 img/markers/payload-green.png
@@ -47,6 +49,7 @@ img/markers/payload-orange.png
 img/markers/payload-purple.png
 img/markers/payload-red.png
 img/markers/payload-yellow.png
+img/markers/payload-rpi.png
 img/markers/shadow.png
 img/markers/target-blue.png
 img/markers/target-cyan.png
