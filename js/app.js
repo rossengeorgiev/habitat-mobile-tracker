@@ -221,8 +221,9 @@ $(window).ready(function() {
             e.addClass('active');
             var h = $('#map').height() - $('#telemetry_graph').height();
         }
-        $('#map').stop(null,null).animate({'height': h});
-        if(map) google.maps.event.trigger(map, 'resize');
+        $('#map').stop(null,null).animate({'height': h}, function() {
+            if(map) google.maps.event.trigger(map, 'resize');
+        });
     });
 
     // confirm dialog when launchnig a native map app with coordinates
