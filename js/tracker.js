@@ -747,6 +747,7 @@ function addPosition(position) {
 
         // nyan mod
         if(window.location.search == "?nyan" && vehicle_info.vehicle_type == "balloon") {
+           // form a nyancat
            vehicle_info.marker.setMap(null);
            vehicle_info.marker.setMode = function(derp) {};
            vehicle_info.marker_shadow = new google.maps.Marker({
@@ -762,8 +763,13 @@ function addPosition(position) {
                 },
                 clickable: false
             });
+            // rebind horizon circles to follow nyan
+            horizon_circle.bindTo('center', vehicle_info.marker_shadow, 'position');
+            subhorizon_circle.bindTo('center', vehicle_info.marker_shadow, 'position');
+
             vehicle_info.image_src = host_url + markers_url + "hab_nyan.gif";
 
+            // whats nyan only purpose? Make people happy, of course. And how? 
             var rainbow = ["#ff0000", "#fc9a00", "#f6ff00", "#38ff01", "#009aff","#0000ff"];
             vehicle_info.polyline = [];
 
@@ -780,7 +786,7 @@ function addPosition(position) {
             }
         }
 
-
+        // let the nyan free
         vehicles.push(vehicle_info);
     }
 
