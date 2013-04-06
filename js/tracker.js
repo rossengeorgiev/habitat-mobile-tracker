@@ -40,10 +40,10 @@ var notamOverlay = null;
 // order of map elements
 var Z_RANGE = 1;
 var Z_STATION = 2;
-var Z_PATH = 3;
-var Z_SHADOW = 4;
-var Z_CAR = 5;
-var Z_PAYLOAD = 6;
+var Z_PATH = 10;
+var Z_SHADOW = 11;
+var Z_CAR = 12;
+var Z_PAYLOAD = 13;
 
 // localStorage vars
 var ls_receivers = false;
@@ -541,7 +541,9 @@ function redrawPrediction(vehicle_index) {
 }
 
 function updatePolyline(vehicle_index) {
-    vehicles[vehicle_index].polyline.setPath(vehicles[vehicle_index].positions);
+    for(k in vehicles[vehicle_index].polyline) {
+        vehicles[vehicle_index].polyline[k].setPath(vehicles[vehicle_index].positions);
+    }
 }
 
 function convert_time(gps_time) {
@@ -714,7 +716,7 @@ function addPosition(position) {
                             positions: [],
                             curr_position: position,
                             line: [],
-                            polyline: new google.maps.Polyline({
+                            polyline: [new google.maps.Polyline({
                                 map: map,
                                 zIndex: Z_PATH,
                                 strokeColor: balloon_colors[c],
@@ -722,7 +724,7 @@ function addPosition(position) {
                                 strokeWeight: 3,
                                 clickable: false,
                                 draggable: false,
-                            }),
+                            })],
                             prediction: null,
                             ascent_rate: 0.0,
                             horizontal_rate: 0.0,
@@ -742,6 +744,41 @@ function addPosition(position) {
 
         // deep copy yaxes config for graph
         if(plot) $.each($.extend(false, plot_options.yaxes, {}), function(k,v) { vehicle_info.graph_yaxes.push(v) });
+
+        // nyan mod
+        if(window.location.search == "?nyan" && vehicle_info.vehicle_type == "balloon") {
+           vehicle_info.marker.setMap(null);
+           vehicle_info.marker.setMode = function(derp) {};
+           vehicle_info.marker_shadow = new google.maps.Marker({
+                map: map,
+                zIndex: Z_SHADOW,
+                optimized: false,
+                position: point,
+                icon: {
+                    url: host_url + markers_url + "nyan.gif",
+                    size: new google.maps.Size(55,39),
+                    scaledSize: new google.maps.Size(55,39),
+                    anchor: new google.maps.Point(26,20)
+                },
+                clickable: false
+            });
+            vehicle_info.image_src = host_url + markers_url + "nyan.gif";
+
+            var rainbow = ["#ff0000", "#fc9a00", "#f6ff00", "#38ff01", "#009aff","#0000ff"];
+
+            for(k in rainbow) {
+                vehicle_info.polyline.push(new google.maps.Polyline({
+                                map: map,
+                                zIndex: (Z_PATH - (k * 1)),
+                                strokeColor: rainbow[k],
+                                strokeOpacity: 1,
+                                strokeWeight: (k*4) + 2,
+                                clickable: false,
+                                draggable: false,
+                            }));
+            }
+        }
+
 
         vehicles.push(vehicle_info);
     }
