@@ -765,6 +765,7 @@ function addPosition(position) {
             vehicle_info.image_src = host_url + markers_url + "hab_nyan.gif";
 
             var rainbow = ["#ff0000", "#fc9a00", "#f6ff00", "#38ff01", "#009aff","#0000ff"];
+            vehicle_info.polyline = [];
 
             for(k in rainbow) {
                 vehicle_info.polyline.push(new google.maps.Polyline({
