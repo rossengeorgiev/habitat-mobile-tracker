@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# version 136
+# version 138
 
 # gogole maps files
 http://maps.google.com/maps/api/js?v=3.10&sensor=false&key=AIzaSyCOqkcNey4CCyG4X0X5qxHAhCgD8g5DwXg
@@ -21,6 +21,7 @@ img/logo.png
 img/blank.png
 img/marker-you.png
 img/apple-touch-icon.png
+img/markers/hab_nyan.gif
 img/markers/nyan.gif
 img/markers/antenna-green.png
 img/markers/balloon-red.png

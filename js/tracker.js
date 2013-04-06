@@ -762,7 +762,7 @@ function addPosition(position) {
                 },
                 clickable: false
             });
-            vehicle_info.image_src = host_url + markers_url + "nyan.gif";
+            vehicle_info.image_src = host_url + markers_url + "hab_nyan.gif";
 
             var rainbow = ["#ff0000", "#fc9a00", "#f6ff00", "#38ff01", "#009aff","#0000ff"];
 
