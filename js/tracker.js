@@ -41,8 +41,8 @@ var notamOverlay = null;
 var Z_RANGE = 1;
 var Z_STATION = 2;
 var Z_PATH = 10;
-var Z_SHADOW = 11;
-var Z_CAR = 12;
+var Z_CAR = 11;
+var Z_SHADOW = 12;
 var Z_PAYLOAD = 13;
 
 // localStorage vars
