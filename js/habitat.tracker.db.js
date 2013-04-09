@@ -18,7 +18,7 @@ habitat.tracker.db = {
                         last = doc;
                         payloads = doc.payloads;
                         doc.payloads = [];
-                        list.push(data.rows[k]);
+                        list.push(doc);
                     } else if(payloads.indexOf(doc._id) != -1) {
                         last.payloads.push(doc);
                     }
@@ -28,5 +28,19 @@ habitat.tracker.db = {
                 callback(list);
             },
         });
+    },
+    get_telemetry: function(payload_ids) {
+        var keys = [];
+        for(k in payload_ids) { keys.push({ 'key': payload_ids[k] }); }
+
+    },
+    fetch_payloads: function(flight_docs) {
+        var list = [];
+
+        for(k in flight_docs) {
+           list.concat(flight_docs[k].payloads);
+        }
+
+        return list;
     }
 };
