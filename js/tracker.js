@@ -874,7 +874,9 @@ function graphAddLastPosition(idx) {
     vehicles[idx].graph_data_updated = true;
     var data = vehicles[idx].graph_data;
     var new_data = vehicles[idx].curr_position;
-    var ts = (new Date(new_data.gps_time)).getTime(); // flot needs miliseconds for time
+    var date = new Date(new_data.gps_time);
+    var tz_offset_milis = date.getTimezoneOffset() * 60000;
+    var ts = date.getTime() - tz_offset_milis;
 
     if(vehicles[idx].graph_data.length) {
         var ts_last_idx = data[0].data.length - 1;
