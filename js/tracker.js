@@ -621,7 +621,7 @@ function addPosition(position) {
             color_index = balloon_index++;
             var c = color_index % balloon_colors.length;
 
-            image_src = host_url + markers_url + "balloon-" + balloon_colors_name[c] + ".png";
+            image_src = host_url + markers_url + "balloon-" + ((position.vehicle == "PIE") ? "rpi" : balloon_colors_name[c]) + ".png";
             marker_shadow = new google.maps.Marker({
                 map: map,
                 zIndex: Z_SHADOW,
