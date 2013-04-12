@@ -400,12 +400,12 @@ function updateVehicleInfo(index, position) {
            + '</div>' // left
            + '<div class="right">'
            + '<dl>'
-           + (position.gps_alt != 0 ? '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>' : '')
+           + ((vehicles[index].vehicle_type == "car") ? '' : '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>')
            + '<dt>'+((imp) ? parseInt(3.2808399 * position.gps_alt) + ' ft': parseInt(position.gps_alt) + ' m')+'</dt><dd>altitude</dd>'
            + '<dt>'+((imp) ? parseInt(3.2808399 * vehicles[index].max_alt) + ' ft': parseInt(vehicles[index].max_alt) + ' m')+'</dt><dd>max alt</dd>'
            + '';
   // mid for landscape
-  var l    = (position.gps_alt != 0 ? '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>' : '')
+  var l    = ((vehicles[index].vehicle_type == "car") ? '' : '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>')
            + '<dt>'+((imp) ? parseInt(3.2808399 * position.gps_alt) + 'ft': parseInt(position.gps_alt) + 'm')+' ('+((imp) ? parseInt(3.2808399 * vehicles[index].max_alt) + 'ft' : parseInt(vehicles[index].max_alt) + 'm')+')</dt><dd>altitude (max)</dd>'
            + '<dt>'+position.gps_time+'</dt><dd>datetime</dd>'
            + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
@@ -799,7 +799,7 @@ function addPosition(position) {
 
         // if position array has at least 1 position
         if(vehicle.num_positions > 0) {
-            if((new Date(vehicle.curr_position.gps_time)).getTime() >= (new Date(position.gps_time)).getTime()) {
+            if(convert_time(vehicle.curr_position.gps_time) >= convert_time(position.gps_time)) {
                 if (("," + vehicle.curr_position.callsign + ",").indexOf("," + position.callsign + ",") === -1) {
                   vehicle.curr_position.callsign += "," + position.callsign;
                 }
