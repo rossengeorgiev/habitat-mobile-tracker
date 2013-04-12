@@ -941,6 +941,8 @@ function refresh() {
   //status = '<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing ...';
   //$('#status_bar').html(status);
 
+  if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'ajax', 'refresh']);
+
   $.ajax({
     type: "GET",
     url: data_url,
