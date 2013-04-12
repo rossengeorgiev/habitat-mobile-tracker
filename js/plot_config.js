@@ -107,9 +107,11 @@ function updateLegend() {
         });
     }
 
-    for (j = 0; j < dataset[0].data.length; ++j) {
-        if (dataset[0].data[j][0] > pos.x) {
-            break;
+    if(dataset.length) {
+        for (j = 0; j < dataset[0].data.length; ++j) {
+            if (dataset[0].data[j][0] > pos.x) {
+                break;
+            }
         }
     }
 
@@ -139,6 +141,8 @@ $(plot_holder).bind("dblclick", function () {
 
 // limit range after selection
 $(plot_holder).bind("plotselected", function (event, ranges) {
+    if(typeof ranges.xaxis == 'undefined') return;
+
     plot = $.plot("#telemetry_graph .holder", plot.getData(), $.extend(true, plot_options, {
         xaxis: {
             min: ranges.xaxis.from,
