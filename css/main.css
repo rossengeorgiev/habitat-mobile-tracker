@@ -76,7 +76,7 @@ header {
     max-height: 50px;
     line-height: normal;
     border-bottom: 5px solid #33b5e5;
-    box-shadow: 0px 3px 3px #888;
+    box-shadow: 0px 1px 3px #555;
     z-index: 5;
     position: relative;
 }

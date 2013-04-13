@@ -31,7 +31,7 @@ var jsonp_callback = function(data) {
         var minutes = Math.floor(((new Date()).getTime() - time.getTime()) / 60000);
 
         $('#ssdv .label').text("SSDV from " + img.payload + " " + img.received_packets + "/" + img.lost_packets + " taken "+minutes+" min ago");
-        $('#ssdv img').attr('src', 'http://ssdv.habhub.org' + img.image);
+        $('#ssdv img').attr('src', 'http://ssdv.habhub.org' + img.image + "?u=" + img.image_packets);
     }
 
     ssdv_last_id = data.last_id;
