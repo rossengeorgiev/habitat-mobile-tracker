@@ -36,6 +36,7 @@ function trackerInit() {
     $('header,#main,#map').show(); // interface elements
 
     if(!is_mobile) {
+        $.getScript("js/ssdv.js");
         $.getScript("js/init_plot.js", function() { checkSize(); if(!map) load(); });
         $('#telemetry_graph').addClass("main_screen").attr('style','');
         return;
