@@ -27,10 +27,10 @@ var jsonp_callback = function(data) {
     if(data.images.length > 0) {
         var img = data.images[0];
         var time = new Date();
-        time.setTime((img.updated + (new Date()).getTimezoneOffset()) * 1000);
+        time.setTime((img.timestamp + (new Date()).getTimezoneOffset()) * 1000);
         var minutes = Math.floor(((new Date()).getTime() - time.getTime()) / 60000);
 
-        $('#ssdv .label').text("SSDV from " + img.payload + " " + img.received_packets + "/" + img.lost_packets + " updated "+minutes+" min ago");
+        $('#ssdv .label').text("SSDV from " + img.payload + " " + img.received_packets + "/" + img.lost_packets + " taken "+minutes+" min ago");
         $('#ssdv img').attr('src', 'http://ssdv.habhub.org' + img.image);
     }
 
