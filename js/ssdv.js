@@ -4,7 +4,7 @@ var ssdv_timer = ssdv_timer || null;
 var ssdv_html = "<div id='ssdv' style='z-index: 20;position:absolute;bottom:0px;right:0px;width:320px'>" +
                  "<span class='label' style='z-index:21;display:block;width:100%;background:#00a3d3;height:20px;padding:3px 5px;font-weight: bold;font-size: 11px;color:#fff;border-radius:5px 0 0 0;box-shadow:1px -1px 5px rgba(0,0,0,0.2);cursor:pointer;'>SSDV</span>" +
                  "<img src='' style='height:0px;display:none'/>" +
-                 "<span class='link' style='display:none;position:absolute;bottom:0px;right:0px;border-radius:5px 0 0 0;padding:0px 4px;background:rgba(0,0,0,0.2);color:#ccc;font-size:10px'>powered by <a style='color:#fff' href='http://ssdv.habhub.org'>ssdv.habhub.org</a></span>" +
+                 "<span class='link' style='display:none;position:absolute;bottom:0px;right:0px;border-radius:5px 0 0 0;padding:0px 4px;background:rgba(0,0,0,0.3);color:#ddd;font-size:10px'>powered by <a style='color:#fff' href='http://ssdv.habhub.org'>ssdv.habhub.org</a></span>" +
                  "</div>";
 
 
