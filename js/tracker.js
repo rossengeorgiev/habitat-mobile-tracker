@@ -45,6 +45,9 @@ var Z_CAR = 11;
 var Z_SHADOW = 12;
 var Z_PAYLOAD = 13;
 
+var bootstrapped = false;
+var zoom_timer;
+
 // localStorage vars
 var ls_receivers = false;
 var ls_pred = false;
@@ -640,7 +643,11 @@ function addPosition(position) {
                 optimized: false,
                 zIndex: Z_PAYLOAD,
                 position: point,
-                icon: image_src,
+                icon: {
+                            url: image_src,
+                            size: new google.maps.Size(46,84),
+                            scaledSize: new google.maps.Size(46,84)
+                },
                 title: position.vehicle,
             });
             marker.shadow = marker_shadow;
@@ -1129,6 +1136,7 @@ function refreshUI() {
 }
 
 var status = "";
+var bs_idx = 0;
 
 function update(response) {
   if (response == null || !response.positions) {
@@ -1156,21 +1164,43 @@ function update(response) {
       var lastPPointer = lastPositions.positions.position;
 
       for (var i = 0, ii = vehicle_names.length; i < ii; i++) {
-	  	updatePolyline(i);
-	    updateVehicleInfo(i, vehicles[i].curr_position);
+        if(!bootstrapped) {
+            setTimeout(function() {
+                var idx = bs_idx;
+                bs_idx += 1;
+                updatePolyline(idx);
+                updateVehicleInfo(idx, vehicles[idx].curr_position);
 
-        // update the altitude profile, only if its a balloon
-        if(vehicles[i].vehicle_type != "car") {
-            var graph_src = graph_url.replace("{AA}",vehicles[i].alt_max); // top range, buttom is always 0
-            graph_src += GChartEncodeData(vehicles[i].alt_list, vehicles[i].alt_max); // encode datapoint to preserve bandwith
+                if(listScroll) listScroll.refresh();
 
-            // update img element
-            $('.vehicle'+i+' .graph').attr('src', graph_src);
+                // update the altitude profile, only if its a balloon
+                if(vehicles[idx].vehicle_type != "car") {
+                    var graph_src = graph_url.replace("{AA}",vehicles[idx].alt_max); // top range, buttom is always 0
+                    graph_src += GChartEncodeData(vehicles[idx].alt_list, vehicles[i].alt_max); // encode datapoint to preserve bandwith
+
+                    // update img element
+                    $('.vehicle'+idx+' .graph').attr('src', graph_src);
+                }
+            }, 400*i);
+        } else {
+            updatePolyline(i);
+            updateVehicleInfo(i, vehicles[i].curr_position);
+
+            // update the altitude profile, only if its a balloon
+            if(vehicles[i].vehicle_type != "car") {
+                var graph_src = graph_url.replace("{AA}",vehicles[i].alt_max); // top range, buttom is always 0
+                graph_src += GChartEncodeData(vehicles[i].alt_list, vehicles[i].alt_max); // encode datapoint to preserve bandwith
+
+                // update img element
+                $('.vehicle'+i+' .graph').attr('src', graph_src);
+            }
+
+            // remember last position for each vehicle
+            lastPPointer.push(vehicles[i].curr_position);
         }
-
-        // remember last position for each vehicle
-        lastPPointer.push(vehicles[i].curr_position);
 	  }
+
+      bootstrapped = true;
 
       // update graph is current vehicles is followed
       if(follow_vehicle != -1 && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, false);
@@ -1187,6 +1217,20 @@ function update(response) {
   if (got_positions && !zoomed_in) {
     if(vehicles.length == 0) return;
 
+    zoom_timer = setInterval(function() {
+        if(bootstrapped && bs_idx+1 == vehicle_names.length) {
+            zoom_on_payload();
+            clearInterval(zoom_timer);
+        }
+    },100);
+
+    zoomed_in = true;
+  }
+
+  if(listScroll) listScroll.refresh();
+}
+
+function zoom_on_payload() {
     // find a the first balloon
     var i = -1, ii = vehicles.length;
     while(++i < ii && !vehicles[i].marker_shadow);
@@ -1214,11 +1258,6 @@ function update(response) {
     // scroll list to the expanded element
     listScroll.refresh();
     listScroll.scrollToElement('.portrait .vehicle'+i);
-
-    zoomed_in = true;
-  }
-
-  if(listScroll) listScroll.refresh();
 }
 
 function isInt(n) {
