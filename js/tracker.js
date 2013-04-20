@@ -1176,7 +1176,7 @@ function update(response) {
                 // update the altitude profile, only if its a balloon
                 if(vehicles[idx].vehicle_type != "car") {
                     var graph_src = graph_url.replace("{AA}",vehicles[idx].alt_max); // top range, buttom is always 0
-                    graph_src += GChartEncodeData(vehicles[idx].alt_list, vehicles[i].alt_max); // encode datapoint to preserve bandwith
+                    graph_src += GChartEncodeData(vehicles[idx].alt_list, vehicles[idx].alt_max); // encode datapoint to preserve bandwith
 
                     // update img element
                     $('.vehicle'+idx+' .graph').attr('src', graph_src);
