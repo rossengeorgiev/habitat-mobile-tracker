@@ -1,4 +1,4 @@
 *.swp
-js/mobile.js
-js/init_plot.js
-css/mobile.css
+*.pyc
+node_modules/
+js/*.js
