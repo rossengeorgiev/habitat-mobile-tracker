@@ -1,8 +1,8 @@
 habitat.tracker.db =
 
     # pulls latest flights from habitat
-    get_flights: (callback, selector) ->
-        ts = Math.floor (new Date()).getTime() / 1000
+    get_flights: (callback, time) ->
+        ts = if time? then time else Math.floor (new Date()).getTime() / 1000
 
         habitat.db.view "flight/end_start_including_payloads", {
             startkey: [ts]
@@ -36,3 +36,20 @@ habitat.tracker.db =
            list.concat(doc.payloads);
 
         null
+
+    get_telemetry_by_flight_id: (callback, id) ->
+        habitat.db.view "payload_telemetry/flight_payload_time", {
+            startkey: [id]
+            endkey: [id,{}]
+            include_docs: true
+            success: (data) -> callback data.rows
+        }
+
+    get_telemetry_by_id: (callback, id, time = 0) ->
+        habitat.db.view "payload_telemetry/payload_time", {
+            startkey: [id,time]
+            endkey: [id,{}]
+            include_docs: true
+            success: (data) -> callback data.rows
+        }
+

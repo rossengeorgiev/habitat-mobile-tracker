@@ -52,4 +52,4 @@ habitat.tracker =
         out = $('body')
 
         for flight in list
-            out.append "#{flight.start} #{flight.name} <br />"
+            out.append "#{flight.start} #{flight.name} [#{flight._id}]<br />"

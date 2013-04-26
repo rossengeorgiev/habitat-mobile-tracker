@@ -1,10 +1,16 @@
 from fabric.api import *
 
+def dothis(cmd):
+    if len(env.hosts) == 0:
+        local(cmd)
+    else:
+        run(cmd)
+
 def compile_coffee():
-    local("/usr/lib/node_modules/coffee-script/bin/coffee -b -c -o js/ coffee/*.coffee")
+    dothis("/usr/lib/node_modules/coffee-script/bin/coffee -b -c -o js/ coffee/*.coffee")
 
 def build():
     compile_coffee()
 
 def clean():
-    local("rm -f js/*js")
+    dothis("rm -f js/*js")
