@@ -1,0 +1,79 @@
+/* Habitat Font
+ * icons specifically created for habitat websites and apps
+ *
+ * Inspired from Font Awesome @ https://github.com/FortAwesome
+ *
+ * Author: Rossen Georgiev @ http://rossengeorgiev.github.com/
+ */
+
+@font-face {
+    font-family: 'HabitatFont';
+    src: url('../font/HabitatFont.eot');
+    src: url('../font/HabitatFont.eot?#iefix') format('embedded-opentype'),
+        url('../font/HabitatFont.woff') format('woff'),
+        url('../font/HabitatFont.ttf') format('truetype'),
+        url('../font/HabitatFont.svg#habitatfontregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+[class^="icon-"],
+[class*=" icon-"] {
+    font-family: HabitatFont;
+    font-weight: normal;
+    font-style: normal;
+    text-decoration: inherit;
+    display: inline;
+    width: auto;
+    height: auto;
+    line-height: normal;
+    vertical-align: baseline;
+    background-image: none !important;
+    background-position: 0% 0%;
+    background-repeat: repeat;
+}
+[class^="icon-"]:before,
+[class*=" icon-"]:before {
+    text-decoration: inherit;
+    display: inline-block;
+    speak: none;
+}
+.icon-spin {
+  display: inline-block;
+  -moz-animation: spin 2s infinite linear;
+  -o-animation: spin 2s infinite linear;
+  -webkit-animation: spin 2s infinite linear;
+  animation: spin 2s infinite linear;
+}
+@-moz-keyframes spin {
+  0% { -moz-transform: rotate(0deg); }
+  100% { -moz-transform: rotate(359deg); }
+}
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(359deg); }
+}
+@-o-keyframes spin {
+  0% { -o-transform: rotate(0deg); }
+  100% { -o-transform: rotate(359deg); }
+}
+@-ms-keyframes spin {
+  0% { -ms-transform: rotate(0deg); }
+  100% { -ms-transform: rotate(359deg); }
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(359deg); }
+}
+
+.icon-habhub:before           { content: "\f000"; }
+.icon-compass:before          { content: "\f001"; }
+.icon-locate-me:before        { content: "\f002"; }
+.icon-car:before              { content: "\f003"; }
+.icon-question:before         { content: "\f004"; }
+.icon-location:before         { content: "\f005"; }
+.icon-target:before           { content: "\f006"; }
+.icon-earth:before            { content: "\f007"; }
+.icon-daylight:before         { content: "\f008"; }
+.icon-settings:before         { content: "\f010"; }
+

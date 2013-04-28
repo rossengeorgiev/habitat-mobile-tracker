@@ -1,0 +1,474 @@
+/* Habitat Mobile Tracker
+ * Main style sheet
+ *
+ */
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.scrollStyleV {
+    z-index: 100;
+    width: 5px;
+    bottom: 6px;
+    top: 6px;
+    left: 1px;
+    position: absolute;
+}
+
+.scrollStyleV > div {
+    position: absolute;
+    background: none repeat scroll 0 0 padding-box rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 3px 3px 3px 3px;
+    position: absolute;
+    width: 100%;
+    z-index: 100;
+}
+
+#map img {
+    max-width: none;
+}
+
+#loading {
+    position: absolute;
+    z-index: 99;
+    width: 100%;
+    height: 100%;
+    background: #00A3D3;
+}
+#loading img {
+    width: 198px;
+    height: 178px;
+}
+#loading > div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 198px;
+    height: 200px;
+    margin-top: -100px;
+    margin-left: -99px;
+}
+#loading .bar {
+    position: relative;
+    width: 200px;
+    height: 5px;
+    border-radius: 3px;
+    background: #005C76;
+}
+#loading .complete {
+    width: 0px;
+    height: 5px;
+    border-radius: 3px;
+    background: #fff;
+}
+
+header {
+    padding: 0;
+    margin: 0;
+    height: 50px;
+    min-height: 50px;
+    max-height: 50px;
+    line-height: normal;
+    border-bottom: 5px solid #33b5e5;
+    box-shadow: 0px 1px 3px #555;
+    z-index: 5;
+    position: relative;
+}
+#app_name {
+    line-height: normal;
+    margin-top: 10px;
+    position: relative;
+    height: 40px;
+}
+header > div {
+    position: relative;
+    height: 50px;
+}
+#map,
+#main {
+    position: relative;
+    z-index: 1;
+}
+#map {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.nav {
+    list-style: none outside none;
+    margin: 0;
+    padding: 0;
+    height: 40px;
+    display: block;
+    min-width: 40px;
+    width: auto;
+    float: left;
+    margin: 5px 0px;
+}
+
+#locate-me {
+    float: right;
+    font-size: 25px;
+    height: 45px;
+    line-height: 50px;
+    margin-top: 5px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.nav > li {
+    margin: 0;
+    padding: 0 5px;;
+    float: left;
+    height: 40px;
+    border-right: 1px solid #33b5e5;
+    cursor: pointer;
+    color: #fff;
+    line-height: 45px;
+    font-size: 35px;
+}
+.nav > li.last { border: 0; }
+.nav > li:active { background-color: #33b5e5; }
+.nav > li:hover { border-bottom: 5px solid #fff; }
+
+.header .arrow {
+    font-weight: normal;
+    float: right;
+    color: #aaa;
+    }
+#main .header {
+    height: 20px;
+    padding: 10px;
+    padding-right: 3px;
+    border-bottom: 1px solid #33b5e5;
+    position: relative;
+    z-index: 4;
+    cursor: pointer;
+    background-color: #fff;
+}
+#main .vehicle0 .header {
+    border-top: 1px solid #33b5e5;
+}
+#main .header.empty {
+    text-align: center;
+    width: 100%;
+    height: 120px;
+    line-height: 100px;
+    border: 0;
+}
+#main .header span {
+    overflow: hidden;
+    display: block;
+    width: 90%;
+    float: left;
+}
+.row .header .arrow:after { content: "▲"; }
+.row.active .header .arrow:after { content: "▼"; }
+
+#main .row {
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+#main .row .header {
+ }
+#main .row:hover .header { color: #33b5e5; font-weight: bold; }
+#main .row .data { display: none; width: 100%; }
+#main .row.active .data { display: inline-block; }
+#main .row .data .left,
+#main .row .data .right {
+    position: relative;
+    z-index: 4;
+}
+#main .row .data img {
+    position: absolute;
+    z-index: 2;
+    bottom: 40%;
+    right: 25%;
+    opacity: 0.6;
+    width: 46px;
+    height: 84px;
+}
+#main .row .data img.car {
+    width: 55px;
+    height: 25px;
+}
+#main .row .header .graph {
+    position: absolute;
+    bottom: -1px;
+    right: 18px;
+    width: 60px;
+    height: 40px;
+}
+#main .row .data dt > i {
+    font-size: 12px;
+}
+#main .row .data a {
+    text-decoration: none;
+    color: #00A3D3;
+}
+
+#chasecarbox,
+#aboutbox {
+    position: absolute;
+    width: 100%;
+    z-index: 4;
+    background: #fff;
+}
+#aboutbox span {
+    display: block;
+    text-align: justify;
+    margin-bottom: 15px;
+}
+#cc_callsign {
+    text-align: right;
+    padding: 4px 10px;
+    margin: 0;
+}
+.slimContainer {
+    margin: 20px auto;
+    width: 300px;
+    height: 100%;
+}
+.slimContainer hr {
+    margin-bottom: 10px;
+}
+.slimContainer .row {
+    width: 100%;
+    display: block;
+    margin: 5px;
+    vertical-align: middle;
+}
+.slimContainer .row.info {
+    margin-top: 10px;
+}
+.slimContainer .row > span {
+    float: left;
+}
+.slimContainer .row.option > span {
+    line-height: 30px;
+}
+.slimContainer .row > span.r {
+    float: right;
+}
+
+/* iOS styled switch buttons
+ */
+.switch {
+    float: right;
+    height: 28px;
+    width: 77px;
+    border: 1px solid #979797;
+    border-radius: 20px;
+    box-shadow: inset 0 1px 3px #BABABA, inset 0 12px 3px 2px rgba(232, 232, 232, 0.5);
+    cursor: pointer;
+    overflow: hidden;
+}
+.switch input[type=checkbox] {
+    display: none;
+}
+.switch:before {
+    content: "";
+    display: block;
+    height: 28px;
+    width: 0px;
+    position: absolute;
+    border-radius: 20px;
+    -webkit-box-shadow: inset 0 1px 2px #33B5E5, inset 0 12px 3px 2px #00A3D3;
+    box-shadow: inset 0 1px 2px #33B5E5, inset 0 12px 3px 2px #00A3D3;
+    background-color: #33B5E5;
+}
+.switch.on:before {
+    width: 77px;
+}
+.switch > .thumb {
+    display: block;
+    width: 26px;
+    height: 26px;
+    position: relative;
+    top: 0;
+    z-index: 3;
+    border: solid 1px #919191;
+    border-radius: 28px;
+    box-shadow: inset 0 2px 1px white, inset 0 -2px 1px white;
+    background-color: #CECECE;
+    background-image: -webkit-linear-gradient(#CECECE, #FBFBFB);
+    background-image: -moz-linear-gradient(#CECECE, #FBFBFB);
+    background-image: -o-linear-gradient(#CECECE, #FBFBFB);
+    -o-transition: all 0.125s ease-in-out;
+    -webkit-transition: all 0.125s ease-in-out;
+    -moz-transition: all 0.125s ease-in-out;
+    -o-transform: translateX(0px);
+    -webkit-transform: translate3d(0,0,0);
+    -moz-transform: translateX(0px);
+}
+.switch.on > .thumb {
+    -webkit-transform: translate3d(49px,0,0);
+    -o-transform: translateX(49px);
+    -moz-transform: translateX(49px);
+}
+.switch:hover > .thumb {
+    box-shadow: inset 0 2px 1px #fff, inset 0 -2px 1px #fff;
+    background-image: none;
+}
+.switch > .thumb:before {
+    font-weight: bold;
+    font-size: 14px;
+    color: #fff;
+    content: "On";
+    display: block;
+    height: 14px;
+    width: 14px;
+    border: none;
+    position: absolute;
+    top: 3px;
+    left: -30px;
+}
+.switch > .thumb:after {
+    font-weight: bold;
+    font-size: 14px;
+    content: "Off";
+    display: block;
+    height: 14px;
+    width: 14px;
+    position: absolute;
+    right: -28px;
+    top: 3px;
+}
+
+#telemetry_graph {
+    display: none;
+}
+
+@media only screen and (min-width: 361px) {
+    .portrait { display: none; }
+    .landscape { display: block; }
+    #telemetry_graph {
+        display: block;
+        float: right;
+        height: 200px;
+        width: 280px;
+        background: #fff;
+        position: relative;
+    }
+    #telemetry_graph .graph_label {
+        position: absolute;
+        top: -26px;
+        left: 0px;
+        height: 20px;
+        padding: 3px 5px;
+        background: #00a3d3;
+        z-index: 20;
+        font-weight: bold;
+        font-size: 11px;
+        color: #fff;
+        border-radius: 0px 5px 0 0;
+        box-shadow: 1px -1px 5px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+    }
+    #map {
+        float: right;
+        height: 245px;
+        width: 280px;
+    }
+    #main {
+        float: left;
+        height: 245px;
+        width: 199px;
+        border-right: 1px solid #ddd;
+        overflow: hidden;
+    }
+    #main .data {
+        height: 100%;
+        padding-bottom: 5px;
+    }
+    #main .data .left {
+        float: left;
+        width: 160px;
+        padding-left: 10px;
+    }
+    #main .data dl > dt {
+        color: #000;
+        line-height: 11px;
+        margin-top: 5px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    #main .data dl > dd {
+        padding: 0;
+        margin: 0;
+        text-transform:uppercase;
+        line-height: 11px;
+        font-size: 11px;
+    }
+    #main .data dl > dt.receivers {
+        font-size: 10px;
+        font-weight: normal;
+    }
+    #main .data dl > dd.receivers {
+        font-size: 10px;
+    }
+    #main .row .data img {
+        right: 5%;
+        top: 50px;
+    }
+}
+@media only screen and (max-width: 360px) {
+    .portrait { display: block; }
+    .landscape { display: none; }
+    #map{
+        height: 225px;
+    }
+    #main {
+        height: 180px;
+    }
+    #main .data {
+        height: 140px;
+    }
+    #main .data .left {
+        float: left;
+        width: 65%;
+        padding-left: 10px;
+        padding-right: 20px;
+    }
+    #main .data .right {
+        float: right;
+        padding-right: 10px;
+        width: 20%;
+    }
+    #main .data dl > dt {
+        color: #000;
+        line-height: 11px;
+        margin-top: 15px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    #main .data dl > dd {
+        padding: 0;
+        margin: 0;
+        text-transform:uppercase;
+        line-height: 11px;
+        font-size: 11px;
+    }
+    #main .data dl > dt.receivers {
+        font-size: 10px;
+        font-weight: normal;
+    }
+    #main .data dl > dd.receivers {
+        font-size: 10px;
+    }
+    #main .row .header .graph {
+        width: 150px;
+        height: 40px;
+    }
+}
+
