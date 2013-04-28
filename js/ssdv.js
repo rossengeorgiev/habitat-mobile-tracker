@@ -22,9 +22,9 @@ $('#ssdv .label').live('click',function() {
 });
 
 var jsonp_callback = function(data) {
-    if($('#ssdv').length == 0) $('#map').append(ssdv_html);
-
     if(data.images.length > 0) {
+        if($('#ssdv').length == 0) $('#map').append(ssdv_html);
+
         var img = data.images[0];
         var time = new Date();
         time.setTime((img.timestamp + (new Date()).getTimezoneOffset()) * 1000);
