@@ -7,7 +7,7 @@ def dothis(cmd):
         run(cmd)
 
 def compile_coffee():
-    dothis("/usr/lib/node_modules/coffee-script/bin/coffee -b -c -o js/ coffee/*.coffee")
+    dothis("/usr/local/lib/node_modules/coffee-script/bin/coffee -b -c -o js/ coffee/*.coffee")
 
 def build():
     compile_coffee()
