@@ -364,11 +364,11 @@ function updateVehicleInfo(index, position) {
   var ua =  navigator.userAgent.toLowerCase();
   // determine how to link the vehicle coordinates to a native app, if on a mobile device
   if(ua.indexOf('iphone') > -1) {
-      coords_text = '<a id="launch_mapapp" href="http://maps.google.com/?q='+position.gps_lat+','+position.gps_lon+'">'
+      coords_text = '<a id="launch_mapapp" href="maps://?q='+position.gps_lat+','+position.gps_lon+'">'
                     + roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6) +'</a>'
                     + ' <i class="icon-location"></i>';
   } else if(ua.indexOf('android') > -1) {
-      coords_text = '<a id="launch_mapapp" href="geo:0,0?q='+position.gps_lat+','+position.gps_lon+'">'
+      coords_text = '<a id="launch_mapapp" href="geo:'+position.gps_lat+','+position.gps_lon+'">'
                     + roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6) +'</a>'
                     + ' <i class="icon-location"></i>';
   } else {
