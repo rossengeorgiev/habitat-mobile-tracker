@@ -368,7 +368,7 @@ function updateVehicleInfo(index, position) {
                     + roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6) +'</a>'
                     + ' <i class="icon-location"></i>';
   } else if(ua.indexOf('android') > -1) {
-      coords_text = '<a id="launch_mapapp" href="geo:'+position.gps_lat+','+position.gps_lon+'">'
+      coords_text = '<a id="launch_mapapp" href="geo:'+position.gps_lat+','+position.gps_lon+'?q='+position.gps_lat+','+position.gps_lon+'">'
                     + roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6) +'</a>'
                     + ' <i class="icon-location"></i>';
   } else {
