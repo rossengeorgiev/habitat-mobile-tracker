@@ -1,12 +1,14 @@
 # Habitat Mobile Tracker
 
+![mobile tracker screenshot](resources/mobiletracker-screencap.png "mobile tracker screenshot")
+
 A tracker webapp specifically crafted for use on mobile devices.
 But, works on any other device - desktops, laptops or netbooks.
 The aim is to provide all key features in a compact package useful
-on a mobile device. And yet, not feel stripped down on a desktop pc.
+on a mobile device. And yet, not feel stripped down on a desktop PC.
 The mobile tracker is a continuation of [spacenear.us/tracker](http://spacenear.us/tracker).
 
-[Live version](http://habhub.org/mt/)
+Checkout the [Live version](http://habhub.org/mt/)
 
 ## Features
 
@@ -51,7 +53,7 @@ Author: Daniel Saul [@danielsaul](https://github.com/danielsaul)
 
 ## Currently Supported Devices
 
-### iOS, Android, Deskstops
+### iOS, Android, Desktops
 
 * Modern browser required (IE not supported)
 * Browsers supporting _Geolocation API_ will have `Chase car mode` available
