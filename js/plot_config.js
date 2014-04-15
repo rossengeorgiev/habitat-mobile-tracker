@@ -35,7 +35,7 @@ var plot_options = {
         {
             show: true,
             mode: "time",
-            timeformat: "%H:%M"
+            timeformat: "%m/%d %H:%M"
         }
     ]
 };
