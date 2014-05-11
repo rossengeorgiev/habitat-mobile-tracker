@@ -90,9 +90,8 @@ function updateLegend() {
             } else {
                 y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
             }
-            y = y.toFixed(2);
 
-            if((p1 && p1[1] == null) || (p2 && p2[1] == null)) y = null;
+            y = ((p1 && p1[1] == null) || (p2 && p2[1] == null)) ? null : y.toFixed(2);
         }
         legend.eq(i).text(series.label.replace(/=.*/, "= " + y));
     }
@@ -117,9 +116,23 @@ function updateLegend() {
 
     if(follow_vehicle != -1 && vehicles[follow_vehicle].positions.length) {
         // adjust index for null data points
-        j = j - vehicles[follow_vehicle].graph_data[0].nulls;
+        var null_count = 0;
+        var data_ref = vehicles[follow_vehicle].graph_data[0];
+
+        if(j > data_ref.data.length / 2) {
+            for(var i = data_ref.data.length - 1; i > j; i--) null_count += (data_ref.data[i][1] == null) ? 1 : 0;
+            null_count = data_ref.nulls - null_count * 2;
+        } else {
+            for(var i = 0; i < j; i++) null_count += (data_ref.data[i][1] == null) ? 1 : 0;
+            null_count *= 2;
+        }
+
         // update position
-        polyMarker.setPosition(vehicles[follow_vehicle].positions[j]);
+        polyMarker.setPosition(vehicles[follow_vehicle].positions[j - null_count]);
+
+        // adjust nite overlay
+        nite.setDate(new Date(data_ref.data[j][0]));
+        nite.refresh();
     }
 }
 

@@ -776,7 +776,7 @@ function addPosition(position) {
 
             vehicle_info.image_src = host_url + markers_url + "hab_nyan.gif";
 
-            // whats nyan only purpose? Make people happy, of course. And how? 
+            // whats nyan only purpose? Make people happy, of course. And how?
             var rainbow = ["#ff0000", "#fc9a00", "#f6ff00", "#38ff01", "#009aff","#0000ff"];
             vehicle_info.polyline = [];
 
@@ -869,7 +869,13 @@ function updateGraph(idx, reset_selection) {
 
     if(polyMarker) polyMarker.setPosition(null);
 
-    if(reset_selection) delete plot_options.xaxis;
+    if(reset_selection) {
+        delete plot_options.xaxis;
+
+        // reset nite overlay
+        nite.setDate(null);
+        nite.refresh();
+    }
 
     // replot graph, with this vehicle data, and this vehicles yaxes config
     plot = $.plot(plot_holder, vehicles[idx].graph_data, $.extend(false, plot_options, {yaxes:vehicles[idx].graph_yaxes}));
@@ -889,9 +895,15 @@ function graphAddLastPosition(idx) {
         var ts_last_idx = data[0].data.length - 1;
         var ts_last = data[0].data[ts_last_idx][0];
 
-        //insert gap when there are 2mins, or more, without telemetry
-        if(ts_last + 120000 < ts) {
-            $.each(data, function(k,v) { v.data.push([ts_last+1, null]); v.nulls += 1; })
+        //insert gap when there are 3mins, or more, without telemetry
+        var gap_size = 180000; // 3 mins in milis
+
+        if(ts_last + gap_size < ts) {
+            $.each(data, function(k,v) {
+                v.data.push([ts_last+gap_size, v.data[v.data.length - 1][1]]);
+                v.data.push([ts_last+gap_size+1, null]);
+                v.nulls += 2;
+            })
         }
 
         // update the selection upper limit to the latest timestamp, only if the upper limit is equal to the last timestamp
@@ -929,6 +941,7 @@ function graphAddLastPosition(idx) {
                         label: k + " = 0",
                         key: k,
                         yaxis: i + 1,
+                        nulls: 0,
                         data: []
                       };
 
