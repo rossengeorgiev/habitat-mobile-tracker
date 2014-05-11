@@ -35,7 +35,7 @@ echo -n "Increment cache version... "
 
 CACHE_VERSION=`awk '/^\# version/ { print $3 }' cache.manifest`
 CACHE_VERSION=`expr $CACHE_VERSION + 1`
-sed "s/^\(# version\) [0-9]\+/\1 $CACHE_VERSION/" cache.manifest | tee cache.manifest > /dev/null
+sed -i "s/^\(# version\) [0-9]\+/\1 $CACHE_VERSION/" cache.manifest
 
 echo "Done!"
 
