@@ -451,7 +451,7 @@ $(window).ready(function() {
     if(offline.get('opt_daylight')) $('#sw_daylight').removeClass('off').addClass('on');
 
     // offline and mobile
-    $('#sw_offline, #sw_station, #sw_imperial').click(function() {
+    $('#sw_offline, #sw_station, #sw_imperial, #sw_haxis_hours').click(function() {
         var e = $(this);
         var name = e.attr('id').replace('sw', 'opt');
         var on;
@@ -465,12 +465,13 @@ $(window).ready(function() {
         }
 
         offline.set(name, on);
-        if(name == "opt_imperial") refreshUI();
+        if(name == "opt_imperial" || name == "opt_haxis_hours") refreshUI();
     });
 
     if(offline.get('opt_offline')) $('#sw_offline').removeClass('off').addClass('on');
     if(offline.get('opt_station')) $('#sw_station').removeClass('off').addClass('on');
     if(offline.get('opt_imperial')) $('#sw_imperial').removeClass('off').addClass('on');
+    if(offline.get('opt_haxis_hours')) $('#sw_haxis_hours').removeClass('off').addClass('on');
 
     // force re-cache
     $('#sw_cache').click(function() {

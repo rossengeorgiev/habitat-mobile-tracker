@@ -357,7 +357,11 @@ function updateVehicleInfo(index, position) {
 
   var imp = offline.get('opt_imperial');
   var ascent_text = imp ? (vehicles[index].ascent_rate * 196.850394).toFixed(1) + ' ft/min' : vehicles[index].ascent_rate.toFixed(1) + ' m/s';
-  var hrate_text = imp ? (vehicles[index].horizontal_rate * 196.850394).toFixed(1) + ' ft/min' : vehicles[index].horizontal_rate.toFixed(1) + ' m/s';
+  if (offline.get('opt_haxis_hours')) {
+          var hrate_text = imp ? (vehicles[index].horizontal_rate * 2.23693629).toFixed(1) + ' mph' : (vehicles[index].horizontal_rate * 3.6).toFixed(1) + ' km/h';
+  } else {
+          var hrate_text = imp ? (vehicles[index].horizontal_rate * 196.850394).toFixed(1) + ' ft/min' : vehicles[index].horizontal_rate.toFixed(1) + ' m/s';
+  }
 
   var coords_text;
   var ua =  navigator.userAgent.toLowerCase();
@@ -815,7 +819,7 @@ function addPosition(position) {
                    - convert_time(vehicle.curr_position.gps_time);
 
                 if(dt != 0) {
-                    // calcualte vertical rate
+                    // calculate vertical rate
                     var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
                     vehicle.ascent_rate = 0.7 * rate
                                           + 0.3 * vehicle.ascent_rate;
