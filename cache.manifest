@@ -1,20 +1,22 @@
 CACHE MANIFEST
-# version 176
+# version 200
 
 # gogole maps files
-http://maps.google.com/maps/api/js?v=3.10&sensor=false&key=AIzaSyCOqkcNey4CCyG4X0X5qxHAhCgD8g5DwXg
-http://maps.gstatic.com/intl/en_us/mapfiles/api-3/10/20/main.js
-http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/10/20/%7Bcommon,map,util,geometry,poly,overlay%7D.js
-http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/10/20/%7Bcommon,util,stats%7D.js
-http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/10/20/%7Bcommon,map,util,geometry,poly,overlay,stats%7D.js
-http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/10/20/%7Bstats%7D.js
-http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/10/20/%7Bonion%7D.js
-http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/10/20/%7Bcontrols%7D.js
-http://maps.gstatic.com/mapfiles/openhand_8_8.cur
-http://maps.gstatic.com/mapfiles/transparent.png
+http://maps.google.com/maps/api/js?v=3.10&sensor=false&language=en_us&key=AIzaSyCOqkcNey4CCyG4X0X5qxHAhCgD8g5DwXg
+http://maps.gstatic.com/intl/en_us/mapfiles/api-3/15/18/main.js
+http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/15/18/%7Bcommon,map,util,geometry,poly,overlay%7D.js
+http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/15/18/%7Bmarker%7D.js
+http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/15/18/%7Bonion%7D.js
+http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/15/18/%7Bcontrols,stats%7D.js
+http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/15/18/%7Bstats%7D.js
+http://maps.gstatic.com/cat_js/intl/en_us/mapfiles/api-3/15/18/%7Bcontrols%7D.js
 http://maps.gstatic.com/mapfiles/undo_poly.png
-http://maps.gstatic.com/mapfiles/arrow-down.png
-http://maps.gstatic.com/mapfiles/markers2/marker_sprite.png
+http://maps.gstatic.com/mapfiles/mv/imgs8.png
+http://maps.gstatic.com/mapfiles/transparent.png
+http://maps.gstatic.com/mapfiles/api-3/images/mapcnt3.png
+http://maps.gstatic.com/mapfiles/api-3/images/google_white2_hdpi.png
+http://maps.gstatic.com/mapfiles/api-3/images/google_white2.png
+http://maps.gstatic.com/mapfiles/openhand_8_8.cur
 
 # app files
 img/logo.png
