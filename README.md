@@ -47,7 +47,7 @@ For __applicationCache__ to work your server needs to send the correct MIME type
 
 Author: Daniel Saul [@danielsaul](https://github.com/danielsaul)
 
-[See concept for phone portrait mode](https://github.com/rossengeorgiev/habitat-mobile-tracker/blob/master/resources/concept-app-portrait.png)  
+[See concept for phone portrait mode](https://github.com/rossengeorgiev/habitat-mobile-tracker/blob/master/resources/concept-app-portrait.png)
 [See concept for tablets](https://github.com/rossengeorgiev/habitat-mobile-tracker/blob/master/resources/concept-app-tablet.png)
 
 
@@ -59,9 +59,6 @@ Author: Daniel Saul [@danielsaul](https://github.com/danielsaul)
 * Browsers supporting _Geolocation API_ will have `Chase car mode` available
 * For best experience on _iOS devices_, add the webapp to your home screen.
 This will hide Safari's UI and make it look like a native app. I think it also allows it to run in the background.
+* Chrome shortcuts for android, but might not keep the app suspended, when switching context
 
-
-## iPhone demo page
-
-Portrait and landscape test. Just open `test-iphone3g.html` in your browser of choice
 
