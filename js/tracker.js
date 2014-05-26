@@ -273,6 +273,8 @@ function stopFollow() {
 }
 
 function followVehicle(index) {
+    if(vehicles.length < 1) return;
+
 	if(follow_vehicle != -1) vehicles[follow_vehicle].follow = false;
 
 	if(follow_vehicle == index) {
