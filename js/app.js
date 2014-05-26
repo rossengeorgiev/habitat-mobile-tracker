@@ -11,6 +11,28 @@ if(
  || navigator.userAgent.match(/BlackBerry/i)
  ) is_mobile = true;
 
+// embed detection
+
+var embed = {
+    enabled: false,
+    vlist: true,
+    graph: true,
+    graph_exapnded: false,
+}
+var params = window.location.search.substring(1).split('&');
+
+for(var idx in params) {
+    var line = params[idx].split('=');
+    if(line.length < 2) continue;
+
+    switch(line[0]) {
+        case "embed": if(line[1] == "1") embed.enabled = true; break;
+        case "hidelist": if(line[1] == "1") embed.vlist = false; break;
+        case "hidegraph": if(line[1] == "1") embed.graph = false; break;
+        case "expandgraph": if(line[1] == "1") embed.graph_expanded = true; break;
+    }
+}
+
 $.ajaxSetup({ cache: true });
 
 // handle cachin events and display a loading bar
@@ -36,9 +58,10 @@ function trackerInit() {
     $('header,#main,#map').show(); // interface elements
 
     if(!is_mobile) {
-        $.getScript("js/ssdv.js");
+        if(!embed.enabled) $.getScript("js/ssdv.js");
+
         $.getScript("js/init_plot.js", function() { checkSize(); if(!map) load(); });
-        $('#telemetry_graph').addClass("main_screen").attr('style','');
+        if(embed.graph) $('#telemetry_graph').addClass("main_screen").attr('style','');
         return;
     }
     checkSize();
@@ -74,7 +97,10 @@ function checkSize() {
     h = $(window).height();
     h = (h < 300) ? 300 :  h; // absolute minimum 320px minus 20px for the iphone bar
     hh = $('header').height();
-    sw = $('#main').width();
+
+    $("#mapscreen").height(h-hh-5);
+
+    sw = (embed.vlist) ? 199 : 0;
 
     $('.container').width(w-20);
 
@@ -86,13 +112,17 @@ function checkSize() {
             $('#map').height(h-hh-5);
         }
         $('body,#loading').height(h);
-        $('#map,#telemetry_graph,#telemetry_graph .holder').width(w-sw-1);
+        $('#mapscreen,#map,#telemetry_graph,#telemetry_graph .holder').width(w-sw);
+        $('#main').width(sw);
     } else { // portrait mode
         if(h < 420) h = 420;
+        var mh = (embed.vlist) ? 180 : 0;
+
         $('body,#loading').height(h);
-        $('#map').height(h-hh-5-180);
-        $('#map').width(w);
-        $('#main').height(180); // 180px is just enough to hold one expanded vehicle
+        $('#map,#mapscreen').height(h-hh-5-mh);
+        $('#map,#mapscreen').width(w);
+        $('#main').height(mh); // 180px is just enough to hold one expanded vehicle
+        $('#main').width(w);
     }
 
     // this should hide the address bar on mobile phones, when possible
@@ -226,6 +256,8 @@ $(window).ready(function() {
             if(map) google.maps.event.trigger(map, 'resize');
         });
     });
+
+    if(embed.graph_expanded) $('#telemetry_graph .graph_label').click();
 
     // confirm dialog when launchnig a native map app with coordinates
     $('#main').on('click', '#launch_mapapp', function() {
@@ -426,7 +458,7 @@ $(window).ready(function() {
     // The position is displayed in top right corner of the screen
     // This should be very handly for in the field tracking
     //setTimeout(function() {updateCurrentPosition(50.27533, 3.335166);}, 5000);
-    if(navigator.geolocation && is_mobile) {
+    if(navigator.geolocation && is_mobile && !embed.enabled) {
         // if we have geolocation services, show the locate me button
         // the button pants the map to the user current location
         $("#locate-me,.chasecar").show();

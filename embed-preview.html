@@ -63,17 +63,86 @@
 
 var updateCode = function() {
     var prefix = window.location.href.replace("embed-preview.html","");
+    var code = $("#iframe-box").html().trim().replace("index.html?",prefix+"index.html?");
 
-    $("textarea").html($("#iframe-box").html().trim().replace("index.html?",prefix+"index.html?"));
+    var params = "";
+
+    params += "&amp;hidelist=" + ($("#opt_list").prop("checked") ? 0 : 1);
+    params += "&amp;hidegraph=" + ($("#opt_graph").prop("checked") ? 0 : 1);
+    params += "&amp;expandgraph=" + ($("#opt_graph_open").prop("checked") ? 1 : 0);
+
+    console.log(params);
+
+    code = code.replace("&amp;preview", params);
+
+    $("textarea").html(code);
 }
 
 
 $(window).ready(function() {
-    $("#opt_border,#opt_corners").prop("checked",true);
+    // init/reset values (incase browsers try to remember any)
+    $("#opt_border,#opt_corners,#opt_list,#opt_graph").prop("checked",true);
+    $("#opt_graph_open").prop("checked", false);
+
     $("#opt_w,#opt_h").val(400);
 
     // preview update methods
 
+    // vehicle list
+    $("#opt_list").on('change', function() {
+        var elm = $("#opt_list");
+        var p = $("iframe").contents()[0].defaultView;
+
+        if(elm.prop("checked")) {
+            p.embed.vlist = true;
+            elm.prop("checked", true);
+        } else {
+            p.embed.vlist = false;
+            elm.prop("checked", false);
+        }
+
+        p.checkSize();
+        updateCode();
+    });
+
+    // telemetry graph
+    $("#opt_graph").on('change', function() {
+        var elm = $("#opt_graph");
+        var p = $($("iframe").contents()[0]);
+        var box = p.find("#telemetry_graph");
+
+        if(elm.prop("checked")) {
+            box.show();
+            if($("#opt_graph_open").prop("checked")) p.find("#telemetry_graph .graph_label").click();
+            elm.prop("checked", true);
+        } else {
+            if(box.find(".graph_label").hasClass("active")) p.find("#telemetry_graph .graph_label").click();
+            box.hide();
+            elm.prop("checked", false);
+        }
+
+        updateCode();
+    });
+
+    $("#opt_graph_open").on('change', function() {
+        if(!$("#opt_graph").prop('checked')) return;
+
+        var elm = $("#opt_graph_open");
+        var p = $($("iframe").contents()[0]);
+        var box = p.find("#telemetry_graph");
+
+        if(elm.prop("checked")) {
+            if(!box.find(".graph_label").hasClass("active")) p.find("#telemetry_graph .graph_label").click();
+            elm.prop("checked", true);
+        } else {
+            if(box.find(".graph_label").hasClass("active")) p.find("#telemetry_graph .graph_label").click();
+            elm.prop("checked", false);
+        }
+
+        updateCode();
+    });
+
+    // style options
     $("#opt_border").on('change', function() {
         var elm = $("#opt_border");
 
@@ -91,7 +160,7 @@ $(window).ready(function() {
         var elm = $("#opt_corners");
 
         if(elm.prop("checked")) {
-            $("iframe").css({"border-radius":"25px"});
+            $("iframe").css({"border-radius":"20px"});
             elm.prop("checked", true);
         } else {
             $("iframe").css({"border-radius":0});
@@ -101,16 +170,19 @@ $(window).ready(function() {
         updateCode();
     });
 
+    // update size as we type
     $("#opt_h").on('keyup', function() {
         var elm = $(this);
-        $("iframe").prop("height", ""+elm.val()+"px");
+        var v = elm.val();
+
+        $("iframe").prop("height", v);
         updateCode();
     });
     $("#opt_w").on('keyup', function() {
         var elm = $(this);
         var v = elm.val();
 
-        $("iframe").prop("width", ""+v+"px");
+        $("iframe").prop("width", v);
         $("#iframe-box").css({"margin-left":"-"+(v/2)});
 
         updateCode();
@@ -132,8 +204,12 @@ $(window).ready(function() {
         <h1>Embed mobile tracker on your page</h1>
         <h2>1. Options</h1>
         <fieldset>
+            <input type="checkbox" value="1" id="opt_list" />
+            <label for="opt_list">Enable vehicle list</label>
+            <br />
             <input type="checkbox" value="1" id="opt_graph" />
             <label for="opt_graph">Enable telemetry graph</label>
+            <br />
             <input type="checkbox" value="1" id="opt_graph_open" />
             <label for="opt_graph_open">Start telemetry graph expanded</label>
         </fieldset>
@@ -149,12 +225,12 @@ $(window).ready(function() {
             <input type="checkbox" value="1" id="opt_corners" checked="checked" />
             <label for="opt_corners">Rounded corners</label>
         </fieldset>
-        <h2>3. Code</h1>
-            <textarea id="embed-code" readonly="readonly"></textarea>
+        <h2>3. HTML code</h1>
+            <textarea id="embed-code" autocomplete="off" readonly="readonly"></textarea>
 
-        <h2>4. Preview</h1>
+        <h2>4. Live preview</h1>
             <div id="iframe-box">
-            <iframe width="400px" height="400px" src="index.html?embed=1&preview" style="border:1px solid #00A3D3;border-radius:25px;"></iframe>
+            <iframe width="400px" height="400px" src="index.html?embed=1&preview" style="border:1px solid #00A3D3;border-radius:20px;"></iframe>
             </div>
     </div>
 </body>

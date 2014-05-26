@@ -79,9 +79,9 @@ function load() {
         rotateControl: false,
         panControl: false,
         scaleControl: false,
-        zoomContro: true,
+        zoomControl: true,
         zoomControlOptions: {
-            style: google.maps.ZoomControlStyle.LARGE
+            style: google.maps.ZoomControlStyle.DEFAULT
         },
         scrollwheel: true
     });

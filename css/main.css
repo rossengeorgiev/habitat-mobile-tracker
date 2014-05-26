@@ -30,6 +30,10 @@ html, body {
     z-index: 100;
 }
 
+#mapscreen {
+    float: right;
+}
+
 #map img {
     max-width: none;
 }
@@ -100,6 +104,9 @@ header > div {
     padding: 0;
     height: 100%;
     width: 100%;
+}
+#main {
+    float: left;
 }
 
 .nav {
@@ -360,6 +367,9 @@ header > div {
         background: #fff;
         position: relative;
     }
+    #telemetry_graph .holder {
+        border-left: 1px solid #ddd;
+    }
     #telemetry_graph .graph_label {
         position: absolute;
         top: -26px;
@@ -376,7 +386,6 @@ header > div {
         cursor: pointer;
     }
     #map {
-        float: right;
         height: 245px;
         width: 280px;
     }
@@ -384,7 +393,6 @@ header > div {
         float: left;
         height: 245px;
         width: 199px;
-        border-right: 1px solid #ddd;
         overflow: hidden;
     }
     #main .data {
