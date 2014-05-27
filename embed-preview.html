@@ -72,11 +72,13 @@ var updateCode = function() {
     params += "&amp;expandgraph=" + ($("#opt_graph_open").prop("checked") ? 1 : 0);
     params += "&amp;filter=" + encodeURIComponent($("#opt_filter").val());
 
-    console.log(params);
-
     code = code.replace("&amp;preview", params);
 
     $("textarea").html(code);
+
+    // center followed vehicle
+    var p = $("iframe").contents()[0].defaultView;
+    if('panTo' in p) setTimeout( function() { p.panTo(p.follow_vehicle); }, 300);
 }
 
 
