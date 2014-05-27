@@ -99,10 +99,10 @@ function checkSize() {
     w = $(window).width();
     w = (w < 320) ? 320 :  w; // absolute minimum 320px
     h = $(window).height();
-    h = (h < 300) ? 300 :  h; // absolute minimum 320px minus 20px for the iphone bar
+    //h = (h < 300) ? 300 :  h; // absolute minimum 320px minus 20px for the iphone bar
     hh = $('header').height();
 
-    $("#mapscreen").height(h-hh-5);
+    $("#mapscreen,.flatpage").height(h-hh-5);
 
     sw = (embed.vlist) ? 199 : 0;
 
