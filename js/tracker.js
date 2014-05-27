@@ -112,8 +112,10 @@ function unload() {
 }
 
 function panTo(vehicle_index) {
-  if(vehicles[vehicle_index].marker_shadow) map.panTo(vehicles[vehicle_index].marker_shadow.getPosition());
-  else map.panTo(vehicles[vehicle_index].marker.getPosition());
+    if(vehicle_index < 0) return;
+
+    if(vehicles[vehicle_index].marker_shadow) map.panTo(vehicles[vehicle_index].marker_shadow.getPosition());
+    else map.panTo(vehicles[vehicle_index].marker.getPosition());
 }
 
 function optional(caption, value, postfix) {
@@ -273,9 +275,7 @@ function stopFollow() {
 }
 
 function followVehicle(index) {
-    if(vehicles.length < 1) return;
-
-	if(follow_vehicle != -1) vehicles[follow_vehicle].follow = false;
+	if(follow_vehicle != -1  && vehicles.length) vehicles[follow_vehicle].follow = false;
 
 	if(follow_vehicle == index) {
         vehicles[follow_vehicle].follow = false;
@@ -1248,9 +1248,9 @@ function update(response) {
 function zoom_on_payload() {
     // find a the first balloon
     var i = -1, ii = vehicles.length;
-    while(++i < ii && !vehicles[i].marker_shadow);
+    while(++i < ii) if(vehicles[i].type == "balloon") break;
 
-    if(i == ii) { i = 0 }
+    if(i == ii) return;
     else {
         // find the bounds of the ballons first and last positions
         var bounds = new google.maps.LatLngBounds();
