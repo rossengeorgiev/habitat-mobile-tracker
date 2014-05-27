@@ -12,6 +12,8 @@ if(
  ) is_mobile = true;
 
 // embed detection
+var vfilter = "";
+var nyan_mode = false;
 
 var embed = {
     enabled: false,
@@ -30,6 +32,8 @@ for(var idx in params) {
         case "hidelist": if(line[1] == "1") embed.vlist = false; break;
         case "hidegraph": if(line[1] == "1") embed.graph = false; break;
         case "expandgraph": if(line[1] == "1") embed.graph_expanded = true; break;
+        case "filter": vfilter = line[1]; break;
+        case "nyan": nyan_mode = true; break;
     }
 }
 

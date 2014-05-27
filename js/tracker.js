@@ -1,6 +1,6 @@
 var mission_id = 0;
 var position_id = 0;
-var data_url = "http://spacenear.us/tracker/data.php?vehicles=";
+var data_url = "http://spacenear.us/tracker/data.php";
 var receivers_url = "http://spacenear.us/tracker/receivers.php";
 var predictions_url = "http://spacenear.us/tracker/get_predictions.php";
 var host_url = "";
@@ -755,7 +755,7 @@ function addPosition(position) {
         if(plot) $.each($.extend(false, plot_options.yaxes, {}), function(k,v) { vehicle_info.graph_yaxes.push(v) });
 
         // nyan mod
-        if(window.location.search == "?nyan" && vehicle_info.vehicle_type == "balloon") {
+        if(nyan_mode && vehicle_info.vehicle_type == "balloon") {
            // form a nyancat
            vehicle_info.marker.setMap(null);
            vehicle_info.marker.setMode = function(derp) {};
@@ -968,7 +968,7 @@ function refresh() {
   $.ajax({
     type: "GET",
     url: data_url,
-    data: "format=json&position_id=" + position_id + "&max_positions=" + max_positions,
+    data: "format=json&max_positions=" + max_positions + "&position_id=" + position_id + "&vehicles=" + encodeURIComponent(vfilter),
     dataType: "json",
     success: function(response, textStatus) {
         update(response);

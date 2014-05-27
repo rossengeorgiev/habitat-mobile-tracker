@@ -70,6 +70,7 @@ var updateCode = function() {
     params += "&amp;hidelist=" + ($("#opt_list").prop("checked") ? 0 : 1);
     params += "&amp;hidegraph=" + ($("#opt_graph").prop("checked") ? 0 : 1);
     params += "&amp;expandgraph=" + ($("#opt_graph_open").prop("checked") ? 1 : 0);
+    params += "&amp;filter=" + encodeURIComponent($("#opt_filter").val());
 
     console.log(params);
 
@@ -87,6 +88,11 @@ $(window).ready(function() {
     $("#opt_w,#opt_h").val(400);
 
     // preview update methods
+
+    // filter
+    $("#opt_filter").on('keyup', function() {
+        updateCode();
+    });
 
     // vehicle list
     $("#opt_list").on('change', function() {
@@ -204,6 +210,9 @@ $(window).ready(function() {
         <h1>Embed mobile tracker on your page</h1>
         <h2>1. Options</h1>
         <fieldset>
+            <label for="opt_filter">Vehicle filter (;)</label>
+            <input type="input" value="" id="opt_filter" size="40" />
+            <br />
             <input type="checkbox" value="1" id="opt_list" />
             <label for="opt_list">Enable vehicle list</label>
             <br />
