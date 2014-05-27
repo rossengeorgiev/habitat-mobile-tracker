@@ -143,7 +143,18 @@ header > div {
     font-weight: normal;
     float: right;
     color: #aaa;
-    }
+}
+
+#main .data {
+    cursor: url('../img/openhand.cur'), row-resize;
+}
+
+#main.drag,
+#main.drag .data,
+#main.drag .header {
+    cursor: url('../img/closedhand.cur'), row-resize;
+}
+
 #main .header {
     height: 20px;
     padding: 10px;

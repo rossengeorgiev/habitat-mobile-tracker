@@ -227,6 +227,14 @@ $(window).ready(function() {
         });
     });
 
+    // hand cursor for dragging the vehicle list
+    $("#main").on("mousedown", ".row", function () {
+        $("#main").addClass("drag");
+    })
+    $("body").on("mouseup", function () {
+        $("#main").removeClass("drag");
+    });
+
     // confirm dialog when launchnig a native map app with coordinates
     $('#main').on('click', '#launch_mapapp', function() {
         return confirm("Launch your maps app?");
