@@ -277,16 +277,13 @@ function stopFollow() {
 function followVehicle(index) {
 	if(follow_vehicle != -1  && vehicles.length) vehicles[follow_vehicle].follow = false;
 
-	if(follow_vehicle == index) {
-        vehicles[follow_vehicle].follow = false;
-        follow_vehicle = -1;
-    } else if(follow_vehicle != index) {
+    if(follow_vehicle != index) {
 		follow_vehicle = index;
 		vehicles[follow_vehicle].follow = true;
-        panTo(index);
-
         updateGraph(index, true);
 	}
+
+    panTo(index);
 }
 
 function roundNumber(number, digits) {

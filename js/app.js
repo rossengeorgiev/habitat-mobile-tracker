@@ -258,7 +258,7 @@ $(window).ready(function() {
 
             // disable following only we are collapsing the followed vehicle
             if(follow_vehicle == parseInt(e.attr('class').match(/vehicle(\d+)/)[1])) {
-                followVehicle(parseInt(e.attr('class').match(/vehicle(\d+)/)[1]));
+                stopFollow();
             }
         } else {
             // expand data for selected vehicle
