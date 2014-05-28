@@ -3,9 +3,6 @@ from fabric.api import *
 env.use_ssh_config = True
 env.hosts = ['kraken.habhub.org']
 
-def get_user():
-    env.user = prompt("Username to use?", default=env.user)
-
 def stage_master():
     result = local('git branch', capture=True);
 
@@ -25,7 +22,6 @@ def stage_master():
     local("git push -f ukhas")
 
 def deploy():
-    get_user();
     wd = "/var/www/habitat/mobile-tracker/"
 
     with settings(warn_only=True):
