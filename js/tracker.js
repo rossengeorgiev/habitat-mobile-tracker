@@ -377,7 +377,7 @@ function updateVehicleInfo(index, position) {
 
   // start
   var a    = '<div class="header">'
-           + '<span>' + vehicle_names[index] + '</span>'
+           + '<span>' + vehicle_names[index] + ' <i class="icon-target"></i></span>'
            + '<img class="graph" src="img/blank.png">'
            + '<i class="arrow"></i></div>'
            + '<div class="data">'

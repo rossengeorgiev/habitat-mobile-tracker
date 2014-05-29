@@ -264,6 +264,13 @@ header > div {
     width: 100%;
     border-left: 5px solid #F4F4F4;
 }
+
+#main .row .icon-target:before {
+    display: none;
+}
+#main .row.follow .icon-target:before {
+    display: inline-block;
+}
 #main .row.active .data { display: inline-block; }
 #main .row .data .left,
 #main .row .data .right {

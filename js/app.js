@@ -282,6 +282,8 @@ $(window).ready(function() {
     $('#main').on('click', '.row .data', function() {
         var e = $(this).parent();
         followVehicle(parseInt(e.attr('class').match(/vehicle(\d+)/)[1]));
+        $('#main .row.follow').removeClass('follow');
+        e.addClass('follow');
     });
 
     // expand/collapse data when header is clicked
@@ -297,6 +299,7 @@ $(window).ready(function() {
             // disable following only we are collapsing the followed vehicle
             if(follow_vehicle == parseInt(e.attr('class').match(/vehicle(\d+)/)[1])) {
                 stopFollow();
+                e.removeClass('follow');
             }
         } else {
             // expand data for selected vehicle
@@ -313,6 +316,8 @@ $(window).ready(function() {
 
             // pan to selected vehicle
             followVehicle(parseInt(e.attr('class').match(/vehicle(\d+)/)[1]));
+            $('#main .row.follow').removeClass('follow');
+            e.addClass('follow');
         }
     });
 
