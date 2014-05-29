@@ -1245,7 +1245,7 @@ function update(response) {
 function zoom_on_payload() {
     // find a the first balloon
     var i = -1, ii = vehicles.length;
-    while(++i < ii) if(vehicles[i].type == "balloon") break;
+    while(++i < ii) if(vehicles[i].vehicle_type == "balloon") break;
 
     if(i == ii) return;
     else {
