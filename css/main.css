@@ -159,6 +159,7 @@ header > div {
     padding: 0 5px;;
     float: left;
     height: 40px;
+    width: 35px;
     border-right: 1px solid #33b5e5;
     cursor: pointer;
     color: #fff;
@@ -313,7 +314,8 @@ header > div {
     z-index: 4;
     background: #fff;
 }
-#aboutbox span {
+
+.flatpage p {
     display: block;
     text-align: justify;
     margin-bottom: 15px;
