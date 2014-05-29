@@ -300,10 +300,21 @@ header > div {
     opacity: 0.6;
     width: 46px;
     height: 84px;
+    -webkit-transition: 0.2s ease;
+    -moz-transition: 0.2s ease;
+    -ms-transition: 0.2s ease;
+    -o-transition: 0.2s ease;
+    transition: 0.2s ease;
 }
 #main .row .data img.car {
     width: 55px;
     height: 25px;
+}
+#main .row:hover .data img {
+    opacity: 0.8;
+}
+#main .row.follow .data img {
+    opacity: 1.0;
 }
 #main .row .header .graph {
     position: absolute;
