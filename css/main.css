@@ -234,10 +234,16 @@ header > div {
     line-height: 11px;
     font-size: 16px;
     margin-top: 4px;
+    -webkit-transition: 0.2s linear;
+    -moz-transition: 0.2s linear;
+    -ms-transition: 0.2s linear;
+    -o-transition: 0.2s linear;
     transition: 0.2s linear;
-    transform-origin: center;
-    -ms-transform-origin: center;
     -webkit-transform-origin: center;
+    -moz-transform-origin: center;
+    -ms-transform-origin: center;
+    -o-transform-origin: center;
+    transform-origin: center;
 }
 
 
@@ -245,10 +251,18 @@ header > div {
     content: "▲";
 }
 .row:hover .arrow {
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
     transform: rotate(-90deg);
     color: #00a3d3;
 }
 .row.active .header .arrow {
+    -webkit-transform: rotate(-180deg);
+    -moz-transform: rotate(-180deg);
+    -ms-transform: rotate(-180deg);
+    -o-transform: rotate(-180deg);
     transform: rotate(-180deg);
 }
 
