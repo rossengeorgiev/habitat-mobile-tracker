@@ -19,6 +19,8 @@ http://maps.gstatic.com/mapfiles/api-3/images/google_white2.png
 http://maps.gstatic.com/mapfiles/openhand_8_8.cur
 
 # app files
+img/closedhand.cur
+img/openhand.cur
 img/logo.png
 img/blank.png
 img/marker-you.png
