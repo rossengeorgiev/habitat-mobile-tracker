@@ -20,8 +20,11 @@ body {
     font-family: "Roboto", Ariel, sans-serif;
 }
 
-i.right {
+.rfloat {
     float: right;
+}
+.lfloat {
+    float: left;
 }
 
 .scrollStyleV {
@@ -316,7 +319,9 @@ header > div {
 .slimContainer {
     position: relative;
     margin: 20px auto;
-    width: 300px;
+    width: 290px;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 .slimContainer hr {
     margin-bottom: 10px;

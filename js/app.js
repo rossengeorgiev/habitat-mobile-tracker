@@ -119,7 +119,7 @@ function checkSize() {
         $('#mapscreen,#map,#telemetry_graph,#telemetry_graph .holder').width(w-sw);
         $('#main').width(sw);
     } else { // portrait mode
-        if(h < 420) h = 420;
+        //if(h < 420) h = 420;
         var mh = (embed.vlist) ? 180 : 0;
 
         $('body,#loading').height(h);
@@ -131,6 +131,8 @@ function checkSize() {
 
     // this should hide the address bar on mobile phones, when possible
     window.scrollTo(0,1);
+
+    if(map) google.maps.event.trigger(map, 'resize');
 }
 
 window.onresize = checkSize;
@@ -358,6 +360,7 @@ $(window).ready(function() {
             $('.main_screen,#chasecarbox,#aboutbox,#settingsbox').hide();
             box.show();
         }
+        checkSize();
     });
 
     // toggle functionality for switch button
