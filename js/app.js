@@ -339,7 +339,7 @@ $(window).ready(function() {
         var box = $('#chasecarbox');
         if(box.is(':hidden')) {
             $('.main_screen,#aboutbox,#settingsbox,#embedbox').hide();
-            box.show();
+            box.show().scrollTop(0);
         }
         checkSize();
     })
@@ -348,7 +348,7 @@ $(window).ready(function() {
         var box = $('#aboutbox');
         if(box.is(':hidden')) {
             $('.main_screen,#chasecarbox,#settingsbox,#embedbox').hide();
-            box.show();
+            box.show().scrollTop(0);
         }
         checkSize();
     })
@@ -357,7 +357,7 @@ $(window).ready(function() {
         var box = $('#settingsbox');
         if(box.is(':hidden')) {
             $('.main_screen,#chasecarbox,#aboutbox,#embedbox').hide();
-            box.show();
+            box.show().scrollTop(0);
         }
     })
     .on('click', '.embed', function() {
@@ -365,7 +365,7 @@ $(window).ready(function() {
         var box = $('#embedbox');
         if(box.is(':hidden')) {
             $('.main_screen,#chasecarbox,#aboutbox,#settingsbox').hide();
-            box.show();
+            box.show().scrollTop(0);
         }
         checkSize();
     });
