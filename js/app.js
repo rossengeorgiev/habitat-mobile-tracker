@@ -61,6 +61,8 @@ function trackerInit() {
     $('#loading,#settingsbox,#aboutbox,#chasebox').hide(); // welcome screen
     $('header,#main,#map').show(); // interface elements
 
+    if(is_mobile || embed.enabled) $(".nav .embed").hide();
+
     if(!is_mobile) {
         if(!embed.enabled) $.getScript("js/ssdv.js");
 

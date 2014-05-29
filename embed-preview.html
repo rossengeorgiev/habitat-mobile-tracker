@@ -72,7 +72,7 @@ var updateCode = function() {
     params += "&amp;expandgraph=" + ($("#opt_graph_open").prop("checked") ? 1 : 0);
     params += "&amp;filter=" + encodeURIComponent($("#opt_filter").val());
 
-    code = code.replace("&amp;preview", params);
+    code = code.replace("&amp;preview=1", params);
 
     $("textarea").html(code);
 
@@ -241,7 +241,7 @@ $(window).ready(function() {
 
         <h2>4. Live preview</h1>
             <div id="iframe-box">
-            <iframe width="400px" height="400px" src="index.html?embed=1&preview" style="border:1px solid #00A3D3;border-radius:20px;"></iframe>
+            <iframe width="400px" height="400px" src="index.html?embed=1&preview=1" style="border:1px solid #00A3D3;border-radius:20px;"></iframe>
             </div>
     </div>
 </body>
