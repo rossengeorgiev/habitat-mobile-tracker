@@ -312,7 +312,7 @@ $(window).ready(function() {
         var e = $(this);
         var box = $('.main_screen');
         if(box.is(':hidden')) {
-            $('#chasecarbox,#aboutbox,#settingsbox').hide();
+            $('#chasecarbox,#aboutbox,#settingsbox,#embedbox').hide();
             box.show();
         }
         checkSize();
@@ -321,7 +321,7 @@ $(window).ready(function() {
         var e = $(this);
         var box = $('#chasecarbox');
         if(box.is(':hidden')) {
-            $('.main_screen,#aboutbox,#settingsbox').hide();
+            $('.main_screen,#aboutbox,#settingsbox,#embedbox').hide();
             box.show();
         }
         checkSize();
@@ -330,7 +330,7 @@ $(window).ready(function() {
         var e = $(this);
         var box = $('#aboutbox');
         if(box.is(':hidden')) {
-            $('.main_screen,#chasecarbox,#settingsbox').hide();
+            $('.main_screen,#chasecarbox,#settingsbox,#embedbox').hide();
             box.show();
         }
         checkSize();
@@ -339,7 +339,15 @@ $(window).ready(function() {
         var e = $(this);
         var box = $('#settingsbox');
         if(box.is(':hidden')) {
-            $('.main_screen,#chasecarbox,#aboutbox').hide();
+            $('.main_screen,#chasecarbox,#aboutbox,#embedbox').hide();
+            box.show();
+        }
+    })
+    .on('click', '.embed', function() {
+        var e = $(this);
+        var box = $('#embedbox');
+        if(box.is(':hidden')) {
+            $('.main_screen,#chasecarbox,#aboutbox,#settingsbox').hide();
             box.show();
         }
     });
