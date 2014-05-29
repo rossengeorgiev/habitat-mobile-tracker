@@ -614,7 +614,8 @@ function addPosition(position) {
                 icon: {
                     url: image_src,
                     size: new google.maps.Size(55,25),
-                    scaledSize: new google.maps.Size(55,25)
+                    scaledSize: new google.maps.Size(55,25),
+                    anchor: new google.maps.Point(27,22)
                 },
                 zIndex: Z_CAR,
                 position: point,
@@ -1083,9 +1084,9 @@ function updateReceiverMarker(receiver) {
     receiver.marker = new google.maps.Marker({
         icon: {
             url: host_url + markers_url + "antenna-green.png",
-            size: new google.maps.Size(26,32),
-            scaledSize: new google.maps.Size(26,32),
-            anchor: new google.maps.Point(13,30),
+            size: new google.maps.Size(26,34),
+            scaledSize: new google.maps.Size(26,34),
+            anchor: new google.maps.Point(13,34),
         },
         zIndex: Z_STATION,
         position: latlng,
