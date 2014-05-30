@@ -1103,7 +1103,7 @@ function updateReceiverMarker(receiver) {
     receiver.infobox = new google.maps.InfoWindow({
         content: receiver.description
     });
-    google.maps.event.addListener(receiver.marker, 'click', function() {
+    receiver.infobox_handle = google.maps.event.addListener(receiver.marker, 'click', function() {
               receiver.infobox.open(map, receiver.marker);
     });
   } else {
@@ -1150,8 +1150,12 @@ function updateReceivers(r) {
             i++;
         }
         else {
+            // close box, remove event handle, and remove marker
             e.infobox.close();
+            e.infobox_handle.remove();
             e.marker.setMap(null);
+
+            // remove from arrays
             receivers.splice(i,1);
             receiver_names.splice(i,1);
         }
