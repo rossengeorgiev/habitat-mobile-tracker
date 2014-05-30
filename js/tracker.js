@@ -965,7 +965,7 @@ function refresh() {
   //status = '<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing ...';
   //$('#status_bar').html(status);
 
-  if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'ajax', 'refresh']);
+  if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'ajax', 'refresh', 'Vehicles']);
 
   $.ajax({
     type: "GET",
@@ -985,6 +985,8 @@ function refresh() {
 }
 
 function refreshReceivers() {
+    if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'ajax', 'refresh', 'Recievers']);
+
     $.ajax({
         type: "GET",
         url: receivers_url,
@@ -1004,6 +1006,8 @@ function refreshReceivers() {
 }
 
 function refreshPredictions() {
+    if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'ajax', 'refresh', 'Predictions']);
+
     $.ajax({
         type: "GET",
         url: predictions_url,

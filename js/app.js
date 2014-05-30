@@ -37,6 +37,11 @@ for(var idx in params) {
     }
 }
 
+if(embed.enabled) {
+    //analytics
+    if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Embed Opts', window.location.search]);
+}
+
 $.ajaxSetup({ cache: true });
 
 // handle cachin events and display a loading bar
@@ -210,6 +215,8 @@ var positionUpdateHandle = function(position) {
             if(CHASE_enabled) {
                 ChaseCar.updatePosition(callsign, position);
                 CHASE_timer = (new Date()).getTime() + 15000;
+
+                if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'upload', 'chase car position']);
             }
         }
         else { return; }
@@ -256,9 +263,15 @@ $(window).ready(function() {
         if(e.hasClass('active')) {
             e.removeClass('active');
             var h = $('#map').height() + $('#telemetry_graph').height();
+
+            //analytics
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI', 'Telemetry Graph', 'Collapse']);
         } else {
             e.addClass('active');
             var h = $('#map').height() - $('#telemetry_graph').height();
+
+            //analytics
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI', 'Telemetry Graph', 'Expand']);
         }
         $('#map').stop(null,null).animate({'height': h}, function() {
             if(map) google.maps.event.trigger(map, 'resize');
@@ -277,7 +290,12 @@ $(window).ready(function() {
 
     // confirm dialog when launchnig a native map app with coordinates
     $('#main').on('click', '#launch_mapapp', function() {
-        return confirm("Launch your maps app?");
+        var answer = confirm("Launch your maps app?");
+
+        //analytics
+        if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Coord Click', ((answer)?"Yes":"No")]);
+
+        return answer;
     });
 
     // follow vehicle by clicking on data
@@ -331,6 +349,9 @@ $(window).ready(function() {
         if(box.is(':hidden')) {
             $('#chasecarbox,#aboutbox,#settingsbox,#embedbox').hide();
             box.show();
+
+            // analytics
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open', 'Map']);
         }
         checkSize();
     })
@@ -340,6 +361,9 @@ $(window).ready(function() {
         if(box.is(':hidden')) {
             $('.main_screen,#aboutbox,#settingsbox,#embedbox').hide();
             box.show().scrollTop(0);
+
+            // analytics
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open', 'Chase Car']);
         }
         checkSize();
     })
@@ -349,6 +373,9 @@ $(window).ready(function() {
         if(box.is(':hidden')) {
             $('.main_screen,#chasecarbox,#settingsbox,#embedbox').hide();
             box.show().scrollTop(0);
+
+            // analytics
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open', 'About']);
         }
         checkSize();
     })
@@ -358,6 +385,9 @@ $(window).ready(function() {
         if(box.is(':hidden')) {
             $('.main_screen,#chasecarbox,#aboutbox,#embedbox').hide();
             box.show().scrollTop(0);
+
+            // analytics
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open', 'Settings']);
         }
     })
     .on('click', '.embed', function() {
@@ -366,6 +396,9 @@ $(window).ready(function() {
         if(box.is(':hidden')) {
             $('.main_screen,#chasecarbox,#aboutbox,#settingsbox').hide();
             box.show().scrollTop(0);
+
+            // analytics
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open', 'Embed']);
         }
         checkSize();
     });
@@ -386,6 +419,9 @@ $(window).ready(function() {
 
             // blue man reappers :)
             if(currentPosition && currentPosition.marker) currentPosition.marker.setVisible(true);
+
+            // analytics
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Chase Car', 'Off']);
         // turning the switch on
         } else {
             if(callsign.length < 5) { alert('Please enter a valid callsign, at least 5 characters'); return; }
@@ -406,6 +442,7 @@ $(window).ready(function() {
             // if already have a position push it to habitat
             if(GPS_ts) {
                 ChaseCar.updatePosition(callsign, { coords: { latitude: GPS_lat, longitude: GPS_lon, altitude: GPS_alt, speed: GPS_speed }});
+                if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'upload', 'chase car position']);
             }
 
             if(navigator.geolocation) CHASE_enabled = navigator.geolocation.watchPosition(positionUpdateHandle, positionUpdateError);
@@ -413,6 +450,9 @@ $(window).ready(function() {
 
             // hide the blue man
             if(currentPosition && currentPosition.marker) currentPosition.marker.setVisible(false);
+
+            // analytics
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Chase Car', 'On']);
         }
     });
 
@@ -439,10 +479,16 @@ $(window).ready(function() {
             e.removeClass('on').addClass('off');
             on = 0;
             nite.hide();
+
+            //analytics
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Nite Overlay', 'Off']);
         } else {
             e.removeClass('off').addClass('on');
             on = 1;
             nite.show();
+
+            //analytics
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Nite Overlay', 'On']);
         }
 
         offline.set(name, on);
@@ -459,9 +505,15 @@ $(window).ready(function() {
         if(e.hasClass('on')) {
             e.removeClass('on').addClass('off');
             on = 0;
+
+            //analytics
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', name, 'Off']);
         } else {
             e.removeClass('off').addClass('on');
             on = 1;
+
+            //analytics
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', name, 'On']);
         }
 
         offline.set(name, on);
@@ -501,6 +553,9 @@ $(window).ready(function() {
                 $('.nav .home').click();
                 // pan map to our current location
                 map.panTo(new google.maps.LatLng(currentPosition.lat, currentPosition.lon));
+
+                //analytics
+                if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Locate me']);
             } else {
                 alert("No position available");
             }
