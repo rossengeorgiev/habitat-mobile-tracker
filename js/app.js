@@ -265,13 +265,13 @@ $(window).ready(function() {
             var h = $('#map').height() + $('#telemetry_graph').height();
 
             //analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI', 'Telemetry Graph', 'Collapse']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI', 'Collapse', 'Telemetry Graph']);
         } else {
             e.addClass('active');
             var h = $('#map').height() - $('#telemetry_graph').height();
 
             //analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI', 'Telemetry Graph', 'Expand']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI', 'Expand', 'Telemetry Graph']);
         }
         $('#map').stop(null,null).animate({'height': h}, function() {
             if(map) google.maps.event.trigger(map, 'resize');
@@ -293,7 +293,7 @@ $(window).ready(function() {
         var answer = confirm("Launch your maps app?");
 
         //analytics
-        if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Coord Click', ((answer)?"Yes":"No")]);
+        if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', ((answer)?"Yes":"No"), 'Coord Click']);
 
         return answer;
     });
@@ -351,7 +351,7 @@ $(window).ready(function() {
             box.show();
 
             // analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open', 'Map']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open Page', 'Map']);
         }
         checkSize();
     })
@@ -363,7 +363,7 @@ $(window).ready(function() {
             box.show().scrollTop(0);
 
             // analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open', 'Chase Car']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open Page', 'Chase Car']);
         }
         checkSize();
     })
@@ -375,7 +375,7 @@ $(window).ready(function() {
             box.show().scrollTop(0);
 
             // analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open', 'About']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open Page', 'About']);
         }
         checkSize();
     })
@@ -387,7 +387,7 @@ $(window).ready(function() {
             box.show().scrollTop(0);
 
             // analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open', 'Settings']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open Page', 'Settings']);
         }
     })
     .on('click', '.embed', function() {
@@ -398,7 +398,7 @@ $(window).ready(function() {
             box.show().scrollTop(0);
 
             // analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open', 'Embed']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open Page', 'Embed']);
         }
         checkSize();
     });
@@ -421,7 +421,7 @@ $(window).ready(function() {
             if(currentPosition && currentPosition.marker) currentPosition.marker.setVisible(true);
 
             // analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Chase Car', 'Off']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Turn Off', 'Chase Car']);
         // turning the switch on
         } else {
             if(callsign.length < 5) { alert('Please enter a valid callsign, at least 5 characters'); return; }
@@ -452,7 +452,7 @@ $(window).ready(function() {
             if(currentPosition && currentPosition.marker) currentPosition.marker.setVisible(false);
 
             // analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Chase Car', 'On']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Turn On', 'Chase Car']);
         }
     });
 
@@ -481,14 +481,14 @@ $(window).ready(function() {
             nite.hide();
 
             //analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Nite Overlay', 'Off']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Turn Off', 'Nite Overlay']);
         } else {
             e.removeClass('off').addClass('on');
             on = 1;
             nite.show();
 
             //analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Nite Overlay', 'On']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Turn On', 'Nite Overlay']);
         }
 
         offline.set(name, on);
@@ -507,13 +507,13 @@ $(window).ready(function() {
             on = 0;
 
             //analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', name, 'Off']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Turn Off', name]);
         } else {
             e.removeClass('off').addClass('on');
             on = 1;
 
             //analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', name, 'On']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Turn On', name]);
         }
 
         offline.set(name, on);
