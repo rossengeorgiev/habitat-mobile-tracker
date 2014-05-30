@@ -1083,8 +1083,9 @@ function updateCurrentPosition(lat, lon) {
 
 function updateReceiverMarker(receiver) {
   var latlng = new google.maps.LatLng(receiver.lat, receiver.lon);
+
+  // init a marker if the receiver doesn't already have one
   if(!receiver.marker) {
-    //icon.infoWindowAnchor = new google.maps.Point(13,3);
     receiver.marker = new google.maps.Marker({
         icon: {
             url: host_url + markers_url + "antenna-green.png",
@@ -1108,32 +1109,54 @@ function updateReceivers(r) {
     if(!r) return;
     ls_receivers = true;
 
-    for(var i = 0, ii = r.length; i < ii; i++) {
+    var i = 0, ii = r.length;
+    for(; i < ii; i++) {
         var lat = parseFloat(r[i].lat);
         var lon = parseFloat(r[i].lon);
+
         if(lat < -90 || lat > 90 || lon < -180 || lon > 180) continue;
+
         var r_index = $.inArray(r[i].name, receiver_names);
-        var receiver = null;
+
         if(r_index == -1) {
             receiver_names.push(r[i].name);
             r_index = receiver_names.length - 1;
             receivers[r_index] = {marker: null};
         }
-        receiver = receivers[r_index];
+
+        var receiver = receivers[r_index];
         receiver.name = r[i].name;
         receiver.lat = lat;
         receiver.lon = lon;
         receiver.alt = parseFloat(r[i].alt);
         receiver.description = r[i].description;
+        receiver.fresh = true;
+
         updateReceiverMarker(receiver);
+    }
+
+    // clear old receivers
+    var i = 0;
+    for(; i < receivers.length;) {
+        var e = receivers[i];
+        if(e.fresh) {
+            e.fresh = false;
+            i++;
+        }
+        else {
+            e.marker.setMap(null);
+            receivers.splice(i,1);
+            receiver_names.splice(i,1);
         }
     }
+}
 
 function updatePredictions(r) {
     if(!r) return;
     ls_pred = true;
 
-    for(var i = 0, ii = r.length; i < ii; i++) {
+    var i = 0, ii = r.length;
+    for(; i < ii; i++) {
 		var vehicle_index = $.inArray(r[i].vehicle, vehicle_names);
 		if(vehicle_index != -1) {
 			if(vehicles[vehicle_index].prediction && vehicles[vehicle_index].prediction.time == r[i].time) {
