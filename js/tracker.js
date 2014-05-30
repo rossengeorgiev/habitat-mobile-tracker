@@ -1100,6 +1100,12 @@ function updateReceiverMarker(receiver) {
         title: receiver.name,
         animation: google.maps.Animation.DROP
     });
+    receiver.infobox = new google.maps.InfoWindow({
+        content: receiver.description
+    });
+    google.maps.event.addListener(receiver.marker, 'click', function() {
+              receiver.infobox.open(map, receiver.marker);
+    });
   } else {
     receiver.marker.setPosition(latlng);
   }
@@ -1121,7 +1127,7 @@ function updateReceivers(r) {
         if(r_index == -1) {
             receiver_names.push(r[i].name);
             r_index = receiver_names.length - 1;
-            receivers[r_index] = {marker: null};
+            receivers[r_index] = {marker: null, infobox: null};
         }
 
         var receiver = receivers[r_index];
@@ -1129,7 +1135,7 @@ function updateReceivers(r) {
         receiver.lat = lat;
         receiver.lon = lon;
         receiver.alt = parseFloat(r[i].alt);
-        receiver.description = r[i].description;
+        receiver.description = "<font style='font-size: 13px'>"+r[i].name+"</font><br/>" + r[i].description.replace("><BR>\n<","><").replace("ago<BR>\n<","ago<");
         receiver.fresh = true;
 
         updateReceiverMarker(receiver);
@@ -1144,6 +1150,7 @@ function updateReceivers(r) {
             i++;
         }
         else {
+            e.infobox.close();
             e.marker.setMap(null);
             receivers.splice(i,1);
             receiver_names.splice(i,1);
