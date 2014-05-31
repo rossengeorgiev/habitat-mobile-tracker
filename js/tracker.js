@@ -835,11 +835,12 @@ function graphAddLastPosition(idx) {
 
         //insert gap when there are 3mins, or more, without telemetry
         var gap_size = 180000; // 3 mins in milis
+        var pad_size = 120000; // 2 min
 
         if(ts_last + gap_size < ts) {
             $.each(data, function(k,v) {
-                v.data.push([ts_last+gap_size, v.data[v.data.length - 1][1]]);
-                v.data.push([ts_last+gap_size+1, null]);
+                v.data.push([ts_last+pad_size, v.data[v.data.length - 1][1]]);
+                v.data.push([ts_last+pad_size+1, null]);
                 v.nulls += 2;
             })
         }
