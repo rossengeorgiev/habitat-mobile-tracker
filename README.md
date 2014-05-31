@@ -13,11 +13,16 @@ Checkout the [Live version](http://habhub.org/mt/)
 ## Features
 
 * HAB tracking with [Habitat](http://habitat.habhub.org/) ([@github/ukhas/habitat](https://github.com/ukhas/habitat))
+* Telemetry graph for each balloons
 * Map tracker with Google Maps API 3
 * Chase Car functionality
 * [Daylight cycle overlay](https://github.com/rossengeorgiev/nite-overlay), for long flights
+* Available to embed on any website
+* Run the app natively on `iOS` or with Chrome's 'add to screen' on `Android`
 
 ### Geo position
+
+Available only on mobile devices.
 
 The app will ask for permission to use your location.
 This is required for some of the features. It is **important** to note that
@@ -32,6 +37,17 @@ use the offline capabilities. The app will cache all files making it available
 even when there is no network coverage. Latest position data will also be stored
 and used when you start up with no network. When you get back online, the app
 will fetch the latest position data.
+
+## Browser requirements
+
+Any modern browser should be able to run the app. Including the latest version of IE.
+This is also true for mobile, some build-in browsers may not work.
+
+## Contribute
+
+Don't hesitate to report any issues, or suggest improvements. Just visit the [issues page](https://github.com/rossengeorgiev/habitat-mobile-tracker/issues).
+Pull requests are welcome.
+
 
 ## Installation
 
@@ -50,15 +66,5 @@ Author: Daniel Saul [@danielsaul](https://github.com/danielsaul)
 [See concept for phone portrait mode](https://github.com/rossengeorgiev/habitat-mobile-tracker/blob/master/resources/concept-app-portrait.png)
 [See concept for tablets](https://github.com/rossengeorgiev/habitat-mobile-tracker/blob/master/resources/concept-app-tablet.png)
 
-
-## Currently Supported Devices
-
-### iOS, Android, Desktops
-
-* Modern browser required (IE not supported)
-* Browsers supporting _Geolocation API_ will have `Chase car mode` available
-* For best experience on _iOS devices_, add the webapp to your home screen.
-This will hide Safari's UI and make it look like a native app. I think it also allows it to run in the background.
-* Chrome shortcuts for android, but might not keep the app suspended, when switching context
 
 
