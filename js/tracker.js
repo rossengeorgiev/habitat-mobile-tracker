@@ -13,18 +13,10 @@ var graph_url = "http://chart.googleapis.com/chart?chf=bg,s,67676700&chxr=0,0,46
 var receiver_names = [];
 var receivers = [];
 
-var num_updates = 0;
 var got_positions = false;
 var zoomed_in = false;
 var max_positions = 0; // maximum number of positions that ajax request should return (0 means no maximum)
-var selector = null;
-var window_selector = null;
-var cursor = null;
-var selected_vehicle = 0;
 var follow_vehicle = -1;
-
-var signals = null;
-var signals_seq = -1;
 
 var car_index = 0;
 var car_colors = ["blue", "red", "green", "yellow"];
@@ -53,7 +45,6 @@ var ls_receivers = false;
 var ls_pred = false;
 
 var plot = null;
-
 
 var offline = {
     get: function(key) {
@@ -116,25 +107,6 @@ function panTo(vehicle_index) {
 
     if(vehicles[vehicle_index].marker_shadow) map.panTo(vehicles[vehicle_index].marker_shadow.getPosition());
     else map.panTo(vehicles[vehicle_index].marker.getPosition());
-}
-
-function optional(caption, value, postfix) {
-  // if(value && value != '') {
-  if (value !== '') {
-    if(value.indexOf("=") == -1) {
-      return "<b>" + caption + ":</b> " + value + postfix + "<br />"
-    } else {
-      var a = value.split(";");
-      var result = "";
-      for(var i = 0,ii = a.length; i < ii; i++) {
-        var b = a[i].split("=");
-        result += "<b>" + b[0] + ":</b> " + b[1] + "<br />"
-      }
-      return result;
-    }
-  } else {
-    return "";
-  }
 }
 
 function title_case(s) {
@@ -292,61 +264,59 @@ function roundNumber(number, digits) {
   return rndedNum;
 }
 
-function updateVehicleInfo(index, position) {
-  var latlng = new google.maps.LatLng(position.gps_lat, position.gps_lon);
-  if(vehicles[index].marker_shadow) vehicles[index].marker_shadow.setPosition(latlng);
-  vehicles[index].marker.setPosition(latlng);
-  if(vehicles[index].vehicle_type == "balloon") {
-    updateAltitude(index);
-    var horizon_km = Math.sqrt(12.756 * position.gps_alt);
-    vehicles[index].horizon_circle.setRadius(Math.round(horizon_km)*1000);
+function updateVehicleInfo(index, newPosition) {
+  var vehicle = vehicles[index];
+  var latlng = new google.maps.LatLng(newPosition.gps_lat, newPosition.gps_lon);
 
-    if(vehicles[index].subhorizon_circle) {
+  // update position
+  if(vehicle.marker_shadow) vehicle.marker_shadow.setPosition(latlng);
+  vehicle.marker.setPosition(latlng);
+
+  // update horizon circles and icon
+  if(vehicle.vehicle_type == "balloon") {
+    updateAltitude(index);
+    var horizon_km = Math.sqrt(12.756 * newPosition.gps_alt);
+    vehicle.horizon_circle.setRadius(Math.round(horizon_km)*1000);
+
+    if(vehicle.subhorizon_circle) {
       // see: http://ukhas.org.uk/communication:lineofsight
       var el = 5.0; // elevation above horizon
       var rad = 6378.10; // radius of earth
-      var h = position.gps_alt / 1000; // height above ground
+      var h = newPosition.gps_alt / 1000; // height above ground
 
       var elva = el * Math.PI / 180.0;
       var slant = rad*(Math.cos(Math.PI/2+elva)+Math.sqrt(Math.pow(Math.cos(Math.PI/2+elva),2)+h*(2*rad+h)/Math.pow(rad,2)));
       var x = Math.acos((Math.pow(rad,2)+Math.pow(rad+h,2)-Math.pow(slant,2))/(2*rad*(rad+h)))*rad;
 
       var subhorizon_km = x;
-      vehicles[index].subhorizon_circle.setRadius(Math.round(subhorizon_km)*1000);
+      vehicle.subhorizon_circle.setRadius(Math.round(subhorizon_km)*1000);
     }
 
     // indicates whenever a payload has landed
     var landed = (
-                     vehicles[index].max_alt > 1500         // if it has gone up
-                     && vehicles[index].ascent_rate < 1.0   // and has negative ascent_rate, aka is descending
-                     && position.gps_alt < 350              // and is under 350 meters altitude
+                     vehicle.max_alt > 1500         // if it has gone up
+                     && vehicle.ascent_rate < 1.0   // and has negative ascent_rate, aka is descending
+                     && newPosition.gps_alt < 350              // and is under 350 meters altitude
                  ) || (                                     // or
-                     position.gps_alt < 600                 // under 600m and has no position update for more than 30 minutes
-                     && (new Date((new Date()).toISOString())).getTime() - (new Date(position.gps_time + " UTC")).getTime() > 1800000
+                     newPosition.gps_alt < 600                 // under 600m and has no position update for more than 30 minutes
+                     && (new Date((new Date()).toISOString())).getTime() - (new Date(newPosition.gps_time + " UTC")).getTime() > 1800000
                  );
 
     if(landed) {
-      vehicles[index].marker.setMode("landed");
-      vehicles[index].marker.shadow.setVisible(false);
-      vehicles[index].horizon_circle.setVisible(false);
-      vehicles[index].subhorizon_circle.setVisible(false);
+      vehicle.marker.setMode("landed");
+      vehicle.marker.shadow.setVisible(false);
+      vehicle.horizon_circle.setVisible(false);
+      vehicle.subhorizon_circle.setVisible(false);
 
-    } else if(vehicles[index].ascent_rate > -3.0 ||
+    } else if(vehicle.ascent_rate > -3.0 ||
               vehicle_names[index] == "wb8elk2") {
-    	vehicles[index].marker.setMode("balloon");
+    	vehicle.marker.setMode("balloon");
     } else {
-    	vehicles[index].marker.setMode("parachute");
+    	vehicle.marker.setMode("parachute");
     }
   }
 
-  var pixels = Math.round(position.gps_alt / 500) + 1;
-  if (pixels < 0) {
-    pixels = 0;
-  } else if (pixels >= 98) {
-    pixels = 98;
-  }
-
-  var image = vehicles[index].image_src;
+  var image = vehicle.image_src;
 
   var elm = $('.vehicle' + index);
 
@@ -359,11 +329,11 @@ function updateVehicleInfo(index, position) {
 
   // decides how to dispaly the horizonal speed
   var imp = offline.get('opt_imperial');
-  var ascent_text = imp ? (vehicles[index].ascent_rate * 196.850394).toFixed(1) + ' ft/min' : vehicles[index].ascent_rate.toFixed(1) + ' m/s';
+  var ascent_text = imp ? (vehicle.ascent_rate * 196.850394).toFixed(1) + ' ft/min' : vehicle.ascent_rate.toFixed(1) + ' m/s';
   if (offline.get('opt_haxis_hours')) {
-          var hrate_text = imp ? (vehicles[index].horizontal_rate * 2.23693629).toFixed(1) + ' mph' : (vehicles[index].horizontal_rate * 3.6).toFixed(1) + ' km/h';
+          var hrate_text = imp ? (vehicle.horizontal_rate * 2.23693629).toFixed(1) + ' mph' : (vehicle.horizontal_rate * 3.6).toFixed(1) + ' km/h';
   } else {
-          var hrate_text = imp ? (vehicles[index].horizontal_rate * 196.850394).toFixed(1) + ' ft/min' : vehicles[index].horizontal_rate.toFixed(1) + ' m/s';
+          var hrate_text = imp ? (vehicle.horizontal_rate * 196.850394).toFixed(1) + ' ft/min' : vehicle.horizontal_rate.toFixed(1) + ' m/s';
   }
 
   var coords_text;
@@ -371,21 +341,21 @@ function updateVehicleInfo(index, position) {
 
   // determine how to link the vehicle coordinates to a native app, if on a mobile device
   if(ua.indexOf('iphone') > -1) {
-      coords_text = '<a id="launch_mapapp" href="maps://?q='+position.gps_lat+','+position.gps_lon+'">'
-                    + roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6) +'</a>'
+      coords_text = '<a id="launch_mapapp" href="maps://?q='+newPosition.gps_lat+','+newPosition.gps_lon+'">'
+                    + roundNumber(newPosition.gps_lat, 6) + ', ' + roundNumber(newPosition.gps_lon, 6) +'</a>'
                     + ' <i class="icon-location"></i>';
   } else if(ua.indexOf('android') > -1) {
-      coords_text = '<a id="launch_mapapp" href="geo:'+position.gps_lat+','+position.gps_lon+'?q='+position.gps_lat+','+position.gps_lon+'('+vehicle_names[index]+')">'
-                    + roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6) +'</a>'
+      coords_text = '<a id="launch_mapapp" href="geo:'+newPosition.gps_lat+','+newPosition.gps_lon+'?q='+newPosition.gps_lat+','+newPosition.gps_lon+'('+vehicle_names[index]+')">'
+                    + roundNumber(newPosition.gps_lat, 6) + ', ' + roundNumber(newPosition.gps_lon, 6) +'</a>'
                     + ' <i class="icon-location"></i>';
   } else {
-      coords_text = roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6);
+      coords_text = roundNumber(newPosition.gps_lat, 6) + ', ' + roundNumber(newPosition.gps_lon, 6);
   }
 
   // format altitude strings
-  var text_alt      = Number((imp) ? Math.floor(3.2808399 * parseInt(position.gps_alt)) : parseInt(position.gps_alt)).toLocaleString("us");
+  var text_alt      = Number((imp) ? Math.floor(3.2808399 * parseInt(newPosition.gps_alt)) : parseInt(newPosition.gps_alt)).toLocaleString("us");
       text_alt     += " " + ((imp) ? 'ft':'m');
-  var text_alt_max  = Number((imp) ? Math.floor(3.2808399 * parseInt(vehicles[index].max_alt)) : parseInt(vehicles[index].max_alt)).toLocaleString("us");
+  var text_alt_max  = Number((imp) ? Math.floor(3.2808399 * parseInt(vehicle.max_alt)) : parseInt(vehicle.max_alt)).toLocaleString("us");
       text_alt_max += " " + ((imp) ? 'ft':'m');
 
 
@@ -395,7 +365,7 @@ function updateVehicleInfo(index, position) {
            + '<img class="graph" src="img/blank.png">'
            + '<i class="arrow"></i></div>'
            + '<div class="data">'
-           + '<img class="'+((vehicles[index].vehicle_type=="car")?'car':'')+'" src="'+image+'" />'
+           + '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />'
            + '<div class="left">'
            + '<dl>';
   // end
@@ -404,28 +374,28 @@ function updateVehicleInfo(index, position) {
            + '</div>' // data
            + '';
   var c    = '<dt class="receivers">Recieved by:</dt><dd class="receivers">'
-           + position.callsign.split(",").join(", ") + '</dd>'
+           + newPosition.callsign.split(",").join(", ") + '</dd>'
 
-  if(!position.callsign) c = '';
+  if(!newPosition.callsign) c = '';
 
   // mid for portrait
-  var p    = '<dt>'+position.gps_time+'</dt><dd>datetime</dd>'
+  var p    = '<dt>'+newPosition.gps_time+'</dt><dd>datetime</dd>'
            + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
            + c // receivers if any
            + '</dl>'
            + '</div>' // left
            + '<div class="right">'
            + '<dl>'
-           + ((vehicles[index].vehicle_type == "car") ? '' : '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>')
+           + ((vehicle.vehicle_type == "car") ? '' : '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>')
            + '<dt>'+text_alt+'</dt><dd>altitude</dd>'
            + '<dt>'+text_alt_max+'</dt><dd>max alt</dd>'
            + '';
   // mid for landscape
-  var l    = ((vehicles[index].vehicle_type == "car") ? '' : '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>')
+  var l    = ((vehicle.vehicle_type == "car") ? '' : '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>')
            + '<dt>'+text_alt+' ('+text_alt_max+')</dt><dd>altitude (max)</dd>'
-           + '<dt>'+position.gps_time+'</dt><dd>datetime</dd>'
+           + '<dt>'+newPosition.gps_time+'</dt><dd>datetime</dd>'
            + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
-           + habitat_data(position.data)
+           + habitat_data(newPosition.data)
            + c // receivers if any
            + '';
 
@@ -434,14 +404,6 @@ function updateVehicleInfo(index, position) {
   $('.landscape .vehicle'+index).html(a + l + b);
 
   return true;
-}
-
-function pad(number, length) {
-  var str = '' + number;
-  while (str.length < length) {
-      str = '0' + str;
-  }
-  return str;
 }
 
 function addMarker(icon, latlng) {
@@ -513,16 +475,6 @@ function redrawPrediction(vehicle_index) {
     }
     var image_src;
     if(vehicle_names[vehicle_index] != "wb8elk2") { // WhiteStar
-        /*
-        //icon.infoWindowAnchor = new google.maps.Point(13,5);
-
-        var time = new Date(data[data.length-1].time * 1000);
-        var time_string = pad(time.getUTCHours(), 2) + ':' + pad(time.getUTCMinutes(), 2) + ' UTC';
-        var html = '<b>Predicted Landing</b><br />'
-                   + '<p style="font-size: 10pt;">'
-                   + data[data.length-1].lat + ', ' + data[data.length-1].lon + ' at ' + time_string
-                   + '</p>';
-        */
         var html = "";
         if(vehicle.prediction_target) {
             vehicle.prediction_target.setPosition(latlng);
@@ -535,16 +487,6 @@ function redrawPrediction(vehicle_index) {
     }
 
     if(burst_index != 0 && vehicle_names[vehicle_index] != "wb8elk2") {
-        /*
-        //icon.infoWindowAnchor = new google.maps.Point(18,5);
-
-        var time = new Date(data[burst_index].time * 1000);
-        var time_string = pad(time.getUTCHours(), 2) + ':' + pad(time.getUTCMinutes(), 2) + ' UTC';
-        var html = '<b>Predicted Burst</b><br />'
-                         + '<p style="font-size: 10pt;">'
-                         + data[burst_index].lat + ', ' + data[burst_index].lon + ', ' + Math.round(data[burst_index].alt) + ' m at ' + time_string
-                         + '</p>';
-        */
         if(vehicle.prediction_burst) {
             vehicle.prediction_burst.setPosition(latlng_burst);
         } else {
@@ -563,24 +505,6 @@ function updatePolyline(vehicle_index) {
 }
 
 function convert_time(gps_time) {
-  // example: "2009-05-28 20:29:47"
-  /*
-  year = parseInt(gps_time.substring(0, 4), 10);
-  month = parseInt(gps_time.substring(5, 7), 10);
-  day = parseInt(gps_time.substring(8, 10), 10);
-  hour = parseInt(gps_time.substring(11, 13), 10);
-  minute = parseInt(gps_time.substring(14, 16), 10);
-  second = parseInt(gps_time.substring(17), 10);
-
-  date = new Date();
-  date.setUTCFullYear(year);
-  date.setUTCMonth(month-1);
-  date.setUTCDate(day);
-  date.setUTCHours(hour);
-  date.setUTCMinutes(minute);
-  date.setUTCSeconds(second);
-  */
-
   return (new Date(gps_time)).getTime() / 1000; // seconds since 1/1/1970 @ 12:00 AM
 }
 
@@ -1283,7 +1207,7 @@ function update(response) {
     if(vehicles.length == 0) return;
 
     zoom_timer = setInterval(function() {
-        if(bootstrapped && bs_idx+1 == vehicle_names.length) {
+        if(bootstrapped && bs_idx == vehicle_names.length) {
             zoom_on_payload();
             clearInterval(zoom_timer);
         }
@@ -1313,6 +1237,7 @@ function zoom_on_payload() {
         // limit the zoom level to 11
         if(map.getZoom() > 11) map.setZoom(11);
     }
+
 
     // pan and follow the vehicle
     followVehicle(i);
