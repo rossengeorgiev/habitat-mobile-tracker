@@ -349,12 +349,15 @@ function updateVehicleInfo(index, position) {
   var image = vehicles[index].image_src;
 
   var elm = $('.vehicle' + index);
+
+  // if the vehicle doesn't exist in the list
   if (elm.length == 0) {
     $('.portrait').append('<div class="row vehicle'+index+'"></div>');
     $('.landscape').append('<div class="row vehicle'+index+'"></div>');
 
   }
 
+  // decides how to dispaly the horizonal speed
   var imp = offline.get('opt_imperial');
   var ascent_text = imp ? (vehicles[index].ascent_rate * 196.850394).toFixed(1) + ' ft/min' : vehicles[index].ascent_rate.toFixed(1) + ' m/s';
   if (offline.get('opt_haxis_hours')) {
@@ -365,6 +368,7 @@ function updateVehicleInfo(index, position) {
 
   var coords_text;
   var ua =  navigator.userAgent.toLowerCase();
+
   // determine how to link the vehicle coordinates to a native app, if on a mobile device
   if(ua.indexOf('iphone') > -1) {
       coords_text = '<a id="launch_mapapp" href="maps://?q='+position.gps_lat+','+position.gps_lon+'">'
@@ -377,6 +381,12 @@ function updateVehicleInfo(index, position) {
   } else {
       coords_text = roundNumber(position.gps_lat, 6) + ', ' + roundNumber(position.gps_lon, 6);
   }
+
+  // format altitude strings
+  var text_alt      = Number((imp) ? Math.floor(3.2808399 * parseInt(position.gps_alt)) : parseInt(position.gps_alt)).toLocaleString("us");
+      text_alt     += " " + ((imp) ? 'ft':'m');
+  var text_alt_max  = Number((imp) ? Math.floor(3.2808399 * parseInt(vehicles[index].max_alt)) : parseInt(vehicles[index].max_alt)).toLocaleString("us");
+      text_alt_max += " " + ((imp) ? 'ft':'m');
 
 
   // start
@@ -407,12 +417,12 @@ function updateVehicleInfo(index, position) {
            + '<div class="right">'
            + '<dl>'
            + ((vehicles[index].vehicle_type == "car") ? '' : '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>')
-           + '<dt>'+((imp) ? parseInt(3.2808399 * position.gps_alt) + ' ft': parseInt(position.gps_alt) + ' m')+'</dt><dd>altitude</dd>'
-           + '<dt>'+((imp) ? parseInt(3.2808399 * vehicles[index].max_alt) + ' ft': parseInt(vehicles[index].max_alt) + ' m')+'</dt><dd>max alt</dd>'
+           + '<dt>'+text_alt+'</dt><dd>altitude</dd>'
+           + '<dt>'+text_alt_max+'</dt><dd>max alt</dd>'
            + '';
   // mid for landscape
   var l    = ((vehicles[index].vehicle_type == "car") ? '' : '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>')
-           + '<dt>'+((imp) ? parseInt(3.2808399 * position.gps_alt) + 'ft': parseInt(position.gps_alt) + 'm')+' ('+((imp) ? parseInt(3.2808399 * vehicles[index].max_alt) + 'ft' : parseInt(vehicles[index].max_alt) + 'm')+')</dt><dd>altitude (max)</dd>'
+           + '<dt>'+text_alt+' ('+text_alt_max+')</dt><dd>altitude (max)</dd>'
            + '<dt>'+position.gps_time+'</dt><dd>datetime</dd>'
            + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
            + habitat_data(position.data)
