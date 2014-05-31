@@ -422,17 +422,23 @@ header > div {
     background-image: -webkit-linear-gradient(#CECECE, #FBFBFB);
     background-image: -moz-linear-gradient(#CECECE, #FBFBFB);
     background-image: -o-linear-gradient(#CECECE, #FBFBFB);
-    -o-transition: all 0.125s ease-in-out;
     -webkit-transition: all 0.125s ease-in-out;
     -moz-transition: all 0.125s ease-in-out;
-    -o-transform: translateX(0px);
+    -ms-transition: all 0.125s ease-in-out;
+    -o-transition: all 0.125s ease-in-out;
+    transition: all 0.125s ease-in-out;
     -webkit-transform: translate3d(0,0,0);
     -moz-transform: translateX(0px);
+    -ms-transform: translateX(0px);
+    -o-transform: translateX(0px);
+    transform: translateX(0px);
 }
 .switch.on > .thumb {
     -webkit-transform: translate3d(49px,0,0);
-    -o-transform: translateX(49px);
     -moz-transform: translateX(49px);
+    -ms-transform: translateX(49px);
+    -o-transform: translateX(49px);
+    transform: translateX(49px);
 }
 .switch:hover > .thumb {
     box-shadow: inset 0 2px 1px #fff, inset 0 -2px 1px #fff;
