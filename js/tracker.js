@@ -33,9 +33,9 @@ var notamOverlay = null;
 var Z_RANGE = 1;
 var Z_STATION = 2;
 var Z_PATH = 10;
-var Z_CAR = 11;
-var Z_SHADOW = 12;
-var Z_PAYLOAD = 13;
+var Z_SHADOW = 10000;
+var Z_CAR = 10001;
+var Z_PAYLOAD = 10002;
 
 var bootstrapped = false;
 var zoom_timer;
@@ -272,9 +272,17 @@ function updateVehicleInfo(index, newPosition) {
   var vehicle = vehicles[index];
   var latlng = new google.maps.LatLng(newPosition.gps_lat, newPosition.gps_lon);
 
+  // update market z-index based on latitude, 90 being background and -90 foreground
+  // the first 2 decimal digits are included for added accuracy
+  var zIndex = 18000 - (9000 + parseInt(newPosition.gps_lon*100))
+
   // update position
-  if(vehicle.marker_shadow) vehicle.marker_shadow.setPosition(latlng);
+  if(vehicle.marker_shadow) {
+      vehicle.marker_shadow.setPosition(latlng);
+      vehicle.marker_shadow.setZIndex(Z_SHADOW + zIndex);
+  }
   vehicle.marker.setPosition(latlng);
+  vehicle.marker.setZIndex(((vehicle.vehicle_type=="car")? Z_CAR : Z_PAYLOAD) + zIndex);
 
   // update horizon circles and icon
   if(vehicle.vehicle_type == "balloon") {
@@ -754,8 +762,7 @@ function addPosition(position) {
                 }
             } else {
 
-                var dt = convert_time(position.gps_time)
-                   - convert_time(vehicle.curr_position.gps_time);
+                var dt = convert_time(position.gps_time) - convert_time(vehicle.curr_position.gps_time);
 
                 if(dt != 0) {
                     // calculate vertical rate
