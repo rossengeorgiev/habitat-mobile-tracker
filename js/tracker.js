@@ -931,6 +931,9 @@ function refresh() {
 }
 
 function refreshReceivers() {
+    // if options to hide receivers is selected do nothing
+    if(offline.get('opt_hide_receivers')) return;
+
     if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'ajax', 'refresh', 'Recievers']);
 
     $.ajax({
