@@ -243,6 +243,10 @@ function stopFollow() {
 	if(follow_vehicle != -1) {
         vehicles[follow_vehicle].follow = false;
         follow_vehicle = -1;
+
+        // reset nite overlay
+        nite.setDate(null);
+        nite.refresh();
     }
 }
 
