@@ -1244,7 +1244,7 @@ function zoom_on_payload() {
         // find the bounds of the ballons first and last positions
         var bounds = new google.maps.LatLngBounds();
         bounds.extend(vehicles[i].positions[0]);
-        bounds.extend(vehicles[i].marker.getPosition());
+        bounds.extend(vehicles[i].positions[vehicles[i].positions.length - 1]);
 
         // fit the map to those bounds
         map.fitBounds(bounds);
