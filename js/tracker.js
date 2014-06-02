@@ -26,6 +26,7 @@ var balloon_colors = ["#f00", "blue", "green", "#ff0", "#c700e6", "#ff8a0f", "#0
 
 var map = null;
 var overlay = null;
+var layer_clouds = null;
 
 var notamOverlay = null;
 
@@ -79,6 +80,11 @@ function load() {
 
     if(currentPosition) updateCurrentPosition(currentPosition.lat, currentPosition.lon);
 
+    // initialize clouds layer
+    layers_clouds = new google.maps.weather.CloudLayer();
+    if(offline.get('opt_layers_clouds')) layers_clouds.setMap(map);
+
+    // initalize nite overlay
     nite.init(map);
     if(!offline.get('opt_daylight')) nite.hide();
     setInterval(function() { nite.refresh(); }, 60000); // 1min

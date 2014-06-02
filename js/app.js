@@ -479,7 +479,7 @@ $(window).ready(function() {
     if(offline.get('opt_daylight')) $('#sw_daylight').removeClass('off').addClass('on');
 
     // offline and mobile
-    $('#sw_offline, #sw_station, #sw_imperial, #sw_haxis_hours, #sw_daylight, #sw_hide_receivers').click(function() {
+    $('#sw_layers_clouds, #sw_offline, #sw_station, #sw_imperial, #sw_haxis_hours, #sw_daylight, #sw_hide_receivers').click(function() {
         var e = $(this);
         var name = e.attr('id').replace('sw', 'opt');
         var on;
@@ -519,7 +519,10 @@ $(window).ready(function() {
                 else {
                     refreshReceivers();
                 }
-
+                break;
+            case "opt_layers_clouds":
+                if(on) { layers_clouds.setMap(map); }
+                else { layers_clouds.setMap(null); }
         }
     });
 
@@ -529,6 +532,7 @@ $(window).ready(function() {
     if(offline.get('opt_imperial')) $('#sw_imperial').removeClass('off').addClass('on');
     if(offline.get('opt_haxis_hours')) $('#sw_haxis_hours').removeClass('off').addClass('on');
     if(offline.get('opt_hide_receivers')) $('#sw_hide_receivers').removeClass('off').addClass('on');
+    if(offline.get('opt_layers_clouds')) $('#sw_layers_clouds').removeClass('off').addClass('on');
 
     // force re-cache
     $('#sw_cache').click(function() {
