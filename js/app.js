@@ -278,6 +278,15 @@ $(window).ready(function() {
         });
     });
 
+    // expand graph on startup, if nessary
+    if(embed.graph_expanded) $('#telemetry_graph .graph_label').click();
+
+    // reset nite-overlay when mouse goes out of the graph box
+    $("#telemetry_graph").on('mouseout','.holder', function() {
+        nite.setDate(null);
+        nite.refresh();
+    });
+
     // hand cursor for dragging the vehicle list
     $("#main").on("mousedown", ".row", function () {
         $("#main").addClass("drag");
@@ -285,8 +294,6 @@ $(window).ready(function() {
     $("body").on("mouseup", function () {
         $("#main").removeClass("drag");
     });
-
-    if(embed.graph_expanded) $('#telemetry_graph .graph_label').click();
 
     // confirm dialog when launchnig a native map app with coordinates
     $('#main').on('click', '#launch_mapapp', function() {
