@@ -274,7 +274,7 @@ function updateVehicleInfo(index, newPosition) {
 
   // update market z-index based on latitude, 90 being background and -90 foreground
   // the first 2 decimal digits are included for added accuracy
-  var zIndex = 18000 - (9000 + parseInt(newPosition.gps_lon*100))
+  var zIndex = 18000 - (9000 + parseInt(newPosition.gps_lat*100));
 
   // update position
   if(vehicle.marker_shadow) {
