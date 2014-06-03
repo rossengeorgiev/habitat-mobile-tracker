@@ -45,24 +45,22 @@ if(embed.enabled) {
 $.ajaxSetup({ cache: true });
 
 // handle cachin events and display a loading bar
-var loadReload = false;
 var loadComplete = function(e) {
     clearTimeout(initTimer);
 
-    if(loadReload && e.type == 'updateready') {
-        if(confirm("Reload app?")) {
-            window.location.href = window.location.href;
-            return;
-        }
+    if(e.type == 'updateready') {
+        window.applicationCache.swapCache();
+        window.location.reload();
+        return;
     }
-
-    loadReload = false;
 
     $('#loading .complete').stop(true,true).animate({width: 200}, {complete: trackerInit });
 }
 
 // loads the tracker interface
 function trackerInit() {
+    if(map) return;
+
     $('#loading,#settingsbox,#aboutbox,#chasebox').hide(); // welcome screen
     $('header,#main,#map').show(); // interface elements
 
@@ -83,11 +81,13 @@ function trackerInit() {
 var initTimer = setTimeout(trackerInit, 3000);
 
 var cache = window.applicationCache;
-cache.addEventListener('checking', function() { clearTimeout(initTimer); $('#loading .bar,#loading').show(); $('#loading .complete').css({width: 0}); }, false);
 cache.addEventListener('noupdate', loadComplete, false);
 cache.addEventListener('updateready', loadComplete, false);
 cache.addEventListener('cached', loadComplete, false);
 cache.addEventListener('error', loadComplete, false);
+
+// if the browser supports progress events, display a loading bar
+cache.addEventListener('checking', function() { clearTimeout(initTimer); $('#loading .bar,#loading').show(); $('#loading .complete').css({width: 0}); }, false);
 cache.addEventListener('progress', function(e) { $('#loading .complete').stop(true,true).animate({width: (200/e.total)*e.loaded}); }, false);
 
 var listScroll;
@@ -537,10 +537,7 @@ $(window).ready(function() {
     // force re-cache
     $('#sw_cache').click(function() {
         var e = $(this).removeClass('off').addClass('on');
-        if(confirm("Force re-cache?")) {
-            window.scrollTo(0,1);
-            $("#settingsbox").hide();
-            loadReload = true;
+        if(confirm("The app will automatically reload, if new version is available.")) {
             applicationCache.update();
         }
         e.removeClass('on').addClass('off');
