@@ -31,13 +31,11 @@ java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimization
 
 cd ..
 echo "Done!"
-echo -n "Increment cache version... "
+echo -n "Generate cache.manifest..."
 
-CACHE_VERSION=`awk '/^\# version/ { print $3 }' cache.manifest`
-CACHE_VERSION=`expr $CACHE_VERSION + 1`
-sed -i "s/^\(# version\) [0-9]\+/\1 $CACHE_VERSION/" cache.manifest
+
+sed "s/^\(# version\) .*$/\1 $VERSION `date +%s`/" cache.manifest-dev > cache.manifest
 
 echo "Done!"
 
-echo "Cache version: $CACHE_VERSION"
 echo "Build version: $VERSION"
