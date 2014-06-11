@@ -477,10 +477,19 @@ $(window).ready(function() {
 
     // settings page
 
-    if(offline.get('opt_daylight')) $('#sw_daylight').removeClass('off').addClass('on');
+    // list of all switches
+    var opts = [
+        "#sw_layers_clouds",
+        "#sw_offline",
+        "#sw_station",
+        "#sw_imperial",
+        "#sw_haxis_hours",
+        "#sw_daylight",
+        "#sw_hide_receivers"
+    ];
 
-    // offline and mobile
-    $('#sw_layers_clouds, #sw_offline, #sw_station, #sw_imperial, #sw_haxis_hours, #sw_daylight, #sw_hide_receivers').click(function() {
+    // applies functionality when switches are toggled
+    $(opts.join(',')).click(function() {
         var e = $(this);
         var name = e.attr('id').replace('sw', 'opt');
         var on;
@@ -528,12 +537,12 @@ $(window).ready(function() {
     });
 
     // set the switch, based on the remembered choice
-    if(offline.get('opt_offline')) $('#sw_offline').removeClass('off').addClass('on');
-    if(offline.get('opt_station')) $('#sw_station').removeClass('off').addClass('on');
-    if(offline.get('opt_imperial')) $('#sw_imperial').removeClass('off').addClass('on');
-    if(offline.get('opt_haxis_hours')) $('#sw_haxis_hours').removeClass('off').addClass('on');
-    if(offline.get('opt_hide_receivers')) $('#sw_hide_receivers').removeClass('off').addClass('on');
-    if(offline.get('opt_layers_clouds')) $('#sw_layers_clouds').removeClass('off').addClass('on');
+    for(var k in opts) {
+        var switch_id = opts[k];
+        var opt_name = switch_id.replace("#sw_", "opt_");
+
+        if(offline.get(opt_name)) $(switch_id).removeClass('off').addClass('on');
+    }
 
     // force re-cache
     $('#sw_cache').click(function() {
