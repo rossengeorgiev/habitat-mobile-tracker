@@ -131,8 +131,12 @@ function updateLegend() {
         polyMarker.setPosition(vehicles[follow_vehicle].positions[j - null_count]);
 
         // adjust nite overlay
-        nite.setDate(new Date(data_ref.data[j][0]));
+        var date = new Date(data_ref.data[j][0])
+        nite.setDate(date);
         nite.refresh();
+        // set timebox
+        $('#timebox').removeClass('present').addClass('past');
+        updateTimebox(date);
     }
 }
 

@@ -258,32 +258,36 @@ var twoZeroPad = function(n) {
     return (n.length<2) ? '0'+n : n;
 }
 
+// updates timebox
+var updateTimebox = function(date) {
+    var elm = $("#timebox");
+    var a,b,c,d,e,f,g,z;
+
+    a = date.getUTCFullYear();
+    b = twoZeroPad(date.getUTCMonth()+1); // months 0-11
+    c = twoZeroPad(date.getUTCDate());
+    e = twoZeroPad(date.getUTCHours());
+    f = twoZeroPad(date.getUTCMinutes());
+    g = twoZeroPad(date.getUTCSeconds());
+
+    elm.find(".current").text("Current: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC");
+
+    a = date.getFullYear();
+    b = twoZeroPad(date.getMonth()+1); // months 0-11
+    c = twoZeroPad(date.getDate());
+    e = twoZeroPad(date.getHours());
+    f = twoZeroPad(date.getMinutes());
+    g = twoZeroPad(date.getSeconds());
+    z = date.getTimezoneOffset() / -60;
+
+    elm.find(".local").text("Local: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC"+((z<0)?"-":"+")+z);
+}
+
 // runs every second
 var updateTime = function(date) {
     // update timebox
     var elm = $("#timebox.present");
-    if(elm.length > 0) {
-        var a,b,c,d,e,f,g,z;
-
-        a = date.getUTCFullYear();
-        b = twoZeroPad(date.getUTCMonth()+1); // months 0-11
-        c = twoZeroPad(date.getUTCDate());
-        e = twoZeroPad(date.getUTCHours());
-        f = twoZeroPad(date.getUTCMinutes());
-        g = twoZeroPad(date.getUTCSeconds());
-
-        elm.find(".current").text("Current: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC");
-
-        a = date.getFullYear();
-        b = twoZeroPad(date.getMonth()+1); // months 0-11
-        c = twoZeroPad(date.getDate());
-        e = twoZeroPad(date.getHours());
-        f = twoZeroPad(date.getMinutes());
-        g = twoZeroPad(date.getSeconds());
-        z = date.getTimezoneOffset() / -60;
-
-        elm.find(".local").text("Local: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC"+((z<0)?"-":"+")+z);
-    }
+    if(elm.length > 0) updateTimebox(date);
 
     // update friendly delta time fields
     var elm = $(".friendly-dtime");
@@ -345,10 +349,13 @@ $(window).ready(function() {
     // expand graph on startup, if nessary
     if(embed.graph_expanded) $('#telemetry_graph .graph_label').click();
 
-    // reset nite-overlay when mouse goes out of the graph box
+    // reset nite-overlay and timebox when mouse goes out of the graph box
     $("#telemetry_graph").on('mouseout','.holder', function() {
         nite.setDate(null);
         nite.refresh();
+
+        $("#timebox").removeClass('past').addClass('present');
+        updateTimebox(new Date());
     });
 
     // hand cursor for dragging the vehicle list
