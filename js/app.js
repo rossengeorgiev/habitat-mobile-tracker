@@ -63,10 +63,10 @@ var loadComplete = function(e) {
 
 // loads the tracker interface
 function trackerInit() {
-    if(map) return;
-
     $('#loading,#settingsbox,#aboutbox,#chasebox').hide(); // welcome screen
     $('header,#main').show(); // interface elements
+
+    if(map) return;
 
     if(is_mobile || embed.enabled) $(".nav .embed").hide();
 
