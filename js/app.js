@@ -249,9 +249,44 @@ var positionUpdateHandle = function(position) {
     */
 }
 
+var twoZeroPad = function(n) {
+    n = String(n);
+    return (n.length<2) ? '0'+n : n;
+}
+
+var updateTimebox = function(date) {
+    var elm = $("#timebox.present");
+    if(elm.length < 1) return;
+
+    var a,b,c,d,e,f,g,z;
+
+    a = date.getUTCFullYear();
+    b = twoZeroPad(date.getUTCMonth());
+    c = twoZeroPad(date.getUTCDay());
+    e = twoZeroPad(date.getUTCHours());
+    f = twoZeroPad(date.getUTCMinutes());
+    g = twoZeroPad(date.getUTCSeconds());
+
+    elm.find(".current").text("Current: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC");
+
+    a = date.getFullYear();
+    b = twoZeroPad(date.getMonth());
+    c = twoZeroPad(date.getDay());
+    e = twoZeroPad(date.getHours());
+    f = twoZeroPad(date.getMinutes());
+    g = twoZeroPad(date.getSeconds());
+    z = date.getTimezoneOffset() / -60;
+
+    elm.find(".local").text("Local: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC"+((z<0)?"-":"+")+z);
+}
 
 
 $(window).ready(function() {
+    // refresh timebox
+    setInterval(function() {
+        updateTimebox(new Date());
+    }, 1000);
+
     // resize elements if needed
     checkSize();
 

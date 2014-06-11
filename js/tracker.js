@@ -80,10 +80,6 @@ function load() {
 
     if(currentPosition) updateCurrentPosition(currentPosition.lat, currentPosition.lon);
 
-    // initialize clouds layer
-    layers_clouds = new google.maps.weather.CloudLayer();
-    if(offline.get('opt_layers_clouds')) layers_clouds.setMap(map);
-
     // initalize nite overlay
     nite.init(map);
     if(!offline.get('opt_daylight')) nite.hide();
@@ -102,6 +98,27 @@ function load() {
     google.maps.event.addListenerOnce(map, 'idle', function(){
         startAjax();
     });
+
+    // animate-in the timebox
+    setTimeout(function() {
+        var elm = $("#timebox");
+
+        if(is_mobile) elm.css({left:'5px'});
+        var origW = elm.width();
+        var iconW = elm.find("svg").width();
+
+        elm.find("span").hide();
+        //elm.css({width:iconW,'margin-left':-iconW/2});
+        elm.css({width:iconW});
+        //elm.fadeIn(500,"easeOut").animate({width:origW,'margin-left':-origW/2},400,"easeOut", function() {
+        elm.fadeIn(500,"easeOut").animate({width:origW},400,"easeOut", function() {
+          $("#timebox span").fadeIn(500, "easeOut");
+        });
+    }, 500);
+
+    // initialize clouds layer
+    layers_clouds = new google.maps.weather.CloudLayer();
+    if(offline.get('opt_layers_clouds')) layers_clouds.setMap(map);
 }
 
 function unload() {
