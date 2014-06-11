@@ -49,7 +49,11 @@ var loadComplete = function(e) {
     clearTimeout(initTimer);
 
     if(e.type == 'updateready') {
-        window.applicationCache.swapCache();
+        // swapCache may throw exception if the isn't a previous cache
+        try {
+            window.applicationCache.swapCache();
+        } catch(e) {}
+
         window.location.reload();
         return;
     }
