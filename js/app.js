@@ -258,37 +258,62 @@ var twoZeroPad = function(n) {
     return (n.length<2) ? '0'+n : n;
 }
 
-var updateTimebox = function(date) {
+// runs every second
+var updateTime = function(date) {
+    // update timebox
     var elm = $("#timebox.present");
-    if(elm.length < 1) return;
+    if(elm.length > 0) {
+        var a,b,c,d,e,f,g,z;
 
-    var a,b,c,d,e,f,g,z;
+        a = date.getUTCFullYear();
+        b = twoZeroPad(date.getUTCMonth()+1); // months 0-11
+        c = twoZeroPad(date.getUTCDate());
+        e = twoZeroPad(date.getUTCHours());
+        f = twoZeroPad(date.getUTCMinutes());
+        g = twoZeroPad(date.getUTCSeconds());
 
-    a = date.getUTCFullYear();
-    b = twoZeroPad(date.getUTCMonth()+1); // months 0-11
-    c = twoZeroPad(date.getUTCDate());
-    e = twoZeroPad(date.getUTCHours());
-    f = twoZeroPad(date.getUTCMinutes());
-    g = twoZeroPad(date.getUTCSeconds());
+        elm.find(".current").text("Current: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC");
 
-    elm.find(".current").text("Current: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC");
+        a = date.getFullYear();
+        b = twoZeroPad(date.getMonth()+1); // months 0-11
+        c = twoZeroPad(date.getDate());
+        e = twoZeroPad(date.getHours());
+        f = twoZeroPad(date.getMinutes());
+        g = twoZeroPad(date.getSeconds());
+        z = date.getTimezoneOffset() / -60;
 
-    a = date.getFullYear();
-    b = twoZeroPad(date.getMonth()+1); // months 0-11
-    c = twoZeroPad(date.getDate());
-    e = twoZeroPad(date.getHours());
-    f = twoZeroPad(date.getMinutes());
-    g = twoZeroPad(date.getSeconds());
-    z = date.getTimezoneOffset() / -60;
+        elm.find(".local").text("Local: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC"+((z<0)?"-":"+")+z);
+    }
 
-    elm.find(".local").text("Local: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC"+((z<0)?"-":"+")+z);
+    // update friendly delta time fields
+    var elm = $(".friendly-dtime");
+    if(elm.length > 0) {
+        var now = new Date().getTime();
+
+        elm.each(function(k,v) {
+            var e = $(v);
+            var ts = e.attr('data-timestamp');
+            var dt = Math.floor((now - ts) / 1000);
+            if(dt < 0) return;
+
+            if(dt < 60) e.text(dt+'s ago'); // less than a minute
+            else if(dt < 3600) e.text(Math.floor(dt/60)+'m ago'); // less than an hour
+            else if(dt < 86400) { // less than a day
+                dt = Math.floor(dt/60);
+                e.text(Math.floor(dt/60)+'h '+(dt % 60)+'m ago');
+            } else {
+                dt = Math.floor(dt/3600); // hours
+                e.text(Math.floor(dt/24)+'d '+(dt % 24)+'h ago');
+            }
+        });
+    }
 }
 
 
 $(window).ready(function() {
     // refresh timebox
     setInterval(function() {
-        updateTimebox(new Date());
+        updateTime(new Date());
     }, 1000);
 
     // resize elements if needed

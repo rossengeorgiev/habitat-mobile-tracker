@@ -369,6 +369,10 @@ header > div {
     text-decoration: none;
     color: #00A3D3;
 }
+#main .data dl > dt.receivers {
+    font-size: 12px;
+    font-weight: normal;
+}
 
 .flatpage {
     margin-top: 55px;
@@ -575,13 +579,6 @@ header > div {
         line-height: 11px;
         font-size: 11px;
     }
-    #main .data dl > dt.receivers {
-        font-size: 10px;
-        font-weight: normal;
-    }
-    #main .data dl > dd.receivers {
-        font-size: 10px;
-    }
     #main .row .data img {
         right: 5%;
         top: 50px;
@@ -623,13 +620,6 @@ header > div {
         text-transform:uppercase;
         line-height: 11px;
         font-size: 11px;
-    }
-    #main .data dl > dt.receivers {
-        font-size: 10px;
-        font-weight: normal;
-    }
-    #main .data dl > dd.receivers {
-        font-size: 10px;
     }
     #main .row .header .graph {
         width: 150px;
