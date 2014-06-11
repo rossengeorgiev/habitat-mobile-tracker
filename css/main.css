@@ -28,7 +28,7 @@ body {
 }
 
 .scrollStyleV {
-    z-index: 100;
+    z-index: 49;
     width: 5px;
     bottom: 6px;
     top: 6px;
@@ -43,7 +43,7 @@ body {
     border-radius: 3px 3px 3px 3px;
     position: absolute;
     width: 100%;
-    z-index: 100;
+    z-index: 49;
 }
 
 #timebox {
@@ -227,7 +227,7 @@ header > div {
     padding-left: 5px;
     border-bottom: 1px solid #33b5e5;
     position: relative;
-    z-index: 4;
+    z-index: 51;
     cursor: pointer;
     background-color: #fff;
     border-left: 5px solid #fff;
@@ -375,7 +375,7 @@ header > div {
     overflow: auto;
     position: absolute;
     width: 100%;
-    z-index: 4;
+    z-index: 50;
     background: #fff;
 }
 
@@ -453,7 +453,7 @@ header > div {
     height: 26px;
     position: relative;
     top: 0;
-    z-index: 3;
+    z-index: 51;
     border: solid 1px #919191;
     border-radius: 28px;
     box-shadow: inset 0 2px 1px white, inset 0 -2px 1px white;

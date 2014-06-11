@@ -49,7 +49,11 @@ var loadComplete = function(e) {
     clearTimeout(initTimer);
 
     if(e.type == 'updateready') {
-        window.applicationCache.swapCache();
+        // swapCache may throw exception if the isn't a previous cache
+        try {
+            window.applicationCache.swapCache();
+        } catch(e) {}
+
         window.location.reload();
         return;
     }
@@ -62,7 +66,7 @@ function trackerInit() {
     if(map) return;
 
     $('#loading,#settingsbox,#aboutbox,#chasebox').hide(); // welcome screen
-    $('header,#main,#map').show(); // interface elements
+    $('header,#main').show(); // interface elements
 
     if(is_mobile || embed.enabled) $(".nav .embed").hide();
 
@@ -70,7 +74,7 @@ function trackerInit() {
         if(!embed.enabled) $.getScript("js/ssdv.js");
 
         $.getScript("js/init_plot.js", function() { checkSize(); if(!map) load(); });
-        if(embed.graph) $('#telemetry_graph').addClass("main_screen").attr('style','');
+        if(embed.graph) $('#telemetry_graph').attr('style','');
         return;
     }
     checkSize();
@@ -385,65 +389,27 @@ $(window).ready(function() {
 
     // menu interface options
     $('.nav')
-    .on('click', '.home', function() {
+    .on('click', 'li', function() {
         var e = $(this);
-        var box = $('.main_screen');
-        if(box.is(':hidden')) {
-            $('#chasecarbox,#aboutbox,#settingsbox,#embedbox').hide();
-            box.show();
+        var name = e.attr('class').replace(" last","");
+        var box = $("#"+name+"box");
 
-            // analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open Page', 'Map']);
-        }
-        checkSize();
-    })
-    .on('click', '.chasecar', function() {
-        var e = $(this);
-        var box = $('#chasecarbox');
         if(box.is(':hidden')) {
-            $('.main_screen,#aboutbox,#settingsbox,#embedbox').hide();
+            $('.flatpage').hide();
             box.show().scrollTop(0);
 
             // analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open Page', 'Chase Car']);
+            var pretty_name;
+            switch(name) {
+                case "home": pretty_name = "Map"; break;
+                case "chasecar": pretty_name = "Chase Car"; break;
+                default: pretty_name = name[0].toUpperCase() + name.slice(1);
+            }
+
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open Page', pretty_name]);
         }
         checkSize();
     })
-    .on('click', '.about', function() {
-        var e = $(this);
-        var box = $('#aboutbox');
-        if(box.is(':hidden')) {
-            $('.main_screen,#chasecarbox,#settingsbox,#embedbox').hide();
-            box.show().scrollTop(0);
-
-            // analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open Page', 'About']);
-        }
-        checkSize();
-    })
-    .on('click', '.settings', function() {
-        var e = $(this);
-        var box = $('#settingsbox');
-        if(box.is(':hidden')) {
-            $('.main_screen,#chasecarbox,#aboutbox,#embedbox').hide();
-            box.show().scrollTop(0);
-
-            // analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open Page', 'Settings']);
-        }
-    })
-    .on('click', '.embed', function() {
-        var e = $(this);
-        var box = $('#embedbox');
-        if(box.is(':hidden')) {
-            $('.main_screen,#chasecarbox,#aboutbox,#settingsbox').hide();
-            box.show().scrollTop(0);
-
-            // analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open Page', 'Embed']);
-        }
-        checkSize();
-    });
 
     // toggle functionality for switch button
     $("#sw_chasecar").click(function() {
