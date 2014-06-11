@@ -265,8 +265,8 @@ var updateTimebox = function(date) {
     var a,b,c,d,e,f,g,z;
 
     a = date.getUTCFullYear();
-    b = twoZeroPad(date.getUTCMonth());
-    c = twoZeroPad(date.getUTCDay());
+    b = twoZeroPad(date.getUTCMonth()+1); // months 0-11
+    c = twoZeroPad(date.getUTCDate());
     e = twoZeroPad(date.getUTCHours());
     f = twoZeroPad(date.getUTCMinutes());
     g = twoZeroPad(date.getUTCSeconds());
@@ -274,8 +274,8 @@ var updateTimebox = function(date) {
     elm.find(".current").text("Current: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC");
 
     a = date.getFullYear();
-    b = twoZeroPad(date.getMonth());
-    c = twoZeroPad(date.getDay());
+    b = twoZeroPad(date.getMonth()+1); // months 0-11
+    c = twoZeroPad(date.getDate());
     e = twoZeroPad(date.getHours());
     f = twoZeroPad(date.getMinutes());
     g = twoZeroPad(date.getSeconds());
