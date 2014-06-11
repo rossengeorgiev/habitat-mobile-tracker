@@ -485,7 +485,8 @@ $(window).ready(function() {
         "#sw_imperial",
         "#sw_haxis_hours",
         "#sw_daylight",
-        "#sw_hide_receivers"
+        "#sw_hide_receivers",
+        "#sw_hide_timebox"
     ];
 
     // applies functionality when switches are toggled
@@ -529,6 +530,11 @@ $(window).ready(function() {
                 else {
                     refreshReceivers();
                 }
+                break;
+            case "opt_hide_timebox":
+                var elm = $("#timebox");
+                if(on) { elm.attr('class','').hide(); }
+                else { elm.attr('class','').addClass('present').show(); }
                 break;
             case "opt_layers_clouds":
                 if(on) { layers_clouds.setMap(map); }
