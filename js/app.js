@@ -253,9 +253,73 @@ var positionUpdateHandle = function(position) {
     */
 }
 
+var twoZeroPad = function(n) {
+    n = String(n);
+    return (n.length<2) ? '0'+n : n;
+}
+
+// updates timebox
+var updateTimebox = function(date) {
+    var elm = $("#timebox");
+    var a,b,c,d,e,f,g,z;
+
+    a = date.getUTCFullYear();
+    b = twoZeroPad(date.getUTCMonth()+1); // months 0-11
+    c = twoZeroPad(date.getUTCDate());
+    e = twoZeroPad(date.getUTCHours());
+    f = twoZeroPad(date.getUTCMinutes());
+    g = twoZeroPad(date.getUTCSeconds());
+
+    elm.find(".current").text("Current: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC");
+
+    a = date.getFullYear();
+    b = twoZeroPad(date.getMonth()+1); // months 0-11
+    c = twoZeroPad(date.getDate());
+    e = twoZeroPad(date.getHours());
+    f = twoZeroPad(date.getMinutes());
+    g = twoZeroPad(date.getSeconds());
+    z = date.getTimezoneOffset() / -60;
+
+    elm.find(".local").text("Local: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC"+((z<0)?"-":"+")+z);
+}
+
+// runs every second
+var updateTime = function(date) {
+    // update timebox
+    var elm = $("#timebox.present");
+    if(elm.length > 0) updateTimebox(date);
+
+    // update friendly delta time fields
+    var elm = $(".friendly-dtime");
+    if(elm.length > 0) {
+        var now = new Date().getTime();
+
+        elm.each(function(k,v) {
+            var e = $(v);
+            var ts = e.attr('data-timestamp');
+            var dt = Math.floor((now - ts) / 1000);
+            if(dt < 0) return;
+
+            if(dt < 60) e.text(dt+'s ago'); // less than a minute
+            else if(dt < 3600) e.text(Math.floor(dt/60)+'m ago'); // less than an hour
+            else if(dt < 86400) { // less than a day
+                dt = Math.floor(dt/60);
+                e.text(Math.floor(dt/60)+'h '+(dt % 60)+'m ago');
+            } else {
+                dt = Math.floor(dt/3600); // hours
+                e.text(Math.floor(dt/24)+'d '+(dt % 24)+'h ago');
+            }
+        });
+    }
+}
 
 
 $(window).ready(function() {
+    // refresh timebox
+    setInterval(function() {
+        updateTime(new Date());
+    }, 1000);
+
     // resize elements if needed
     checkSize();
 
@@ -285,10 +349,13 @@ $(window).ready(function() {
     // expand graph on startup, if nessary
     if(embed.graph_expanded) $('#telemetry_graph .graph_label').click();
 
-    // reset nite-overlay when mouse goes out of the graph box
+    // reset nite-overlay and timebox when mouse goes out of the graph box
     $("#telemetry_graph").on('mouseout','.holder', function() {
         nite.setDate(null);
         nite.refresh();
+
+        $("#timebox").removeClass('past').addClass('present');
+        updateTimebox(new Date());
     });
 
     // hand cursor for dragging the vehicle list
@@ -450,7 +517,8 @@ $(window).ready(function() {
         "#sw_imperial",
         "#sw_haxis_hours",
         "#sw_daylight",
-        "#sw_hide_receivers"
+        "#sw_hide_receivers",
+        "#sw_hide_timebox"
     ];
 
     // applies functionality when switches are toggled
@@ -494,6 +562,11 @@ $(window).ready(function() {
                 else {
                     refreshReceivers();
                 }
+                break;
+            case "opt_hide_timebox":
+                var elm = $("#timebox");
+                if(on) { elm.attr('class','').hide(); }
+                else { elm.attr('class','').addClass('present').show(); }
                 break;
             case "opt_layers_clouds":
                 if(on) { layers_clouds.setMap(map); }

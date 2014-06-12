@@ -80,10 +80,6 @@ function load() {
 
     if(currentPosition) updateCurrentPosition(currentPosition.lat, currentPosition.lon);
 
-    // initialize clouds layer
-    layers_clouds = new google.maps.weather.CloudLayer();
-    if(offline.get('opt_layers_clouds')) layers_clouds.setMap(map);
-
     // initalize nite overlay
     nite.init(map);
     if(!offline.get('opt_daylight')) nite.hide();
@@ -102,6 +98,27 @@ function load() {
     google.maps.event.addListenerOnce(map, 'idle', function(){
         startAjax();
     });
+
+    // animate-in the timebox
+    setTimeout(function() {
+        var elm = $("#timebox");
+
+        if(is_mobile) elm.css({left:'5px'});
+        var origW = elm.width();
+        var iconW = elm.find("svg").width();
+
+        elm.find("span").hide();
+        //elm.css({width:iconW,'margin-left':-iconW/2});
+        elm.css({width:iconW});
+        //elm.fadeIn(500,"easeOut").animate({width:origW,'margin-left':-origW/2},400,"easeOut", function() {
+        elm.fadeIn(500,"easeOut").animate({width:origW},400,"easeOut", function() {
+          $("#timebox span").fadeIn(500, "easeOut");
+        });
+    }, 500);
+
+    // initialize clouds layer
+    layers_clouds = new google.maps.weather.CloudLayer();
+    if(offline.get('opt_layers_clouds')) layers_clouds.setMap(map);
 }
 
 function unload() {
@@ -274,6 +291,23 @@ function roundNumber(number, digits) {
   return rndedNum;
 }
 
+function stringToDateUTC(text) {
+    return new Date(text.replace(" ","T") + "Z");
+}
+
+function formatDate(date) {
+    var a,b,c,d,e,f,g,z;
+
+    a = date.getFullYear();
+    b = twoZeroPad(date.getMonth()+1); // months 0-11
+    c = twoZeroPad(date.getDate());
+    e = twoZeroPad(date.getHours());
+    f = twoZeroPad(date.getMinutes());
+    g = twoZeroPad(date.getSeconds());
+
+    return a+'-'+b+'-'+c+' '+e+':'+f+':'+g;
+}
+
 function updateVehicleInfo(index, newPosition) {
   var vehicle = vehicles[index];
   var latlng = new google.maps.LatLng(newPosition.gps_lat, newPosition.gps_lon);
@@ -317,7 +351,7 @@ function updateVehicleInfo(index, newPosition) {
                      && newPosition.gps_alt < 350              // and is under 350 meters altitude
                  ) || (                                     // or
                      newPosition.gps_alt < 600                 // under 600m and has no position update for more than 30 minutes
-                     && (new Date((new Date()).toISOString())).getTime() - (new Date(newPosition.gps_time + " UTC")).getTime() > 1800000
+                     && (new Date().getTime() - convert_time(newPosition.gps_time)) > 1800000
                  );
 
     if(landed) {
@@ -391,13 +425,14 @@ function updateVehicleInfo(index, newPosition) {
            + '</div>' // right
            + '</div>' // data
            + '';
-  var c    = '<dt class="receivers">Recieved by:</dt><dd class="receivers">'
+  var c    = '<dt class="receivers">Recieved <i class="friendly-dtime" data-timestamp='+(convert_time(newPosition.server_time))+'></i> by:</dt><dd class="receivers">'
            + newPosition.callsign.split(",").join(", ") + '</dd>'
 
   if(!newPosition.callsign) c = '';
 
+
   // mid for portrait
-  var p    = '<dt>'+newPosition.gps_time+'</dt><dd>datetime</dd>'
+  var p    = '<dt>'+formatDate(stringToDateUTC(newPosition.gps_time))+'</dt><dd>datetime (local)</dd>'
            + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
            + c // receivers if any
            + '</dl>'
@@ -411,7 +446,7 @@ function updateVehicleInfo(index, newPosition) {
   // mid for landscape
   var l    = ((vehicle.vehicle_type == "car") ? '' : '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>')
            + '<dt>'+text_alt+' ('+text_alt_max+')</dt><dd>altitude (max)</dd>'
-           + '<dt>'+newPosition.gps_time+'</dt><dd>datetime</dd>'
+           + '<dt>'+formatDate(stringToDateUTC(newPosition.gps_time))+'</dt><dd>datetime (local)</dd>'
            + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
            + habitat_data(newPosition.data)
            + c // receivers if any
@@ -522,8 +557,8 @@ function updatePolyline(vehicle_index) {
     }
 }
 
-function convert_time(gps_time) {
-  return (new Date(gps_time)).getTime() / 1000; // seconds since 1/1/1970 @ 12:00 AM
+function convert_time(text) {
+  return stringToDateUTC(text).getTime();
 }
 
 var GChartString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -542,8 +577,6 @@ function GChartEncodeData(valueArray,maxValue) {
 }
 
 function addPosition(position) {
-    position.gps_time = position.gps_time.replace(/(\d+)-(\d+)-(\d+)/,"$2/$3/$1");
-
     // check if the vehicle is already in the list, if not create a new item
     if($.inArray(position.vehicle, vehicle_names) == -1) {
         vehicle_names.push(position.vehicle);
@@ -842,7 +875,7 @@ function graphAddLastPosition(idx) {
     vehicles[idx].graph_data_updated = true;
     var data = vehicles[idx].graph_data;
     var new_data = vehicles[idx].curr_position;
-    var date = new Date(new_data.gps_time);
+    var date = new Date(convert_time(new_data.gps_time));
     var tz_offset_milis = date.getTimezoneOffset() * 60000;
     var ts = date.getTime() - tz_offset_milis;
 

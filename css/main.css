@@ -46,8 +46,47 @@ body {
     z-index: 49;
 }
 
+#timebox {
+    z-index: 49;
+    background-color: #fff;
+    position: absolute;
+    top: 7px;
+    left: 30px;
+    //margin-left: -145px;
+    height: 28px;
+    width: 225px;
+    border-radius: 20px;
+    box-shadow: 0 0 5px #888;
+    font-size: 11px;
+}
+#timebox svg {
+    width: 28px;
+    height: 28px;
+}
+#timebox svg path {
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    -ms-transition: all 0.4s ease-in-out;
+    -o-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+    fill: #00a3d3;
+}
+#timebox.past svg path {
+    fill: #c00;
+}
+#timebox span {
+    line-height: 14px;
+}
+#timebox .current {
+    margin-left: 5px;
+}
+#timebox .local {
+    margin-left: 15px;
+}
+
 #mapscreen {
     float: right;
+    position: relative;
 }
 
 #map img {
@@ -330,6 +369,10 @@ header > div {
     text-decoration: none;
     color: #00A3D3;
 }
+#main .data dl > dt.receivers {
+    font-size: 12px;
+    font-weight: normal;
+}
 
 .flatpage {
     margin-top: 55px;
@@ -536,13 +579,6 @@ header > div {
         line-height: 11px;
         font-size: 11px;
     }
-    #main .data dl > dt.receivers {
-        font-size: 10px;
-        font-weight: normal;
-    }
-    #main .data dl > dd.receivers {
-        font-size: 10px;
-    }
     #main .row .data img {
         right: 5%;
         top: 50px;
@@ -584,13 +620,6 @@ header > div {
         text-transform:uppercase;
         line-height: 11px;
         font-size: 11px;
-    }
-    #main .data dl > dt.receivers {
-        font-size: 10px;
-        font-weight: normal;
-    }
-    #main .data dl > dd.receivers {
-        font-size: 10px;
     }
     #main .row .header .graph {
         width: 150px;
