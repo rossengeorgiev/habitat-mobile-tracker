@@ -801,7 +801,7 @@ function addPosition(position) {
                 }
             } else {
 
-                var dt = convert_time(position.gps_time) - convert_time(vehicle.curr_position.gps_time);
+                var dt = (convert_time(position.gps_time) - convert_time(vehicle.curr_position.gps_time)) / 1000; // convert to seconds
 
                 if(dt != 0) {
                     // calculate vertical rate
