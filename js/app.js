@@ -621,4 +621,69 @@ $(window).ready(function() {
         // immediatelly check for position
         //positionUpdateHandle();
     }
+
+    // weather feature
+    var overlayList = [
+        ['nexrad-n0q-900913', 'NEXRAD Base Reflectivity current'],
+        ['goes-ir-4km-900913', 'GOES North American Infrared ~4km'],
+        ['goes-wv-4km-900913', 'GOES North American Water Vapor ~4km'],
+        ['goes-vis-1km-900913', 'GOES North American Visible ~1km'],
+        ['goes-east-ir-4km-900913', 'GOES East CONUS Infrared ~4km'],
+        ['goes-east-wv-4km-900913', 'GOES East CONUS Water Vapor ~4km'],
+        ['goes-east-vis-1km-900913', 'GOES East CONUS Visible ~1km'],
+        ['goes-west-ir-4km-900913', 'GOES West CONUS Infrared ~4km'],
+        ['goes-west-wv-4km-900913', 'GOES West CONUS Water Vapor ~4km'],
+        ['goes-west-vis-1km-900913', 'GOES West CONUS Visible ~1km'],
+        ['hawaii-vis-900913', 'GOES WEST Hawaii Regional Visible'],
+        ['alaska-vis-900913', 'GOES WEST Alaska Regional Visible'],
+        ['alaska-ir-900913', 'GOES WEST Alaska Regional IR'],
+        ['alaska-wv-900913', 'GOES WEST Alaska Regional Water Vapor'],
+        ['q2-n1p-900913', 'Q2 1 Hour Precipitation'],
+        ['q2-p24h-900913', 'Q2 24 Hour Precipitation'],
+        ['q2-p48h-900913', 'Q2 48 Hour Precipitation'],
+        ['q2-p72h-900913', 'Q2 72 Hour Precipitation'],
+        ['q2-hsr-900913', 'MRMS Hybrid-Scan Reflectivity Composite.'],
+    ];
+
+    var elm = $("#weatherbox .slimContainer");
+    elm.append("<h4>Americas</h4><hr>");
+
+    var i;
+    for(i in overlayList) {
+        var id = overlayList[i][0];
+        var name = overlayList[i][1];
+
+        var html = '<div class="row option">'
+                 + '<span><b>'+name+'</b></span>'
+                 + '<div class="switch off" id="sw_weather_'+id+'" data-weatherid="'+id+'">'
+                 + '<span class="thumb"></span>'
+                 + '<input type="checkbox" id="opt_weather_'+id+'">'
+                 + '</div>'
+                 + '</div>';
+
+        elm.append(html);
+    }
+
+    elm.find(".switch").click(function() {
+        var e = $(this);
+        var name = e.attr('id').replace('sw', 'opt');
+        var id = name.replace("opt_weather_","");
+        var on;
+
+        if(e.hasClass('on')) {
+            e.removeClass('on').addClass('off');
+            on = 0;
+        } else {
+            $("#weatherbox .switch").removeClass('on').addClass('off');
+            e.removeClass('off').addClass('on');
+            on = 1;
+        }
+
+        if(on) {
+            weatherOverlayId = id;
+            map.overlayMapTypes.setAt("0", weatherOverlay);
+        } else {
+            map.overlayMapTypes.setAt("0", null);
+        }
+   });
 });
