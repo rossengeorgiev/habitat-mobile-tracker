@@ -624,47 +624,61 @@ $(window).ready(function() {
 
     // weather feature
 
-    // north america overlays
+    // list of overlays
     var overlayList = [
-        ['nexrad-n0q-900913', 'NEXRAD Base Reflectivity'],
-        ['goes-ir-4km-900913', 'GOES NA Infrared ~4km'],
-        ['goes-wv-4km-900913', 'GOES NA Water Vapor ~4km'],
-        ['goes-vis-1km-900913', 'GOES NA Visible ~1km'],
-        ['goes-east-ir-4km-900913', 'GOES East CONUS Infrared'],
-        ['goes-east-wv-4km-900913', 'GOES East CONUS Water Vapor'],
-        ['goes-east-vis-1km-900913', 'GOES East CONUS Visible'],
-        ['goes-west-ir-4km-900913', 'GOES West CONUS Infrared'],
-        ['goes-west-wv-4km-900913', 'GOES West CONUS Water Vapor'],
-        ['goes-west-vis-1km-900913', 'GOES West CONUS Visible'],
-        ['hawaii-vis-900913', 'GOES West Hawaii Visible'],
-        ['alaska-vis-900913', 'GOES West Alaska Visible'],
-        ['alaska-ir-900913', 'GOES West Alaska IR'],
-        ['alaska-wv-900913', 'GOES West Alaska Water Vapor'],
-        ['q2-n1p-900913', 'Q2 1 Hour Precipitation'],
-        ['q2-p24h-900913', 'Q2 24 Hour Precipitation'],
-        ['q2-p48h-900913', 'Q2 48 Hour Precipitation'],
-        ['q2-p72h-900913', 'Q2 72 Hour Precipitation'],
-        ['q2-hsr-900913', 'MRMS Hybrid-Scan Reflectivity Composite.'],
+        ['Europe/Africa', [
+            ['meteosat-Odeg-MPE', 'METEOSAT Precip. Estimate']
+        ]],
+        ['Indian Ocean', [
+            ['meteosat-iodc-MPE', 'METEOSAT IODC Precip. Est.']
+        ]],
+        ['North America', [
+            ['nexrad-n0q-900913', 'NEXRAD Base Reflectivity'],
+            ['goes-ir-4km-900913', 'GOES NA Infrared ~4km'],
+            ['goes-wv-4km-900913', 'GOES NA Water Vapor ~4km'],
+            ['goes-vis-1km-900913', 'GOES NA Visible ~1km'],
+            ['goes-east-ir-4km-900913', 'GOES East CONUS Infrared'],
+            ['goes-east-wv-4km-900913', 'GOES East CONUS Water Vapor'],
+            ['goes-east-vis-1km-900913', 'GOES East CONUS Visible'],
+            ['goes-west-ir-4km-900913', 'GOES West CONUS Infrared'],
+            ['goes-west-wv-4km-900913', 'GOES West CONUS Water Vapor'],
+            ['goes-west-vis-1km-900913', 'GOES West CONUS Visible'],
+            ['hawaii-vis-900913', 'GOES West Hawaii Visible'],
+            ['alaska-vis-900913', 'GOES West Alaska Visible'],
+            ['alaska-ir-900913', 'GOES West Alaska IR'],
+            ['alaska-wv-900913', 'GOES West Alaska Water Vapor'],
+            ['q2-n1p-900913', 'Q2 1 Hour Precipitation'],
+            ['q2-p24h-900913', 'Q2 24 Hour Precipitation'],
+            ['q2-p48h-900913', 'Q2 48 Hour Precipitation'],
+            ['q2-p72h-900913', 'Q2 72 Hour Precipitation'],
+            ['q2-hsr-900913', 'MRMS Hybrid-Scan Reflectivity Composite.']
+        ]]
     ];
 
     // generate the list of switches for each overlay
     var elm = $("#weatherbox .slimContainer");
-    elm.append("<h4>North America</h4><hr>");
+    var j;
+    for(j in overlayList) {
+        var region = overlayList[j][0];
+        var switches = overlayList[j][1];
 
-    var i;
-    for(i in overlayList) {
-        var id = overlayList[i][0];
-        var name = overlayList[i][1];
+        elm.append("<h4>"+region+"</h4><hr>");
 
-        var html = '<div class="row option">'
-                 + '<span><b>'+name+'</b></span>'
-                 + '<div class="switch off" id="sw_weather_'+id+'" data-weatherid="'+id+'">'
-                 + '<span class="thumb"></span>'
-                 + '<input type="checkbox" id="opt_weather_'+id+'">'
-                 + '</div>'
-                 + '</div>';
+        var i;
+        for(i in switches) {
+            var id = switches[i][0];
+            var name = switches[i][1];
 
-        elm.append(html);
+            var html = '<div class="row option">'
+                     + '<span><b>'+name+'</b></span>'
+                     + '<div class="switch off" id="sw_weather_'+id+'">'
+                     + '<span class="thumb"></span>'
+                     + '<input type="checkbox" id="opt_weather_'+id+'">'
+                     + '</div>'
+                     + '</div>';
+
+            elm.append(html);
+        }
     }
 
     // the magic that makes the switches do things
@@ -683,12 +697,21 @@ $(window).ready(function() {
             e.removeClass('off').addClass('on');
             on = 1;
         }
+        weatherMETEOSAT_MPE.setMap(null);
+        weatherMETEOSAT_IODC_MPE.setMap(null);
+        map.overlayMapTypes.setAt("0", null);
 
         if(on) {
+            if(id == "meteosat-Odeg-MPE") {
+                weatherMETEOSAT_MPE.setMap(map);
+                return;
+            } else if(id == "meteosat-iodc-MPE") {
+                weatherMETEOSAT_IODC_MPE.setMap(map);
+                return;
+            }
+
             weatherOverlayId = id;
             map.overlayMapTypes.setAt("0", weatherOverlay);
-        } else {
-            map.overlayMapTypes.setAt("0", null);
         }
    });
 });

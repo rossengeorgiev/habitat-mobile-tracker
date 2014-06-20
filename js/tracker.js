@@ -58,6 +58,13 @@ var weatherOverlay = new google.maps.ImageMapType({
     isPng: true
 });
 
+var weatherMETEOSAT_MPE_image = "http://oiswww.eumetsat.int/IPPS/html/GE/MET0D/GE_MET0D_VP-MPE.png";
+var weatherMETEOSAT_MPE_bounds = new google.maps.LatLngBounds(new google.maps.LatLng(-57.492200, -57.492200), new google.maps.LatLng(57.492200, 57.492200));;
+var weatherMETEOSAT_MPE = new google.maps.GroundOverlay(weatherMETEOSAT_MPE_image, weatherMETEOSAT_MPE_bounds, null);
+var weatherMETEOSAT_IODC_MPE_image = "http://oiswww.eumetsat.int/IPPS/html/GE/IODC/GE_IODC_VP-MPE.png";
+var weatherMETEOSAT_IODC_MPE_bounds = new google.maps.LatLngBounds(new google.maps.LatLng(-59.7901, -2.7919), new google.maps.LatLng(59.7901, 116.7913));;
+var weatherMETEOSAT_IODC_MPE = new google.maps.GroundOverlay(weatherMETEOSAT_IODC_MPE_image, weatherMETEOSAT_IODC_MPE_bounds, null);
+
 var offline = {
     get: function(key) {
         if(typeof localStorage == 'undefined') return null;
