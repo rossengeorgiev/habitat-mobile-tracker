@@ -623,6 +623,8 @@ $(window).ready(function() {
     }
 
     // weather feature
+
+    // north america overlays
     var overlayList = [
         ['nexrad-n0q-900913', 'NEXRAD Base Reflectivity'],
         ['goes-ir-4km-900913', 'GOES NA Infrared ~4km'],
@@ -645,8 +647,9 @@ $(window).ready(function() {
         ['q2-hsr-900913', 'MRMS Hybrid-Scan Reflectivity Composite.'],
     ];
 
+    // generate the list of switches for each overlay
     var elm = $("#weatherbox .slimContainer");
-    elm.append("<h4>Americas</h4><hr>");
+    elm.append("<h4>North America</h4><hr>");
 
     var i;
     for(i in overlayList) {
@@ -664,6 +667,7 @@ $(window).ready(function() {
         elm.append(html);
     }
 
+    // the magic that makes the switches do things
     elm.find(".switch").click(function() {
         var e = $(this);
         var name = e.attr('id').replace('sw', 'opt');
@@ -674,6 +678,7 @@ $(window).ready(function() {
             e.removeClass('on').addClass('off');
             on = 0;
         } else {
+            // only one overlay at a time
             $("#weatherbox .switch").removeClass('on').addClass('off');
             e.removeClass('off').addClass('on');
             on = 1;

@@ -51,7 +51,7 @@ var plot = null;
 var weatherOverlayId = "nexrad-n0q-900913";
 var weatherOverlay = new google.maps.ImageMapType({
     getTileUrl: function(tile, zoom) {
-        return "http://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/"+weatherOverlayId+"/" + zoom + "/" + tile.x + "/" + tile.y +".png?"+ (new Date()).getTime();
+        return "http://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/"+weatherOverlayId+"/" + zoom + "/" + tile.x + "/" + tile.y +".png";
     },
     tileSize: new google.maps.Size(256, 256),
     opacity:0.8,
