@@ -626,6 +626,11 @@ $(window).ready(function() {
 
     // list of overlays
     var overlayList = [
+        ['Global', [
+            ['nrl-global-cloudtop','NRL Monterey Cloudtop'],
+            ['nrl-global-ir','NRL Monterey IR'],
+            ['nrl-global-vapor','NRL Monterey Vapor']
+        ]],
         ['Europe/Africa', [
             ['meteosat-Odeg-MPE', 'METEOSAT Precip. Estimate']
         ]],
@@ -697,16 +702,18 @@ $(window).ready(function() {
             e.removeClass('off').addClass('on');
             on = 1;
         }
-        weatherMETEOSAT_MPE.setMap(null);
-        weatherMETEOSAT_IODC_MPE.setMap(null);
+
+        weatherImageOverlay.setMap(null);
         map.overlayMapTypes.setAt("0", null);
 
         if(on) {
-            if(id == "meteosat-Odeg-MPE") {
-                weatherMETEOSAT_MPE.setMap(map);
-                return;
-            } else if(id == "meteosat-iodc-MPE") {
-                weatherMETEOSAT_IODC_MPE.setMap(map);
+            if(id in weatherImageOverlayList) {
+                var o = weatherImageOverlayList[id];
+                var sw = new google.maps.LatLng(o[1][0][0], o[1][0][1]);
+                var ne = new google.maps.LatLng(o[1][1][0], o[1][1][1]);
+                var bounds = new google.maps.LatLngBounds(sw, ne);
+                weatherImageOverlay = new google.maps.GroundOverlay(o[0], bounds, {opacity: 0.7});
+                weatherImageOverlay.setMap(map);
                 return;
             }
 
