@@ -47,6 +47,27 @@ var ls_pred = false;
 
 var plot = null;
 
+// weather
+var weatherOverlayId = "nexrad-n0q-900913";
+var weatherOverlay = new google.maps.ImageMapType({
+    getTileUrl: function(tile, zoom) {
+        return "http://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/"+weatherOverlayId+"/" + zoom + "/" + tile.x + "/" + tile.y +".png";
+    },
+    tileSize: new google.maps.Size(256, 256),
+    opacity:0.8,
+    isPng: true
+});
+
+var weatherImageOverlayList = {
+    'nrl-global-cloudtop': ['http://www.nrlmry.navy.mil/archdat/global/stitched/cloudtop/LATEST.jpg', [[-76, -179.9999], [76, 179.75]]],
+    'nrl-global-ir': ['http://www.nrlmry.navy.mil/archdat/global/stitched/ir/LATEST.jpg', [[-65, -179.9999], [65, 179.75]]],
+    'nrl-global-vapor': ['http://www.nrlmry.navy.mil/archdat/global/stitched/vapor/LATEST.jpg', [[-65, -179.9999], [65, 179.75]]],
+    'meteosat-Odeg-MPE': ['http://oiswww.eumetsat.int/IPPS/html/GE/MET0D/GE_MET0D_VP-MPE.png', [[-57.492200, -57.492200], [57.492200, 57.492200]]],
+    'meteosat-iodc-MPE': ['http://oiswww.eumetsat.int/IPPS/html/GE/IODC/GE_IODC_VP-MPE.png', [[-59.7901, -2.7919], [59.7901, 116.7913]]]
+};
+
+var weatherImageOverlay = new google.maps.GroundOverlay();
+
 var offline = {
     get: function(key) {
         if(typeof localStorage == 'undefined') return null;

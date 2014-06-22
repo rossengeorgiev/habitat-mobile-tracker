@@ -621,4 +621,104 @@ $(window).ready(function() {
         // immediatelly check for position
         //positionUpdateHandle();
     }
+
+    // weather feature
+
+    // list of overlays
+    var overlayList = [
+        ['Global', [
+            ['nrl-global-cloudtop','NRL Monterey Cloudtop'],
+            ['nrl-global-ir','NRL Monterey IR'],
+            ['nrl-global-vapor','NRL Monterey Vapor']
+        ]],
+        ['Europe/Africa', [
+            ['meteosat-Odeg-MPE', 'METEOSAT Precip. Estimate']
+        ]],
+        ['Indian Ocean', [
+            ['meteosat-iodc-MPE', 'METEOSAT IODC Precip. Est.']
+        ]],
+        ['North America', [
+            ['nexrad-n0q-900913', 'NEXRAD Base Reflectivity'],
+            ['goes-ir-4km-900913', 'GOES NA Infrared ~4km'],
+            ['goes-wv-4km-900913', 'GOES NA Water Vapor ~4km'],
+            ['goes-vis-1km-900913', 'GOES NA Visible ~1km'],
+            ['goes-east-ir-4km-900913', 'GOES East CONUS Infrared'],
+            ['goes-east-wv-4km-900913', 'GOES East CONUS Water Vapor'],
+            ['goes-east-vis-1km-900913', 'GOES East CONUS Visible'],
+            ['goes-west-ir-4km-900913', 'GOES West CONUS Infrared'],
+            ['goes-west-wv-4km-900913', 'GOES West CONUS Water Vapor'],
+            ['goes-west-vis-1km-900913', 'GOES West CONUS Visible'],
+            ['hawaii-vis-900913', 'GOES West Hawaii Visible'],
+            ['alaska-vis-900913', 'GOES West Alaska Visible'],
+            ['alaska-ir-900913', 'GOES West Alaska IR'],
+            ['alaska-wv-900913', 'GOES West Alaska Water Vapor'],
+            ['q2-n1p-900913', 'Q2 1 Hour Precipitation'],
+            ['q2-p24h-900913', 'Q2 24 Hour Precipitation'],
+            ['q2-p48h-900913', 'Q2 48 Hour Precipitation'],
+            ['q2-p72h-900913', 'Q2 72 Hour Precipitation'],
+            ['q2-hsr-900913', 'MRMS Hybrid-Scan Reflectivity Composite.']
+        ]]
+    ];
+
+    // generate the list of switches for each overlay
+    var elm = $("#weatherbox .slimContainer");
+    var j;
+    for(j in overlayList) {
+        var region = overlayList[j][0];
+        var switches = overlayList[j][1];
+
+        elm.append("<h4>"+region+"</h4><hr>");
+
+        var i;
+        for(i in switches) {
+            var id = switches[i][0];
+            var name = switches[i][1];
+
+            var html = '<div class="row option">'
+                     + '<span><b>'+name+'</b></span>'
+                     + '<div class="switch off" id="sw_weather_'+id+'">'
+                     + '<span class="thumb"></span>'
+                     + '<input type="checkbox" id="opt_weather_'+id+'">'
+                     + '</div>'
+                     + '</div>';
+
+            elm.append(html);
+        }
+    }
+
+    // the magic that makes the switches do things
+    elm.find(".switch").click(function() {
+        var e = $(this);
+        var name = e.attr('id').replace('sw', 'opt');
+        var id = name.replace("opt_weather_","");
+        var on;
+
+        if(e.hasClass('on')) {
+            e.removeClass('on').addClass('off');
+            on = 0;
+        } else {
+            // only one overlay at a time
+            $("#weatherbox .switch").removeClass('on').addClass('off');
+            e.removeClass('off').addClass('on');
+            on = 1;
+        }
+
+        weatherImageOverlay.setMap(null);
+        map.overlayMapTypes.setAt("0", null);
+
+        if(on) {
+            if(id in weatherImageOverlayList) {
+                var o = weatherImageOverlayList[id];
+                var sw = new google.maps.LatLng(o[1][0][0], o[1][0][1]);
+                var ne = new google.maps.LatLng(o[1][1][0], o[1][1][1]);
+                var bounds = new google.maps.LatLngBounds(sw, ne);
+                weatherImageOverlay = new google.maps.GroundOverlay(o[0], bounds, {opacity: 0.7});
+                weatherImageOverlay.setMap(map);
+                return;
+            }
+
+            weatherOverlayId = id;
+            map.overlayMapTypes.setAt("0", weatherOverlay);
+        }
+   });
 });
