@@ -1,6 +1,6 @@
 # Habitat Mobile Tracker
 
-![mobile tracker screenshot](resources/mobiletracker-screencap.png "mobile tracker screenshot")
+![mobile tracker screenshot](resources/mobiletracker-screencap.jpg "mobile tracker screenshot")
 
 A tracker webapp specifically crafted for use on mobile devices.
 But, works on any other device - desktops, laptops or netbooks.
@@ -13,11 +13,12 @@ Checkout the [Live version](http://habhub.org/mt/)
 ## Features
 
 * HAB tracking with [Habitat](http://habitat.habhub.org/) ([@github/ukhas/habitat](https://github.com/ukhas/habitat))
-* Telemetry graph for each balloons
-* Map tracker with Google Maps API 3
+* Telemetry graph for each balloon
 * Chase Car functionality
+* Near realtime weather overlays
 * [Daylight cycle overlay](https://github.com/rossengeorgiev/nite-overlay), for long flights
 * Available to embed on any website
+* Map tracker with Google Maps API 3
 * Run the app natively on `iOS` or with Chrome's 'add to screen' on `Android`
 
 ### Geo position
