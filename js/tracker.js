@@ -8,8 +8,6 @@ var markers_url = "img/markers/";
 var vehicle_names = [];
 var vehicles = [];
 
-var graph_url = "http://chart.googleapis.com/chart?chf=bg,s,67676700&chxr=0,0,46|1,0,0|2,0,45&chxs=0,676767,0,0,_,000000|1,676767,0,0,t,676767|2,676767,0,0,_,676767&chxt=r,y,x&chs=300x80&cht=lc&chco=33B5E5&chds=0,{AA}&chls=2&chm=B,33B5E533,0,0,0,-1&chd=";
-
 var receiver_names = [];
 var receivers = [];
 
@@ -435,7 +433,7 @@ function updateVehicleInfo(index, newPosition) {
   // start
   var a    = '<div class="header">'
            + '<span>' + vehicle_names[index] + ' <i class="icon-target"></i></span>'
-           + '<img class="graph" src="img/blank.png">'
+           + '<canvas class="graph"></canvas>'
            + '<i class="arrow"></i></div>'
            + '<div class="data">'
            + '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />'
@@ -473,9 +471,13 @@ function updateVehicleInfo(index, newPosition) {
            + c // receivers if any
            + '';
 
-
+  // update html
   $('.portrait .vehicle'+index).html(a + p + b);
   $('.landscape .vehicle'+index).html(a + l + b);
+
+  // redraw canvas
+  var c = $('.vehicle'+index+' .graph');
+  drawAltitudeProfile(c.get(0), c.get(1), vehicles[index].alt_list, vehicles[index].alt_max);
 
   return true;
 }
@@ -582,19 +584,60 @@ function convert_time(text) {
   return stringToDateUTC(text).getTime();
 }
 
-var GChartString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-function GChartEncodeData(valueArray,maxValue) {
-    var chartData = ['s:'];
-    for (var i = 0; i < valueArray.length; i++) {
-        var currentValue = valueArray[i];
+function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
+    var ctx1 = c1.getContext("2d");
+    var ctx2 = c2.getContext("2d");
 
-        if (!isNaN(currentValue) && currentValue >= 0) {
-            chartData.push(GChartString.charAt(Math.round((GChartString.length-1) * currentValue / maxValue)));
-        } else {
-            chartData.push('_');
-        }
+    c1 = $(c1);
+    c2 = $(c2);
+
+    var ratio = window.devicePixelRatio;
+    var cw1 = 150 * ratio;
+    var ch1 = 40 * ratio;
+    var cw2 = 60 * ratio;
+    var ch2 = 40 * ratio;
+
+    c1.attr('width', cw1).attr('height', ch1);
+    c2.attr('width', cw2).attr('height', ch2);
+
+    ctx1.fillStyle = "#d6f0f9";
+    ctx1.lineWidth = 2;
+    ctx1.strokeStyle= "#33B5F5";
+    ctx2.fillStyle = "#d6f0f9";
+    ctx2.lineWidth = 2;
+    ctx2.strokeStyle= "#33B5F5";
+
+    var xt1 = (cw1 - 2) / alt_list.length;
+    var yt1 = (ch1 - 6) / alt_max;
+    var xt2 = (cw2 - 2) / alt_list.length;
+    var yt2 = (ch2 - 6) / alt_max;
+
+    //xt1 = (xt1 > 1) ? 1 : xt1;
+    //yt1 = (yt1 > 1) ? 1 : yt1;
+    //xt2 = (xt2 > 1) ? 1 : xt2;
+    //yt2 = (yt2 > 1) ? 1 : yt2;
+
+    ctx1.beginPath();
+    ctx1.moveTo(0,c1.height);
+    ctx2.beginPath();
+    ctx2.moveTo(0,c2.height);
+
+    var i;
+    for(i = 0; i < alt_list.length; i++) {
+        ctx1.lineTo(1+((i+1)*xt1), ch1 - (alt_list[i] * yt1));
+        ctx2.lineTo(1+((i+1)*xt2), ch2 - (alt_list[i] * yt2));
     }
-    return chartData.join('');
+
+    ctx1.stroke();
+    ctx2.stroke();
+
+    ctx1.lineTo(cw1 - 1, ch1);
+    ctx2.lineTo(cw2 - 1, ch2);
+
+    ctx1.closePath();
+    ctx2.closePath();
+    ctx1.fill();
+    ctx2.fill();
 }
 
 function addPosition(position) {
@@ -1237,11 +1280,8 @@ function update(response) {
 
                 // update the altitude profile, only if its a balloon
                 if(vehicles[idx].vehicle_type != "car") {
-                    var graph_src = graph_url.replace("{AA}",vehicles[idx].alt_max); // top range, buttom is always 0
-                    graph_src += GChartEncodeData(vehicles[idx].alt_list, vehicles[idx].alt_max); // encode datapoint to preserve bandwith
-
-                    // update img element
-                    $('.vehicle'+idx+' .graph').attr('src', graph_src);
+                    var c = $('.vehicle'+idx+' .graph');
+                    drawAltitudeProfile(c.get(0), c.get(1), vehicles[idx].alt_list, vehicles[idx].alt_max);
                 }
             }, 400*i);
         } else {
@@ -1250,11 +1290,8 @@ function update(response) {
 
             // update the altitude profile, only if its a balloon
             if(vehicles[i].vehicle_type != "car") {
-                var graph_src = graph_url.replace("{AA}",vehicles[i].alt_max); // top range, buttom is always 0
-                graph_src += GChartEncodeData(vehicles[i].alt_list, vehicles[i].alt_max); // encode datapoint to preserve bandwith
-
-                // update img element
-                $('.vehicle'+i+' .graph').attr('src', graph_src);
+                var c = $('.vehicle'+idx+' .graph');
+                drawAltitudeProfile(c.get(0), c.get(1), vehicles[idx].alt_list, vehicles[idx].alt_max);
             }
 
             // remember last position for each vehicle
