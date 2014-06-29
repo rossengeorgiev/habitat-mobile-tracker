@@ -585,6 +585,8 @@ function convert_time(text) {
 }
 
 function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
+    alt_max = (alt_max < 2000) ? 2000 : alt_max;
+
     var ctx1 = c1.getContext("2d");
     var ctx2 = c2.getContext("2d");
 
@@ -607,10 +609,10 @@ function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
     ctx2.lineWidth = 2 * ratio;
     ctx2.strokeStyle= "#33B5F5";
 
-    var xt1 = (cw1 - 2) / alt_list.length;
-    var yt1 = (ch1 - 6) / alt_max;
-    var xt2 = (cw2 - 2) / alt_list.length;
-    var yt2 = (ch2 - 6) / alt_max;
+    var xt1 = (cw1 - (2 * ratio)) / alt_list.length;
+    var yt1 = (ch1 - (6 * ratio)) / alt_max;
+    var xt2 = (cw2 - (2 * ratio)) / alt_list.length;
+    var yt2 = (ch2 - (6 * ratio)) / alt_max;
 
     xt1 = (xt1 > 1) ? 1 : xt1;
     yt1 = (yt1 > 1) ? 1 : yt1;
