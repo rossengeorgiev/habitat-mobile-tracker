@@ -591,10 +591,11 @@ function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
     c1 = $(c1);
     c2 = $(c2);
 
-    var cw1 = 150;
-    var ch1 = 40;
-    var cw2 = 60;
-    var ch2 = 40;
+    var ratio = window.devicePixelRatio;
+    var cw1 = 150 * ratio;
+    var ch1 = 40 * ratio;
+    var cw2 = 60 * ratio;
+    var ch2 = 40 * ratio;
 
     c1.attr('width', cw1).attr('height', ch1);
     c2.attr('width', cw2).attr('height', ch2);
