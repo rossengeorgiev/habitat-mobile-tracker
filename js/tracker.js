@@ -601,10 +601,10 @@ function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
     c2.attr('width', cw2).attr('height', ch2);
 
     ctx1.fillStyle = "#d6f0f9";
-    ctx1.lineWidth = 2;
+    ctx1.lineWidth = 2 * ratio;
     ctx1.strokeStyle= "#33B5F5";
     ctx2.fillStyle = "#d6f0f9";
-    ctx2.lineWidth = 2;
+    ctx2.lineWidth = 2 * ratio;
     ctx2.strokeStyle= "#33B5F5";
 
     var xt1 = (cw1 - 2) / alt_list.length;
@@ -612,10 +612,10 @@ function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
     var xt2 = (cw2 - 2) / alt_list.length;
     var yt2 = (ch2 - 6) / alt_max;
 
-    //xt1 = (xt1 > 1) ? 1 : xt1;
-    //yt1 = (yt1 > 1) ? 1 : yt1;
-    //xt2 = (xt2 > 1) ? 1 : xt2;
-    //yt2 = (yt2 > 1) ? 1 : yt2;
+    xt1 = (xt1 > 1) ? 1 : xt1;
+    yt1 = (yt1 > 1) ? 1 : yt1;
+    xt2 = (xt2 > 1) ? 1 : xt2;
+    yt2 = (yt2 > 1) ? 1 : yt2;
 
     ctx1.beginPath();
     ctx1.moveTo(0,c1.height);
@@ -631,8 +631,8 @@ function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
     ctx1.stroke();
     ctx2.stroke();
 
-    ctx1.lineTo(cw1 - 1, ch1);
-    ctx2.lineTo(cw2 - 1, ch2);
+    ctx1.lineTo(1+((i+1)*xt1), ch1);
+    ctx2.lineTo(1+((i+1)*xt2), ch2);
 
     ctx1.closePath();
     ctx2.closePath();
