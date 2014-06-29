@@ -585,6 +585,8 @@ function convert_time(text) {
 }
 
 function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
+    alt_max = (alt_max < 2000) ? 2000 : alt_max;
+
     var ctx1 = c1.getContext("2d");
     var ctx2 = c2.getContext("2d");
 
