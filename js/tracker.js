@@ -654,7 +654,7 @@ function addPosition(position) {
         var point = new google.maps.LatLng(position.gps_lat, position.gps_lon);
         var image_src = "";
         var color_index = 0;
-        if(position.vehicle.search(/(chase)|(car)/i) != -1  // whitelist
+        if(position.vehicle.search(/(chase)/i) != -1  // whitelist
            && position.vehicle.search(/icarus/i) == -1) {  // blacklist
             vehicle_type = "car";
             color_index = car_index++;
