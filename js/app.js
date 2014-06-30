@@ -19,7 +19,7 @@ var embed = {
     enabled: false,
     vlist: true,
     graph: true,
-    graph_exapnded: false,
+    graph_expanded: true,
 }
 var params = window.location.search.substring(1).split('&');
 
@@ -31,7 +31,7 @@ for(var idx in params) {
         case "embed": if(line[1] == "1") embed.enabled = true; break;
         case "hidelist": if(line[1] == "1") embed.vlist = false; break;
         case "hidegraph": if(line[1] == "1") embed.graph = false; break;
-        case "expandgraph": if(line[1] == "1") embed.graph_expanded = true; break;
+        case "expandgraph": if(line[1] == "0") embed.graph_expanded = false; break;
         case "filter": vfilter = line[1]; break;
         case "nyan": nyan_mode = true; break;
     }
@@ -345,9 +345,6 @@ $(window).ready(function() {
             if(map) google.maps.event.trigger(map, 'resize');
         });
     });
-
-    // expand graph on startup, if nessary
-    if(embed.graph_expanded) $('#telemetry_graph .graph_label').click();
 
     // reset nite-overlay and timebox when mouse goes out of the graph box
     $("#telemetry_graph").on('mouseout','.holder', function() {
