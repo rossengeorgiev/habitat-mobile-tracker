@@ -32,9 +32,9 @@ var notamOverlay = null;
 var Z_RANGE = 1;
 var Z_STATION = 2;
 var Z_PATH = 10;
-var Z_SHADOW = 10000;
-var Z_CAR = 10001;
-var Z_PAYLOAD = 10002;
+var Z_SHADOW = 1000000;
+var Z_CAR = 1000001;
+var Z_PAYLOAD = 1000002;
 
 var bootstrapped = false;
 var zoom_timer;
@@ -333,7 +333,7 @@ function updateVehicleInfo(index, newPosition) {
 
   // update market z-index based on latitude, 90 being background and -90 foreground
   // the first 2 decimal digits are included for added accuracy
-  var zIndex = 9000 - parseInt(newPosition.gps_lat*100);
+  var zIndex = 900000 - parseInt(newPosition.gps_lat*10000);
 
   // update position
   if(vehicle.marker_shadow) {
