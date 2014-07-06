@@ -328,18 +328,25 @@ $(window).ready(function() {
 
     $('#telemetry_graph').on('click', '.graph_label', function() {
         var e = $(this);
+        var analytics = true;
+
+        if(e.hasClass("noanalytics")) {
+            analytics = false;
+            e.removeClass("noanalytics");
+        }
+
         if(e.hasClass('active')) {
             e.removeClass('active');
             var h = $('#map').height() + $('#telemetry_graph').height();
 
             //analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI', 'Collapse', 'Telemetry Graph']);
+            if(typeof _gaq == 'object' && analytics) _gaq.push(['_trackEvent', 'UI', 'Collapse', 'Telemetry Graph']);
         } else {
             e.addClass('active');
             var h = $('#map').height() - $('#telemetry_graph').height();
 
             //analytics
-            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI', 'Expand', 'Telemetry Graph']);
+            if(typeof _gaq == 'object' && analytics) _gaq.push(['_trackEvent', 'UI', 'Expand', 'Telemetry Graph']);
         }
         $('#map').stop(null,null).animate({'height': h}, function() {
             if(map) google.maps.event.trigger(map, 'resize');
