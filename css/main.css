@@ -46,24 +46,27 @@ body {
     z-index: 49;
 }
 
-#timebox {
+.slickbox {
     z-index: 49;
     background-color: #fff;
     position: absolute;
-    top: 7px;
-    left: 30px;
-    //margin-left: -145px;
     height: 28px;
     width: 225px;
     border-radius: 20px;
     box-shadow: 0 0 5px #888;
     font-size: 11px;
 }
-#timebox svg {
+
+.slickbox svg {
     width: 28px;
     height: 28px;
 }
-#timebox svg path {
+
+.slickbox span {
+    line-height: 14px;
+}
+
+.slickbox svg path {
     -webkit-transition: all 0.4s ease-in-out;
     -moz-transition: all 0.4s ease-in-out;
     -ms-transition: all 0.4s ease-in-out;
@@ -71,17 +74,42 @@ body {
     transition: all 0.4s ease-in-out;
     fill: #00a3d3;
 }
+
+#timebox {
+    top: 7px;
+    left: 30px;
+}
+
+#lookanglesbox {
+    top: 40px;
+    left: 30px;
+}
+
 #timebox.past svg path {
     fill: #c00;
-}
-#timebox span {
-    line-height: 14px;
 }
 #timebox .current {
     margin-left: 5px;
 }
 #timebox .local {
     margin-left: 15px;
+}
+
+.slickbox .azimuth {
+    margin-left: 9px;
+    width: 100;
+}
+.slickbox .bearing {
+    margin-right: 5px;
+    width: 60px;
+}
+.slickbox .elevation {
+    margin-left: 5px;
+    width: 100px;
+}
+.slickbox .range {
+    margin-right: 5px;
+    width: 60px;
 }
 
 #mapscreen {

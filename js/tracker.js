@@ -118,20 +118,25 @@ function load() {
         startAjax();
     });
 
-    // animate-in the timebox
+    // animate-in the timebox,
     setTimeout(function() {
         var elm = $("#timebox");
 
-        if(is_mobile) elm.css({left:'5px'});
+        if(is_mobile) $(".slickbox").css({left:'5px'});
         var origW = elm.width();
         var iconW = elm.find("svg").width();
 
-        elm.find("span").hide();
-        //elm.css({width:iconW,'margin-left':-iconW/2});
-        elm.css({width:iconW});
-        //elm.fadeIn(500,"easeOut").animate({width:origW,'margin-left':-origW/2},400,"easeOut", function() {
+        // prep for animation
+        $(".slickbox").css({width:iconW}).find("span").hide();
+
+        // animate timebox
         elm.fadeIn(500,"easeOut").animate({width:origW},400,"easeOut", function() {
           $("#timebox span").fadeIn(500, "easeOut");
+        });
+
+        // animate lookanglesbox, delayed start by 300ms
+        $("#lookanglesbox").delay(200).fadeIn(500,"easeOut").animate({width:origW},400,"easeOut", function() {
+          $("#lookanglesbox span").fadeIn(500, "easeOut");
         });
     }, 500);
 
