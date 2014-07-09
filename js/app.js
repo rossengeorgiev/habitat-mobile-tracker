@@ -71,8 +71,6 @@ function trackerInit() {
     if(is_mobile || embed.enabled) $(".nav .embed").hide();
 
     if(!is_mobile) {
-        if(!embed.enabled) $.getScript("js/ssdv.js");
-
         $.getScript("js/init_plot.js", function() { checkSize(); if(!map) load(); });
         if(embed.graph) $('#telemetry_graph').attr('style','');
         return;
