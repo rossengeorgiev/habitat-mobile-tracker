@@ -146,7 +146,9 @@ function update_lookangles(idx) {
     $("#lookanglesbox .azimuth").text("Azimuth: " + Math.round(look.azimuth * 10000)/10000 + "°");
     $("#lookanglesbox .bearing").text(look.bearing);
     $("#lookanglesbox .elevation").text("Elevation: " + Math.round(look.elevation * 10000)/10000 + "°");
-    $("#lookanglesbox .range").text(Math.round(look.range/1000) + " km");
+
+    var range_string = (look.range < 10000) ? Math.round(look.range) + "m" : Math.round(look.range/1000) + " km";
+    $("#lookanglesbox .range").text(range_string);
 
 }
 
