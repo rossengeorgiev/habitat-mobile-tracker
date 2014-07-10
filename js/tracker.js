@@ -90,7 +90,6 @@ var EARTH_RADIUS = 6371000.0;
 // based on earthmath.py
 // Copyright 2012 (C) Daniel Richman; GNU GPL 3
 function calculate_lookangles(a, b) {
-
     // degrees to radii
     a.lat = a.lat * DEG_TO_RAD;
     a.lon = a.lon * DEG_TO_RAD;
@@ -140,7 +139,7 @@ function update_lookangles(idx) {
     var a = {lat: GPS_lat, lon: GPS_lon, alt: GPS_alt};
 
     var xref = vehicles[idx].curr_position;
-    var b = {lat: parseInt(xref.gps_lat), lon: parseInt(xref.gps_lon), alt: parseInt(xref.gps_alt)};
+    var b = {lat: parseFloat(xref.gps_lat), lon: parseFloat(xref.gps_lon), alt: parseFloat(xref.gps_alt)};
 
     var look = calculate_lookangles(a,b);
 
