@@ -32,6 +32,7 @@ var notamOverlay = null;
 var Z_RANGE = 1;
 var Z_STATION = 2;
 var Z_PATH = 10;
+var Z_ME = 11;
 var Z_SHADOW = 1000000;
 var Z_CAR = 1000001;
 var Z_PAYLOAD = 1000002;
@@ -1116,9 +1117,9 @@ function updateCurrentPosition(lat, lon) {
                 url: "img/marker-you.png",
                 size: new google.maps.Size(21,50),
                 scaledSize: new google.maps.Size(21,50),
-                anchor: new google.maps.Point(10,25)
+                anchor: new google.maps.Point(10,50)
             },
-            zIndex: Z_CAR,
+            zIndex: Z_ME,
             position: latlng,
             map: map,
             optimized: false,
