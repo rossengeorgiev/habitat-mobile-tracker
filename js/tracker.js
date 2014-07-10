@@ -80,6 +80,78 @@ var offline = {
     },
 };
 
+var DEG_TO_RAD = Math.PI / 180.0;
+var EARTH_RADIUS = 6371000.0;
+
+// calculates look angles between two points
+// format of a and b should be {lon: 0, lat: 0, alt: 0}
+// returns {elevention: 0, azimut: 0, bearing: "", range: 0}
+//
+// based on earthmath.py
+// Copyright 2012 (C) Daniel Richman; GNU GPL 3
+function calculate_lookangles(a, b) {
+    // degrees to radii
+    a.lat = a.lat * DEG_TO_RAD;
+    a.lon = a.lon * DEG_TO_RAD;
+    b.lat = b.lat * DEG_TO_RAD;
+    b.lon = b.lon * DEG_TO_RAD;
+
+    var d_lon = b.lon - a.lon;
+    var sa = Math.cos(b.lat) * Math.sin(d_lon);
+    var sb = (Math.cos(a.lat) * Math.sin(b.lat)) - (Math.sin(a.lat) * Math.cos(b.lat) * Math.cos(d_lon));
+    var bearing = Math.atan2(sa, sb);
+    var aa = Math.sqrt(Math.pow(sa, 2) + Math.pow(sb, 2));
+    var ab = (Math.sin(a.lat) * Math.sin(b.lat)) + (Math.cos(a.lat) * Math.cos(b.lat) * Math.cos(d_lon));
+    var angle_at_centre = Math.atan2(aa, ab);
+    var great_circle_distance = angle_at_centre * EARTH_RADIUS
+
+    ta = EARTH_RADIUS + a.alt;
+    tb = EARTH_RADIUS + b.alt;
+    ea = (Math.cos(angle_at_centre) * tb) - ta;
+    eb = Math.sin(angle_at_centre) * tb;
+    var elevation = Math.atan2(ea, eb) / DEG_TO_RAD;
+
+    // Use Math.coMath.sine rule to find unknown side.
+    var distance = Math.sqrt(Math.pow(ta, 2) + Math.pow(tb, 2) - 2 * tb * ta * Math.cos(angle_at_centre));
+
+    // Give a bearing in range 0 <= b < 2pi
+    bearing += (bearing < 0) ? 2 * Math.PI : 0;
+    bearing /= DEG_TO_RAD;
+
+    var directions = ['N','E','S','W'];
+    var idx = Math.floor(bearing / 90);
+    var str_bearing = "" + directions[idx%4] + " " + Math.round(bearing % 90) + '° ' + directions[(idx+1)%4];
+
+    return {
+        'elevation': elevation,
+        'azimuth': bearing,
+        'range': distance,
+        'bearing': str_bearing
+    }
+}
+
+function update_lookangles(idx) {
+    if(GPS_ts == null) { return; }
+    else if($("#lookanglesbox span").first().is(":hidden")) {
+        $("#lookanglesbox div").hide().parent().find("span").show();
+    }
+
+    var a = {lat: GPS_lat, lon: GPS_lon, alt: GPS_alt};
+
+    var xref = vehicles[idx].curr_position;
+    var b = {lat: parseFloat(xref.gps_lat), lon: parseFloat(xref.gps_lon), alt: parseFloat(xref.gps_alt)};
+
+    var look = calculate_lookangles(a,b);
+
+    $("#lookanglesbox .azimuth").text("Azimuth: " + Math.round(look.azimuth * 10000)/10000 + "°");
+    $("#lookanglesbox .bearing").text(look.bearing);
+    $("#lookanglesbox .elevation").text("Elevation: " + Math.round(look.elevation * 10000)/10000 + "°");
+
+    var range_string = (look.range < 10000) ? Math.round(look.range) + "m" : Math.round(look.range/1000) + " km";
+    $("#lookanglesbox .range").text(range_string);
+
+}
+
 function load() {
     //initialize map object
     map = new google.maps.Map(document.getElementById('map'), {
@@ -119,20 +191,29 @@ function load() {
         startAjax();
     });
 
-    // animate-in the timebox
+    // animate-in the timebox,
     setTimeout(function() {
         var elm = $("#timebox");
 
-        if(is_mobile) elm.css({left:'5px'});
+        if(is_mobile) $(".slickbox").css({left:'5px'});
         var origW = elm.width();
         var iconW = elm.find("svg").width();
 
-        elm.find("span").hide();
-        //elm.css({width:iconW,'margin-left':-iconW/2});
-        elm.css({width:iconW});
-        //elm.fadeIn(500,"easeOut").animate({width:origW,'margin-left':-origW/2},400,"easeOut", function() {
+        // prep for animation
+        $(".slickbox").css({width:iconW}).find("span").hide();
+
+        // animate timebox
         elm.fadeIn(500,"easeOut").animate({width:origW},400,"easeOut", function() {
           $("#timebox span").fadeIn(500, "easeOut");
+        });
+
+        // animate lookanglesbox, delayed start by 300ms
+        $("#lookanglesbox").delay(200).fadeIn(500,"easeOut").animate({width:origW},400,"easeOut", function() {
+          if(GPS_ts == null) {
+              $("#lookanglesbox .nopos").fadeIn(500, "easeOut");
+          } else if($("#lookanglesbox span:first").is(":hidden")) {
+              $("#lookanglesbox .nofollow").fadeIn(500, "easeOut");
+          }
         });
     }, 500);
 
@@ -148,6 +229,10 @@ function unload() {
 function panTo(vehicle_index) {
     if(vehicle_index < 0) return;
 
+    // update lookangles
+    update_lookangles(vehicle_index);
+
+    // pan map
     if(vehicles[vehicle_index].marker_shadow) map.panTo(vehicles[vehicle_index].marker_shadow.getPosition());
     else map.panTo(vehicles[vehicle_index].marker.getPosition());
 }
@@ -290,6 +375,9 @@ function stopFollow() {
         // reset nite overlay
         nite.setDate(null);
         nite.refresh();
+
+        // update lookangles box
+        if(GPS_ts != null) $("#lookanglesbox span").hide().parent().find(".nofollow").show();
     }
 }
 
@@ -353,15 +441,13 @@ function updateVehicleInfo(index, newPosition) {
     if(vehicle.subhorizon_circle) {
       // see: http://ukhas.org.uk/communication:lineofsight
       var el = 5.0; // elevation above horizon
-      var rad = 6378.10; // radius of earth
-      var h = newPosition.gps_alt / 1000; // height above ground
+      var h = parseFloat(newPosition.gps_alt); // height above ground
 
-      var elva = el * Math.PI / 180.0;
-      var slant = rad*(Math.cos(Math.PI/2+elva)+Math.sqrt(Math.pow(Math.cos(Math.PI/2+elva),2)+h*(2*rad+h)/Math.pow(rad,2)));
-      var x = Math.acos((Math.pow(rad,2)+Math.pow(rad+h,2)-Math.pow(slant,2))/(2*rad*(rad+h)))*rad;
+      var elva = el * DEG_TO_RAD;
+      var slant = EARTH_RADIUS*(Math.cos(Math.PI/2+elva)+Math.sqrt(Math.pow(Math.cos(Math.PI/2+elva),2)+h*(2*EARTH_RADIUS+h)/Math.pow(EARTH_RADIUS,2)));
+      var subhorizon_km = Math.acos((Math.pow(EARTH_RADIUS,2)+Math.pow(EARTH_RADIUS+h,2)-Math.pow(slant,2))/(2*EARTH_RADIUS*(EARTH_RADIUS+h)))*EARTH_RADIUS;
 
-      var subhorizon_km = x;
-      vehicle.subhorizon_circle.setRadius(Math.round(subhorizon_km)*1000);
+      vehicle.subhorizon_circle.setRadius(Math.round(subhorizon_km));
     }
 
     // indicates whenever a payload has landed

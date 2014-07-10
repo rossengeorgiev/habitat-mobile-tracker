@@ -214,6 +214,9 @@ var positionUpdateHandle = function(position) {
             GPS_ts = parseInt(position.timestamp/1000);
             $('#cc_timestamp').text('just now');
 
+            // update look angles once we get position
+            if(follow_vehicle > -1) { update_lookangles(follow_vehicle); }
+
             if(CHASE_enabled) {
                 ChaseCar.updatePosition(callsign, position);
                 CHASE_timer = (new Date()).getTime() + 15000;
@@ -597,11 +600,11 @@ $(window).ready(function() {
     // The position is displayed in top right corner of the screen
     // This should be very handly for in the field tracking
     //setTimeout(function() {updateCurrentPosition(50.27533, 3.335166);}, 5000);
-    if(navigator.geolocation && is_mobile && !embed.enabled) {
+    if(navigator.geolocation) {
         // if we have geolocation services, show the locate me button
         // the button pants the map to the user current location
-        $("#locate-me,.chasecar").show();
-        $("#locate-me").click(function() {
+        if(is_mobile && !embed.enabled) $(".chasecar").show();
+        $("#locate-me").show().click(function() {
             if(map && currentPosition) {
                 // disable following of vehicles
                 stopFollow();
