@@ -377,7 +377,7 @@ function stopFollow() {
         nite.refresh();
 
         // update lookangles box
-        $("#lookanglesbox span").hide().parent().find(".nofollow").show();
+        if(GPS_ts != null) $("#lookanglesbox span").hide().parent().find(".nofollow").show();
     }
 }
 
