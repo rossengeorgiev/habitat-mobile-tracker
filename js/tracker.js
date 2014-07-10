@@ -79,6 +79,73 @@ var offline = {
     },
 };
 
+var DEG_TO_RAD = Math.PI / 180.0;
+var EARTH_RADIUS = 6371000.0;
+
+// calculates look angles between two points
+// format of a and b should be {lon: 0, lat: 0, alt: 0}
+// returns {elevention: 0, azimut: 0, bearing: "", range: 0}
+//
+// based on earthmath.py
+// Copyright 2012 (C) Daniel Richman; GNU GPL 3
+function calculate_lookangles(a, b) {
+
+    // degrees to radii
+    a.lat = a.lat * DEG_TO_RAD;
+    a.lon = a.lon * DEG_TO_RAD;
+    b.lat = b.lat * DEG_TO_RAD;
+    b.lon = b.lon * DEG_TO_RAD;
+
+    var d_lon = b.lon - a.lon;
+    var sa = Math.cos(b.lat) * Math.sin(d_lon);
+    var sb = (Math.cos(a.lat) * Math.sin(b.lat)) - (Math.sin(a.lat) * Math.cos(b.lat) * Math.cos(d_lon));
+    var bearing = Math.atan2(sa, sb);
+    var aa = Math.sqrt(Math.pow(sa, 2) + Math.pow(sb, 2));
+    var ab = (Math.sin(a.lat) * Math.sin(b.lat)) + (Math.cos(a.lat) * Math.cos(b.lat) * Math.cos(d_lon));
+    var angle_at_centre = Math.atan2(aa, ab);
+    var great_circle_distance = angle_at_centre * EARTH_RADIUS
+
+    ta = EARTH_RADIUS + a.alt;
+    tb = EARTH_RADIUS + b.alt;
+    ea = (Math.cos(angle_at_centre) * tb) - ta;
+    eb = Math.sin(angle_at_centre) * tb;
+    var elevation = Math.atan2(ea, eb) / DEG_TO_RAD;
+
+    // Use Math.coMath.sine rule to find unknown side.
+    var distance = Math.sqrt(Math.pow(ta, 2) + Math.pow(tb, 2) - 2 * tb * ta * Math.cos(angle_at_centre));
+
+    // Give a bearing in range 0 <= b < 2pi
+    bearing += (bearing < 0) ? 2 * Math.PI : 0;
+    bearing /= DEG_TO_RAD;
+
+    var directions = ['N','E','S','W'];
+    var idx = Math.floor(bearing / 90);
+    var str_bearing = "" + directions[idx] + " " + Math.round(bearing % 90) + '° ' + directions[(idx+1)%4];
+
+
+    return {
+        'elevation': elevation,
+        'azimuth': bearing,
+        'range': distance,
+        'bearing': str_bearing
+    }
+}
+
+function update_lookangles(idx) {
+    var a = {lat: GPS_lat, lon: GPS_lon, alt: GPS_alt};
+
+    var xref = vehicles[idx].curr_position;
+    var b = {lat: parseInt(xref.gps_lat), lon: parseInt(xref.gps_lon), alt: parseInt(xref.gps_alt)};
+
+    var look = calculate_lookangles(a,b);
+
+    $("#lookanglesbox .azimuth").text("Azimuth: " + Math.round(look.azimuth * 10000)/10000 + "°");
+    $("#lookanglesbox .bearing").text(look.bearing);
+    $("#lookanglesbox .elevation").text("Elevation: " + Math.round(look.elevation * 10000)/10000 + "°");
+    $("#lookanglesbox .range").text(Math.round(look.range/1000) + " km");
+
+}
+
 function load() {
     //initialize map object
     map = new google.maps.Map(document.getElementById('map'), {
@@ -152,6 +219,10 @@ function unload() {
 function panTo(vehicle_index) {
     if(vehicle_index < 0) return;
 
+    // update lookangles
+    update_lookangles(vehicle_index);
+
+    // pan map
     if(vehicles[vehicle_index].marker_shadow) map.panTo(vehicles[vehicle_index].marker_shadow.getPosition());
     else map.panTo(vehicles[vehicle_index].marker.getPosition());
 }
