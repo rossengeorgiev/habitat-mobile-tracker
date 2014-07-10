@@ -369,6 +369,9 @@ function updateZoom() {
 
 function stopFollow() {
 	if(follow_vehicle != -1) {
+        // remove target mark
+        $("#main .row.follow").removeClass("follow");
+
         vehicles[follow_vehicle].follow = false;
         follow_vehicle = -1;
 
@@ -387,6 +390,11 @@ function followVehicle(index) {
     if(follow_vehicle != index) {
 		follow_vehicle = index;
 		vehicles[follow_vehicle].follow = true;
+
+        // add target mark
+        $("#main .row.follow").removeClass("follow");
+        $("#main .vehicle"+follow_vehicle).addClass("follow");
+
         updateGraph(index, true);
 	}
 
