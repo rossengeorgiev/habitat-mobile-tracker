@@ -132,6 +132,11 @@ function calculate_lookangles(a, b) {
 }
 
 function update_lookangles(idx) {
+    if(GPS_ts == null) { return; }
+    else if($("#lookanglesbox span").first().is(":hidden")) {
+        $("#lookanglesbox div").hide().parent().find("span").show();
+    }
+
     var a = {lat: GPS_lat, lon: GPS_lon, alt: GPS_alt};
 
     var xref = vehicles[idx].curr_position;
@@ -203,7 +208,11 @@ function load() {
 
         // animate lookanglesbox, delayed start by 300ms
         $("#lookanglesbox").delay(200).fadeIn(500,"easeOut").animate({width:origW},400,"easeOut", function() {
-          $("#lookanglesbox span").fadeIn(500, "easeOut");
+          if(GPS_ts == null) {
+              $("#lookanglesbox .nopos").fadeIn(500, "easeOut");
+          } else if($("#lookanglesbox span:first").is(":hidden")) {
+              $("#lookanglesbox .nofollow").fadeIn(500, "easeOut");
+          }
         });
     }, 500);
 
@@ -365,6 +374,9 @@ function stopFollow() {
         // reset nite overlay
         nite.setDate(null);
         nite.refresh();
+
+        // update lookangles box
+        $("#lookanglesbox span").hide().parent().find(".nofollow").show();
     }
 }
 

@@ -214,6 +214,9 @@ var positionUpdateHandle = function(position) {
             GPS_ts = parseInt(position.timestamp/1000);
             $('#cc_timestamp').text('just now');
 
+            // update look angles once we get position
+            if(follow_vehicle > -1) { update_lookangles(follow_vehicle); }
+
             if(CHASE_enabled) {
                 ChaseCar.updatePosition(callsign, position);
                 CHASE_timer = (new Date()).getTime() + 15000;

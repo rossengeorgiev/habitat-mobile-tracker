@@ -66,6 +66,13 @@ body {
     line-height: 14px;
 }
 
+.slickbox div {
+    font-size: 14px;
+    margin-top: 3px;
+    width: 180px;
+    text-align: center;
+}
+
 .slickbox svg path {
     -webkit-transition: all 0.4s ease-in-out;
     -moz-transition: all 0.4s ease-in-out;
