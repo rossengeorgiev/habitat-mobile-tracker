@@ -120,8 +120,7 @@ function calculate_lookangles(a, b) {
 
     var directions = ['N','E','S','W'];
     var idx = Math.floor(bearing / 90);
-    var str_bearing = "" + directions[idx] + " " + Math.round(bearing % 90) + '° ' + directions[(idx+1)%4];
-
+    var str_bearing = "" + directions[idx%4] + " " + Math.round(bearing % 90) + '° ' + directions[(idx+1)%4];
 
     return {
         'elevation': elevation,
@@ -428,15 +427,13 @@ function updateVehicleInfo(index, newPosition) {
     if(vehicle.subhorizon_circle) {
       // see: http://ukhas.org.uk/communication:lineofsight
       var el = 5.0; // elevation above horizon
-      var rad = 6378.10; // radius of earth
-      var h = newPosition.gps_alt / 1000; // height above ground
+      var h = parseFloat(newPosition.gps_alt); // height above ground
 
-      var elva = el * Math.PI / 180.0;
-      var slant = rad*(Math.cos(Math.PI/2+elva)+Math.sqrt(Math.pow(Math.cos(Math.PI/2+elva),2)+h*(2*rad+h)/Math.pow(rad,2)));
-      var x = Math.acos((Math.pow(rad,2)+Math.pow(rad+h,2)-Math.pow(slant,2))/(2*rad*(rad+h)))*rad;
+      var elva = el * DEG_TO_RAD;
+      var slant = EARTH_RADIUS*(Math.cos(Math.PI/2+elva)+Math.sqrt(Math.pow(Math.cos(Math.PI/2+elva),2)+h*(2*EARTH_RADIUS+h)/Math.pow(EARTH_RADIUS,2)));
+      var subhorizon_km = Math.acos((Math.pow(EARTH_RADIUS,2)+Math.pow(EARTH_RADIUS+h,2)-Math.pow(slant,2))/(2*EARTH_RADIUS*(EARTH_RADIUS+h)))*EARTH_RADIUS;
 
-      var subhorizon_km = x;
-      vehicle.subhorizon_circle.setRadius(Math.round(subhorizon_km)*1000);
+      vehicle.subhorizon_circle.setRadius(Math.round(subhorizon_km));
     }
 
     // indicates whenever a payload has landed
