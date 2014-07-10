@@ -1309,10 +1309,9 @@ function update(response) {
       // store in localStorage
       offline.set('positions', lastPositions);
 
-	  if(follow_vehicle != -1) {
-	  	var pos = vehicles[follow_vehicle].curr_position;
-	  	map.panTo(new google.maps.LatLng(pos.gps_lat, pos.gps_lon));
-	  }
+      if(follow_vehicle != -1) {
+          panTo(follow_vehicle);
+      }
   }
 
   if (got_positions && !zoomed_in) {
