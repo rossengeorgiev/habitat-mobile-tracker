@@ -574,6 +574,9 @@ function updateVehicleInfo(index, newPosition) {
   var c = $('.vehicle'+index+' .graph');
   drawAltitudeProfile(c.get(0), c.get(1), vehicles[index].alt_list, vehicles[index].alt_max);
 
+  // mark vehicles as redrawn
+  vehicles[index].updated = false;
+
   return true;
 }
 
@@ -896,7 +899,8 @@ function addPosition(position) {
                             alt_max: 100,
                             graph_data_updated: false,
                             graph_data: [],
-                            graph_yaxes: []
+                            graph_yaxes: [],
+                            updated: false
                             };
 
         // deep copy yaxes config for graph
@@ -993,15 +997,18 @@ function addPosition(position) {
 
                     vehicle.curr_position = position;
                     graphAddLastPosition(vehicle_index);
+                    vehicle.updated = true;
                 }
             }
         } else {
+            vehicle.updated = true;
             vehicle.positions.push(new_latlng);
             vehicle.num_positions++;
             vehicle.curr_position = position;
             graphAddLastPosition(vehicle_index);
         }
     } else { // if car
+        vehicle.updated = true;
         vehicle.curr_position = position;
     }
 
@@ -1375,7 +1382,7 @@ function update(response) {
 
                 if(listScroll) listScroll.refresh();
             }, 400*i);
-        } else {
+        } else if(vehicles[i].updated) {
             updatePolyline(i);
             updateVehicleInfo(i, vehicles[i].curr_position);
 
