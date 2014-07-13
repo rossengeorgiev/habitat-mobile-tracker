@@ -162,7 +162,7 @@ function load() {
         streetViewControl: false,
         rotateControl: false,
         panControl: false,
-        scaleControl: false,
+        scaleControl: true,
         zoomControl: true,
         zoomControlOptions: {
             style: google.maps.ZoomControlStyle.DEFAULT
