@@ -975,7 +975,7 @@ function addPosition(position) {
                                                                                                     new google.maps.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon)) / dt;
 
                     // only record altitude values in 2minute interval
-                    if(convert_time(vehicle.curr_position.gps_time) - vehicle.time_last_alt >= 120) { // 120s = 2minutes
+                    if(convert_time(vehicle.curr_position.gps_time) - vehicle.time_last_alt >= 120000) { // 120s = 2minutes
                         vehicle.time_last_alt = convert_time(vehicle.curr_position.gps_time);
                         var alt = parseInt(vehicle.curr_position.gps_alt);
 
