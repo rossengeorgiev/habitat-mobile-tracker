@@ -199,13 +199,20 @@ function load() {
         var origW = elm.width();
         var iconW = elm.find("svg").width();
 
-        // prep for animation
-        $(".slickbox").css({width:iconW}).find("span").hide();
+        if(offline.get('opt_hide_timebox')) {
+            elm.removeClass('animate').hide();
+            $("#lookanglesbox").css({top:'7px'});
+        };
 
-        // animate timebox
-        elm.fadeIn(500,"easeOut").animate({width:origW},400,"easeOut", function() {
-          $("#timebox span").fadeIn(500, "easeOut");
-        });
+        // prep for animation
+        $(".slickbox.animate").css({width:iconW}).find("span").hide();
+
+        if(!offline.get('opt_hide_timebox')) {
+            // animate timebox
+            elm.fadeIn(500,"easeOut").animate({width:origW},400,"easeOut", function() {
+              $("#timebox span").fadeIn(500, "easeOut");
+            });
+        }
 
         // animate lookanglesbox, delayed start by 300ms
         $("#lookanglesbox").delay(200).fadeIn(500,"easeOut").animate({width:origW},400,"easeOut", function() {

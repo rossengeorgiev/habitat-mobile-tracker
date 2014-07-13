@@ -567,8 +567,10 @@ $(window).ready(function() {
                 var elm = $("#timebox");
                 if(on) {
                     elm.removeClass('past').removeClass('present').hide();
+                    $('#lookanglesbox').css({top:'7px'});
                 } else {
                     elm.addClass('present').show();
+                    $('#lookanglesbox').css({top:'40px'});
                 }
                 break;
             case "opt_layers_clouds":
