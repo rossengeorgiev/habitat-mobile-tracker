@@ -1374,22 +1374,10 @@ function update(response) {
                 updateVehicleInfo(idx, vehicles[idx].curr_position);
 
                 if(listScroll) listScroll.refresh();
-
-                // update the altitude profile, only if its a balloon
-                if(vehicles[idx].vehicle_type != "car") {
-                    var c = $('.vehicle'+idx+' .graph');
-                    drawAltitudeProfile(c.get(0), c.get(1), vehicles[idx].alt_list, vehicles[idx].alt_max);
-                }
             }, 400*i);
         } else {
             updatePolyline(i);
             updateVehicleInfo(i, vehicles[i].curr_position);
-
-            // update the altitude profile, only if its a balloon
-            if(vehicles[i].vehicle_type != "car") {
-                var c = $('.vehicle'+idx+' .graph');
-                drawAltitudeProfile(c.get(0), c.get(1), vehicles[idx].alt_list, vehicles[idx].alt_max);
-            }
 
             // remember last position for each vehicle
             lastPPointer.push(vehicles[i].curr_position);
