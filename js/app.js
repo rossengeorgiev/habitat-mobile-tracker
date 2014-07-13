@@ -565,8 +565,11 @@ $(window).ready(function() {
                 break;
             case "opt_hide_timebox":
                 var elm = $("#timebox");
-                if(on) { elm.attr('class','').hide(); }
-                else { elm.attr('class','').addClass('present').show(); }
+                if(on) {
+                    elm.removeClass('past').removeClass('present').hide();
+                } else {
+                    elm.addClass('present').show();
+                }
                 break;
             case "opt_layers_clouds":
                 if(on) { layers_clouds.setMap(map); }
