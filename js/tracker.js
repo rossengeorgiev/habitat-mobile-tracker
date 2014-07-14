@@ -1482,9 +1482,6 @@ function zoom_on_payload() {
     // scroll list to the expanded element
     listScroll.refresh();
     listScroll.scrollToElement('.portrait .vehicle'+i);
-
-    // expand graph on startup, if nessary
-    if(embed.graph_expanded && !is_mobile) $('#telemetry_graph .graph_label').addClass("noanalytics").click();
 }
 
 function isInt(n) {

@@ -19,7 +19,7 @@ var embed = {
     enabled: false,
     vlist: true,
     graph: true,
-    graph_expanded: true,
+    graph_exapnded: false,
 }
 var params = window.location.search.substring(1).split('&');
 
@@ -31,7 +31,7 @@ for(var idx in params) {
         case "embed": if(line[1] == "1") embed.enabled = true; break;
         case "hidelist": if(line[1] == "1") embed.vlist = false; break;
         case "hidegraph": if(line[1] == "1") embed.graph = false; break;
-        case "expandgraph": if(line[1] == "0") embed.graph_expanded = false; break;
+        case "expandgraph": if(line[1] == "1") embed.graph_expanded = true; break;
         case "filter": vfilter = line[1]; break;
         case "nyan": nyan_mode = true; break;
     }
@@ -329,30 +329,26 @@ $(window).ready(function() {
 
     $('#telemetry_graph').on('click', '.graph_label', function() {
         var e = $(this);
-        var analytics = true;
-
-        if(e.hasClass("noanalytics")) {
-            analytics = false;
-            e.removeClass("noanalytics");
-        }
-
         if(e.hasClass('active')) {
             e.removeClass('active');
             var h = $('#map').height() + $('#telemetry_graph').height();
 
             //analytics
-            if(typeof _gaq == 'object' && analytics) _gaq.push(['_trackEvent', 'UI', 'Collapse', 'Telemetry Graph']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI', 'Collapse', 'Telemetry Graph']);
         } else {
             e.addClass('active');
             var h = $('#map').height() - $('#telemetry_graph').height();
 
             //analytics
-            if(typeof _gaq == 'object' && analytics) _gaq.push(['_trackEvent', 'UI', 'Expand', 'Telemetry Graph']);
+            if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI', 'Expand', 'Telemetry Graph']);
         }
         $('#map').stop(null,null).animate({'height': h}, function() {
             if(map) google.maps.event.trigger(map, 'resize');
         });
     });
+
+    // expand graph on startup, if nessary
+    if(embed.graph_expanded) $('#telemetry_graph .graph_label').click();
 
     // reset nite-overlay and timebox when mouse goes out of the graph box
     $("#telemetry_graph").on('mouseout','.holder', function() {
