@@ -151,12 +151,25 @@ function update_lookangles(idx) {
     $("#lookanglesbox .range").text(range_string);
 }
 
+function makeQuad(x, y, zoom) {
+    var quad = "";
+    for (var i = zoom; i > 0; i--) {
+      var mask = 1 << (i - 1);
+      var cell = 0;
+      if ((x & mask) != 0) cell++;
+      if ((y & mask) != 0) cell += 2;
+      quad += cell;
+    }
+    return quad;
+}
+
 // map type list
 var maptypes = {
+    bing_os: ['Ordnance Survey (UK)','Bing.com & Ordnance Survey', function(xy,z) { return 'http://ecn.t2.tiles.virtualearth.net/tiles/r'+makeQuad(xy.x, xy.y, z)+'?g=2689&lbl=l1&productSet=mmOS'; }],
     osm: ['OSM','OpenStreetMaps.org', function(xy,z) { return 'http://a.tile.openstreetmap.org/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
+    osm_bw: ['OSM B&W','OSM Black & White', function(xy,z) { return 'http://a.www.toolserver.org/tiles/bw-mapnik/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
     osm_toner: ['OSM Toner','Stamen.org Toner', function(xy,z) { return 'http://a.tile.stamen.com/toner/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
     osm_watercolor: ['OSM Watercolor','Stamen.org Watercolor', function(xy,z) { return 'http://c.tile.stamen.com/watercolor/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
-    osm_bw: ['OSM B&W','OSM Black & White', function(xy,z) { return 'http://a.www.toolserver.org/tiles/bw-mapnik/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
 }
 
 // generate a list of names for the UI
