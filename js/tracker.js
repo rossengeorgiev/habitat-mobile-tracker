@@ -149,8 +149,20 @@ function update_lookangles(idx) {
 
     var range_string = (look.range < 10000) ? Math.round(look.range) + "m" : (Math.round(look.range/100)/10) + " km";
     $("#lookanglesbox .range").text(range_string);
-
 }
+
+// map type list
+var maptypes = {
+    osm: ['OSM','OpenStreetMaps.org', function(xy,z) { return 'http://a.tile.openstreetmap.org/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
+    osm_toner: ['OSM Toner','Stamen.org Toner', function(xy,z) { return 'http://a.tile.stamen.com/toner/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
+    osm_watercolor: ['OSM Watercolor','Stamen.org Watercolor', function(xy,z) { return 'http://c.tile.stamen.com/watercolor/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
+    osm_bw: ['OSM B&W','OSM Black & White', function(xy,z) { return 'http://a.www.toolserver.org/tiles/bw-mapnik/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
+}
+
+// generate a list of names for the UI
+var maptype_ids = ["roadmap","satellite","terrain"]
+for(var i in maptypes) maptype_ids.push(i);
+
 
 function load() {
     //initialize map object
@@ -158,6 +170,10 @@ function load() {
         zoom: 5,
         center: new google.maps.LatLng(53.467511,-2.2338940),
         mapTypeId: google.maps.MapTypeId.ROADMAP,
+        mapTypeControlOptions: {
+            mapTypeIds: maptype_ids,
+            style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+        },
         keyboardShortcuts: false,
         streetViewControl: false,
         rotateControl: false,
@@ -169,7 +185,17 @@ function load() {
         },
         scrollwheel: true
     });
+    // register custom map types
+    for(var i in maptypes) {
+        map.mapTypes.set(i, new google.maps.ImageMapType({
+            getTileUrl: maptypes[i][2],
+            tileSize: new google.maps.Size(256, 256),
+            maxZoom: 18,
+            name: maptypes[i][0]
+        }));
+    }
 
+    // update current position if we geolocation is available
     if(currentPosition) updateCurrentPosition(currentPosition.lat, currentPosition.lon);
 
     // initalize nite overlay
