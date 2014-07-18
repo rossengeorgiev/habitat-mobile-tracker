@@ -1,6 +1,6 @@
 var mission_id = 0;
 var position_id = 0;
-var data_url = "http://spacenear.us/tracker/data.php";
+var data_url = "http://spacenear.us/tracker/datanew.php";
 var receivers_url = "http://spacenear.us/tracker/receivers.php";
 var predictions_url = "http://spacenear.us/tracker/get_predictions.php";
 var host_url = "";
