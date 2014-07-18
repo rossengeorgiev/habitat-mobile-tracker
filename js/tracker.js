@@ -184,28 +184,28 @@ var maptypes = {
         'OpenStreetMaps.org',
          1,
          19,
-         function(xy,z) { return 'http://'+['a','b','c'][Math.round(Math.random()*2)]+'.tile.openstreetmap.org/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
+         function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c'][Math.round(Math.random()*2)]+'.tile.openstreetmap.org/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
     ],
     osm_bw: [
         'OSM B&W',
         'OSM Black & White',
          1,
          16,
-         function(xy,z) { return 'http://'+['a','b','c','d','e'][Math.round(Math.random()*2)]+'.www.toolserver.org/tiles/bw-mapnik/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
+         function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c','d','e'][Math.round(Math.random()*2)]+'.www.toolserver.org/tiles/bw-mapnik/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
     ],
     osm_toner: [
         'OSM Toner',
         'Stamen.org Toner',
          1,
          18,
-         function(xy,z) { return 'http://'+['a','b','c','d'][Math.round(Math.random()*2)]+'.tile.stamen.com/toner/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
+         function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c','d'][Math.round(Math.random()*2)]+'.tile.stamen.com/toner/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
     ],
     osm_watercolor: [
         'OSM Watercolor',
         'Stamen.org Watercolor',
          1,
          18,
-         function(xy,z) { return 'http://'+['a','b','c','d'][Math.round(Math.random()*2)]+'.tile.stamen.com/watercolor/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
+         function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c','d'][Math.round(Math.random()*2)]+'.tile.stamen.com/watercolor/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
     ]
 }
 
@@ -238,11 +238,11 @@ function load() {
     // register custom map types
     for(var i in maptypes) {
         map.mapTypes.set(i, new google.maps.ImageMapType({
-            getTileUrl: maptypes[i][4],
+            name: maptypes[i][0],
             minZoom: maptypes[i][2],
             maxZoom: maptypes[i][3],
+            getTileUrl: maptypes[i][4],
             tileSize: new google.maps.Size(256, 256),
-            name: maptypes[i][0]
         }));
     }
 
