@@ -163,13 +163,50 @@ function makeQuad(x, y, zoom) {
     return quad;
 }
 
+// wraps tiles horizontally, returns x
+function wrapTiles(x, zoom) {
+    var n = Math.pow(2,zoom);
+    return (x<0) ? (n+(x%n))%n : x%n;
+}
+
 // map type list
+// format: [ name, attr, minZoom, maxZoom, getTileUrl function ]
 var maptypes = {
-    bing_os: ['Ordnance Survey (UK)','Bing.com & Ordnance Survey', function(xy,z) { return 'http://ecn.t'+(Math.round(Math.random()*3)+1)+'.tiles.virtualearth.net/tiles/r'+makeQuad(xy.x, xy.y, z)+'?g=2689&lbl=l1&productSet=mmOS'; }],
-    osm: ['OSM','OpenStreetMaps.org', function(xy,z) { return 'http://'+['a','b','c'][Math.round(Math.random()*2)]+'.tile.openstreetmap.org/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
-    osm_bw: ['OSM B&W','OSM Black & White', function(xy,z) { return 'http://'+['a','b','c','d','e'][Math.round(Math.random()*2)]+'.www.toolserver.org/tiles/bw-mapnik/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
-    osm_toner: ['OSM Toner','Stamen.org Toner', function(xy,z) { return 'http://'+['a','b','c','d'][Math.round(Math.random()*2)]+'.tile.stamen.com/toner/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
-    osm_watercolor: ['OSM Watercolor','Stamen.org Watercolor', function(xy,z) { return 'http://'+['a','b','c','d'][Math.round(Math.random()*2)]+'.tile.stamen.com/watercolor/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
+    bing_os: [
+        'Ordnance Survey (UK)',
+        'Bing.com & Ordnance Survey',
+         10,
+         17,
+         function(xy,z) { return 'http://ecn.t'+(Math.round(Math.random()*3)+1)+'.tiles.virtualearth.net/tiles/r'+makeQuad(xy.x, xy.y, z)+'?g=2689&lbl=l1&productSet=mmOS'; }
+    ],
+    osm: [
+        'OSM',
+        'OpenStreetMaps.org',
+         1,
+         19,
+         function(xy,z) { return 'http://'+['a','b','c'][Math.round(Math.random()*2)]+'.tile.openstreetmap.org/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
+    ],
+    osm_bw: [
+        'OSM B&W',
+        'OSM Black & White',
+         1,
+         16,
+         function(xy,z) { return 'http://'+['a','b','c','d','e'][Math.round(Math.random()*2)]+'.www.toolserver.org/tiles/bw-mapnik/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
+    ],
+    osm_toner: [
+        'OSM Toner',
+        'Stamen.org Toner',
+         1,
+         18,
+         function(xy,z) { return 'http://'+['a','b','c','d'][Math.round(Math.random()*2)]+'.tile.stamen.com/toner/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
+    ],
+    osm_watercolor: [
+        'OSM Watercolor',
+        'Stamen.org Watercolor',
+         1,
+         18,
+         function(xy,z) { return 'http://'+['a','b','c','d'][Math.round(Math.random()*2)]+'.tile.stamen.com/watercolor/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
+    ]
 }
 
 // generate a list of names for the UI
@@ -201,9 +238,10 @@ function load() {
     // register custom map types
     for(var i in maptypes) {
         map.mapTypes.set(i, new google.maps.ImageMapType({
-            getTileUrl: maptypes[i][2],
+            getTileUrl: maptypes[i][4],
+            minZoom: maptypes[i][2],
+            maxZoom: maptypes[i][3],
             tileSize: new google.maps.Size(256, 256),
-            maxZoom: 18,
             name: maptypes[i][0]
         }));
     }
