@@ -165,11 +165,11 @@ function makeQuad(x, y, zoom) {
 
 // map type list
 var maptypes = {
-    bing_os: ['Ordnance Survey (UK)','Bing.com & Ordnance Survey', function(xy,z) { return 'http://ecn.t2.tiles.virtualearth.net/tiles/r'+makeQuad(xy.x, xy.y, z)+'?g=2689&lbl=l1&productSet=mmOS'; }],
-    osm: ['OSM','OpenStreetMaps.org', function(xy,z) { return 'http://a.tile.openstreetmap.org/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
-    osm_bw: ['OSM B&W','OSM Black & White', function(xy,z) { return 'http://a.www.toolserver.org/tiles/bw-mapnik/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
-    osm_toner: ['OSM Toner','Stamen.org Toner', function(xy,z) { return 'http://a.tile.stamen.com/toner/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
-    osm_watercolor: ['OSM Watercolor','Stamen.org Watercolor', function(xy,z) { return 'http://c.tile.stamen.com/watercolor/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
+    bing_os: ['Ordnance Survey (UK)','Bing.com & Ordnance Survey', function(xy,z) { return 'http://ecn.t'+(Math.round(Math.random()*3)+1)+'.tiles.virtualearth.net/tiles/r'+makeQuad(xy.x, xy.y, z)+'?g=2689&lbl=l1&productSet=mmOS'; }],
+    osm: ['OSM','OpenStreetMaps.org', function(xy,z) { return 'http://'+['a','b','c'][Math.round(Math.random()*2)]+'.tile.openstreetmap.org/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
+    osm_bw: ['OSM B&W','OSM Black & White', function(xy,z) { return 'http://'+['a','b','c','d','e'][Math.round(Math.random()*2)]+'.www.toolserver.org/tiles/bw-mapnik/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
+    osm_toner: ['OSM Toner','Stamen.org Toner', function(xy,z) { return 'http://'+['a','b','c','d'][Math.round(Math.random()*2)]+'.tile.stamen.com/toner/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
+    osm_watercolor: ['OSM Watercolor','Stamen.org Watercolor', function(xy,z) { return 'http://'+['a','b','c','d'][Math.round(Math.random()*2)]+'.tile.stamen.com/watercolor/'+z+'/'+xy.x+'/'+xy.y+'.png'; }],
 }
 
 // generate a list of names for the UI
