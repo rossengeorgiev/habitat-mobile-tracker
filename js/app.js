@@ -628,6 +628,7 @@ $(window).ready(function() {
     // list of overlays
     var overlayList = [
         ['Global', [
+            ['google-radar','Google Earth Radar'],
             ['nrl-global-cloudtop','NRL Monterey Cloudtop'],
             ['nrl-global-ir','NRL Monterey IR'],
             ['nrl-global-vapor','NRL Monterey Vapor']
@@ -705,10 +706,14 @@ $(window).ready(function() {
         }
 
         weatherImageOverlay.setMap(null);
+        weatherGoogleRadar.setMap(null);
         map.overlayMapTypes.setAt("0", null);
 
         if(on) {
-            if(id in weatherImageOverlayList) {
+            if(id == "google-radar") {
+                weatherGoogleRadar.setMap(map);
+                return;
+            } else if(id in weatherImageOverlayList) {
                 var o = weatherImageOverlayList[id];
                 var sw = new google.maps.LatLng(o[1][0][0], o[1][0][1]);
                 var ne = new google.maps.LatLng(o[1][1][0], o[1][1][1]);
