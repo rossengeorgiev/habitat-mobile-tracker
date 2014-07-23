@@ -148,7 +148,12 @@ function update_lookangles(idx) {
     $("#lookanglesbox .bearing").text(look.bearing);
     $("#lookanglesbox .elevation").text("Elevation: " + Math.round(look.elevation * 10000)/10000 + "°");
 
-    var range_string = (look.range < 10000) ? Math.round(look.range) + "m" : (Math.round(look.range/100)/10) + " km";
+    var range_string = "";
+    if(offline.get('opt_imperial')) {
+        range_string =  Math.round(look.range * 0.000621371192) + " miles";
+    } else {
+        range_string = (look.range < 10000) ? Math.round(look.range) + "m" : (Math.round(look.range/100)/10) + " km";
+    }
     $("#lookanglesbox .range").text(range_string);
 }
 
@@ -1482,6 +1487,7 @@ function refreshUI() {
     }
 
     mapInfoBox.close();
+    if(follow_vehicle > -1) update_lookangles(follow_vehicle);
 }
 
 var status = "";
