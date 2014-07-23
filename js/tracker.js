@@ -825,6 +825,40 @@ function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
     ctx2.fill();
 }
 
+// infobox
+var mapInfoBox = new google.maps.InfoWindow();
+
+var mapInfoBox_handle_path = function(event) {
+    var value = "";
+
+    if(offline.get('opt_imperial')) {
+        value = Math.round(this.vehicle.path_length*0.000621371192) + " miles";
+    } else {
+        value = Math.round(this.vehicle.path_length/10)/100 + " km";
+    }
+
+    mapInfoBox.setContent("Ground length: " + value);
+    mapInfoBox.setPosition(event.latLng);
+    mapInfoBox.open(map);
+}
+var mapInfoBox_handle_horizons = function(event, obj,  title) {
+    var value = "";
+
+    if(offline.get('opt_imperial')) {
+        value = Math.round(obj.getRadius()*0.000621371192) + " miles";
+    } else {
+        value = Math.round(obj.getRadius()/10)/100 + " km";
+    }
+
+
+    mapInfoBox.setContent(title + "<br/>Radius: "+ value);
+    mapInfoBox.setPosition(event.latLng);
+    mapInfoBox.open(map);
+}
+
+var mapInfoBox_handle_truehorizon = function(event) { mapInfoBox_handle_horizons(event, this, "True Horizon"); }
+var mapInfoBox_handle_horizon = function(event) { mapInfoBox_handle_horizons(event, this, "5° Horizon"); }
+
 function addPosition(position) {
     // check if the vehicle is already in the list, if not create a new item
     if($.inArray(position.vehicle, vehicle_names) == -1) {
@@ -932,7 +966,7 @@ function addPosition(position) {
                 strokeColor: '#00F',
                 strokeOpacity: 0.6,
                 strokeWeight: 3,
-                clickable: false,
+                clickable: true,
                 editable: false
             });
             horizon_circle.bindTo('center', marker_shadow, 'position');
@@ -945,7 +979,7 @@ function addPosition(position) {
                 strokeColor: '#0F0',
                 strokeOpacity: 0.8,
                 strokeWeight: 3,
-                clickable: false,
+                clickable: true,
                 editable: false
             });
             subhorizon_circle.bindTo('center', marker_shadow, 'position');
@@ -959,6 +993,7 @@ function addPosition(position) {
                             subhorizon_circle: subhorizon_circle,
                             num_positions: 0,
                             positions: [],
+                            path_length: 0,
                             curr_position: position,
                             line: [],
                             polyline: [new google.maps.Polyline({
@@ -967,7 +1002,7 @@ function addPosition(position) {
                                 strokeColor: balloon_colors[c],
                                 strokeOpacity: 0.8,
                                 strokeWeight: 3,
-                                clickable: false,
+                                clickable: true,
                                 draggable: false,
                             })],
                             prediction: null,
@@ -1019,18 +1054,30 @@ function addPosition(position) {
             var rainbow = ["#ff0000", "#fc9a00", "#f6ff00", "#38ff01", "#009aff","#0000ff"];
             vehicle_info.polyline = [];
 
-            for(k in rainbow) {
+            for(var k in rainbow) {
                 vehicle_info.polyline.push(new google.maps.Polyline({
                                 map: map,
                                 zIndex: (Z_PATH - (k * 1)),
                                 strokeColor: rainbow[k],
                                 strokeOpacity: 1,
                                 strokeWeight: (k*4) + 2,
-                                clickable: false,
+                                clickable: true,
                                 draggable: false,
                             }));
             }
         }
+
+        // hook infobox
+
+        // polyline
+        for(var k in vehicle_info.polyline) {
+            vehicle_info.polyline[k].vehicle = vehicle_info;
+            google.maps.event.addListener(vehicle_info.polyline[k], 'click', mapInfoBox_handle_path);
+        }
+
+        // horizon circles
+        if(vehicle_info.horizon_circle) google.maps.event.addListener(vehicle_info.horizon_circle, 'click', mapInfoBox_handle_truehorizon);
+        if(vehicle_info.subhorizon_circle) google.maps.event.addListener(vehicle_info.subhorizon_circle, 'click', mapInfoBox_handle_horizon);
 
         // let the nyan free
         vehicles.push(vehicle_info);
@@ -1083,6 +1130,9 @@ function addPosition(position) {
                     vehicle.curr_position = position;
                     graphAddLastPosition(vehicle_index);
                     vehicle.updated = true;
+
+                    var poslen = vehicle.positions.length;
+                    if(poslen > 1) vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[poslen-2], vehicle.positions[poslen-1]);
                 }
             }
         } else {
@@ -1091,6 +1141,9 @@ function addPosition(position) {
             vehicle.num_positions++;
             vehicle.curr_position = position;
             graphAddLastPosition(vehicle_index);
+
+            var poslen = vehicle.positions.length;
+            if(poslen > 1) vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[poslen-2], vehicle.positions[poslen-1]);
         }
     } else { // if car
         vehicle.updated = true;
@@ -1427,6 +1480,8 @@ function refreshUI() {
     for (var i = 0, ii = vehicle_names.length; i < ii; i++) {
         updateVehicleInfo(i, vehicles[i].curr_position);
     }
+
+    mapInfoBox.close();
 }
 
 var status = "";
