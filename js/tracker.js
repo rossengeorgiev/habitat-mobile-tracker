@@ -119,9 +119,10 @@ function calculate_lookangles(a, b) {
     bearing += (bearing < 0) ? 2 * Math.PI : 0;
     bearing /= DEG_TO_RAD;
 
-    var directions = ['N','E','S','W'];
-    var idx = Math.floor(bearing / 90);
-    var str_bearing = "" + directions[idx%4] + " " + Math.round(bearing % 90) + '° ' + directions[(idx+1)%4];
+    var value = Math.round(bearing % 90);
+    value = ((bearing > 90 && bearing < 180) || (bearing > 270 && bearing < 360)) ? 90 - value : value;
+
+    var str_bearing = "" + ((bearing < 90 || bearing > 270) ? 'N' : 'S')+ " " + value + '° ' + ((bearing < 180) ? 'E' : 'W');
 
     return {
         'elevation': elevation,
