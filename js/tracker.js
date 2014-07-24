@@ -837,12 +837,12 @@ var mapInfoBox_handle_path = function(event) {
     var value = "";
 
     if(offline.get('opt_imperial')) {
-        value = Math.round(this.vehicle.path_length*0.000621371192) + " miles";
+        value = Math.round(this.vehicle.path_length*0.000621371192) + "miles";
     } else {
-        value = Math.round(this.vehicle.path_length/10)/100 + " km";
+        value = Math.round(this.vehicle.path_length/10)/100 + "km";
     }
 
-    mapInfoBox.setContent("Ground length: " + value);
+    mapInfoBox.setContent("Length: " + value);
     mapInfoBox.setPosition(event.latLng);
     mapInfoBox.open(map);
 }
@@ -850,13 +850,13 @@ var mapInfoBox_handle_horizons = function(event, obj,  title) {
     var value = "";
 
     if(offline.get('opt_imperial')) {
-        value = Math.round(obj.getRadius()*0.000621371192) + " miles";
+        value = Math.round(obj.getRadius()*0.000621371192) + "miles";
     } else {
-        value = Math.round(obj.getRadius()/10)/100 + " km";
+        value = Math.round(obj.getRadius()/10)/100 + "km";
     }
 
 
-    mapInfoBox.setContent(title + "<br/>Radius: "+ value);
+    mapInfoBox.setContent(title + "<br/>r = "+ value);
     mapInfoBox.setPosition(event.latLng);
     mapInfoBox.open(map);
 }
