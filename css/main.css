@@ -366,6 +366,34 @@ header > div {
     position: relative;
     z-index: 4;
 }
+#main .row .data .hysplit {
+    position: absolute;
+    background-color: #fff;
+    right: 5px;
+    top: 150px;
+    padding-left: 3px;
+    padding-right: 3px;
+    font-size: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    z-index: 5;
+}
+
+#main .row .data .hysplit.active {
+    background-color: #33b5e5;
+    border: 1px solid #33b5e5;
+    color: #fff;
+}
+
+#main .row .data .hysplit:hover {
+    border: 1px solid #5E5E5E;
+}
+
+#main .portrait .row .data .hysplit {
+    display: none;
+}
+
 #main .row .data img {
     position: absolute;
     z-index: 2;

@@ -623,6 +623,7 @@ function updateVehicleInfo(index, newPosition) {
            + '<i class="arrow"></i></div>'
            + '<div class="data">'
            + '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />'
+           + ((vehicle_names[index] in hysplit) ? '<span class="hysplit '+((hysplit[vehicle_names[index]].getMap()) ? 'active' : '')+'" data-index="'+index+'">HYSPLIT</span>' : '')
            + '<div class="left">'
            + '<dl>';
   // end
