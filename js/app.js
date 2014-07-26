@@ -77,7 +77,7 @@ function trackerInit() {
         if(embed.graph) $('#telemetry_graph').attr('style','');
 
         // fetch hysplit jobs
-        $.getJSON("http://spacenear.us/tracker/hysplit.json", function(data) {
+        $.getJSON("http://spacenear.us/tracker/datanew.php?type=hysplit&format=json", function(data) {
             for(var k in data) {
                 hysplit[k] = new google.maps.KmlLayer("http://ready.arl.noaa.gov/hypubout/HYSPLITtraj_" + data[k] + ".kmz");
             }
