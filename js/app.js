@@ -61,6 +61,8 @@ var loadComplete = function(e) {
     $('#loading .complete').stop(true,true).animate({width: 200}, {complete: trackerInit });
 }
 
+var hysplit = {};
+
 // loads the tracker interface
 function trackerInit() {
     $('#loading,#settingsbox,#aboutbox,#chasebox').hide(); // welcome screen
@@ -73,6 +75,13 @@ function trackerInit() {
     if(!is_mobile) {
         $.getScript("js/init_plot.js", function() { checkSize(); if(!map) load(); });
         if(embed.graph) $('#telemetry_graph').attr('style','');
+
+        // fetch hysplit jobs
+        $.getJSON("http://spacenear.us/tracker/hysplit.json", function(data) {
+            for(var k in data) {
+                hysplit[k] = new google.maps.KmlLayer("http://ready.arl.noaa.gov/hypubout/HYSPLITtraj_" + data[k] + ".kmz");
+            }
+        });
         return;
     }
     checkSize();
@@ -349,6 +358,21 @@ $(window).ready(function() {
 
     // expand graph on startup, if nessary
     if(embed.graph_expanded) $('#telemetry_graph .graph_label').click();
+
+    // hysplit button
+    $("#main").on('click','.row .data .hysplit', function() {
+        var elm = $(this);
+        var name = vehicle_names[elm.attr('data-index')]
+
+        if(elm.hasClass("active")) {
+            elm.removeClass('active');
+            hysplit[name].setMap(null);
+        }
+        else {
+            elm.addClass('active');
+            hysplit[name].setMap(map);
+        }
+    });
 
     // reset nite-overlay and timebox when mouse goes out of the graph box
     $("#telemetry_graph").on('mouseout','.holder', function() {
