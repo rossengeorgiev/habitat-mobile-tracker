@@ -1320,13 +1320,13 @@ function refreshPredictions() {
             if(!ls_pred && offline.get('opt_offline')) updatePredictions(offline.get('predictions'));
         },
         complete: function(request, textStatus) {
-            periodical_predictions = setTimeout(refreshPredictions, 2 * timer_seconds * 1000);
+            periodical_predictions = setTimeout(refreshPredictions, 60 * 1000);
         }
     });
 }
 
 var periodical, periodical_receivers, periodical_predictions;
-var timer_seconds = 14;
+var timer_seconds = 15;
 
 function startAjax() {
     // prevent insane clicks to start numerous requests
