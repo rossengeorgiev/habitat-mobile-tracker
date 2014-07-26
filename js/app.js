@@ -360,7 +360,9 @@ $(window).ready(function() {
     if(embed.graph_expanded) $('#telemetry_graph .graph_label').click();
 
     // hysplit button
-    $("#main").on('click','.row .data .hysplit', function() {
+    $("#main").on('click','.row .data .hysplit', function(event) {
+        event.stopPropagation();
+
         var elm = $(this);
         var name = vehicle_names[elm.attr('data-index')]
 
