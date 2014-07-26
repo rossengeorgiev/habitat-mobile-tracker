@@ -973,7 +973,7 @@ function addPosition(position) {
                 strokeColor: '#00F',
                 strokeOpacity: 0.6,
                 strokeWeight: 3,
-                clickable: true,
+                clickable: false,
                 editable: false
             });
             horizon_circle.bindTo('center', marker_shadow, 'position');
@@ -986,7 +986,7 @@ function addPosition(position) {
                 strokeColor: '#0F0',
                 strokeOpacity: 0.8,
                 strokeWeight: 3,
-                clickable: true,
+                clickable: false,
                 editable: false
             });
             subhorizon_circle.bindTo('center', marker_shadow, 'position');
