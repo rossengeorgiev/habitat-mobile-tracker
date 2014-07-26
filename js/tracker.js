@@ -66,7 +66,7 @@ var weatherImageOverlayList = {
 };
 
 var weatherImageOverlay = new google.maps.GroundOverlay();
-var weatherGoogleRadar = new google.maps.KmlLayer('http://mw1.google.com/mw-weather/radar/root.kmz');
+var weatherGoogleRadar = new google.maps.KmlLayer({url:'http://mw1.google.com/mw-weather/radar/root.kmz', preserveViewport: true});
 
 var offline = {
     get: function(key) {
