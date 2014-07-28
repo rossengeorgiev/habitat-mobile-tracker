@@ -1532,6 +1532,11 @@ function update(response) {
             }, 400*i);
         } else if(vehicles[i].updated) {
             updatePolyline(i);
+
+            if(follow_vehicle == i) {
+                panTo(follow_vehicle);
+            }
+
             updateVehicleInfo(i, vehicles[i].curr_position);
 
             // remember last position for each vehicle
@@ -1546,10 +1551,6 @@ function update(response) {
 
       // store in localStorage
       offline.set('positions', lastPositions);
-
-      if(follow_vehicle != -1) {
-          panTo(follow_vehicle);
-      }
   }
 
   if (got_positions && !zoomed_in) {
