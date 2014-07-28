@@ -62,6 +62,23 @@ var loadComplete = function(e) {
 }
 
 var hysplit = {};
+var refresh_hysplit = function() {
+    $.getJSON("http://spacenear.us/tracker/datanew.php?type=hysplit&format=json", function(data) {
+        for(var k in data) {
+            if(k in hysplit) {
+                // if the jobid is the same, skip to next one
+                if(hysplit[k].jobid == data[k]) continue;
+
+                // otherwise update the url
+                hysplit[k].setUrl("http://ready.arl.noaa.gov/hypubout/HYSPLITtraj_" + data[k] + ".kmz");
+                hysplit[k].jobid = data[k];
+            } else {
+                hysplit[k] = new google.maps.KmlLayer({url:"http://ready.arl.noaa.gov/hypubout/HYSPLITtraj_" + data[k] + ".kmz", preserveViewport:true });
+                hysplit[k].jobid = data[k];
+            }
+        }
+    });
+}
 
 // loads the tracker interface
 function trackerInit() {
@@ -77,11 +94,9 @@ function trackerInit() {
         if(embed.graph) $('#telemetry_graph').attr('style','');
 
         // fetch hysplit jobs
-        $.getJSON("http://spacenear.us/tracker/datanew.php?type=hysplit&format=json", function(data) {
-            for(var k in data) {
-                hysplit[k] = new google.maps.KmlLayer({url:"http://ready.arl.noaa.gov/hypubout/HYSPLITtraj_" + data[k] + ".kmz", preserveViewport:true });
-            }
-        });
+        setInterval(refresh_hysplit, 60 * 1000);
+        refresh_hysplit();
+
         return;
     }
     checkSize();
