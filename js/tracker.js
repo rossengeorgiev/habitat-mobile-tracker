@@ -502,7 +502,7 @@ function stringToDateUTC(text) {
     return new Date(text.replace(" ","T") + "Z");
 }
 
-function formatDate(date) {
+function formatDate(date,utc) {
     var a,b,c,d,e,f,g,z;
 
     a = date.getFullYear();
@@ -512,7 +512,12 @@ function formatDate(date) {
     f = twoZeroPad(date.getMinutes());
     g = twoZeroPad(date.getSeconds());
 
-    return a+'-'+b+'-'+c+' '+e+':'+f+':'+g;
+    if(typeof utc != "undefined") {
+        z = date.getTimezoneOffset() / -60;
+        return a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC"+((z<0)?"-":"+")+z;
+    } else {
+        return a+'-'+b+'-'+c+' '+e+':'+f+':'+g;
+    }
 }
 
 function updateVehicleInfo(index, newPosition) {
@@ -672,24 +677,6 @@ function updateVehicleInfo(index, newPosition) {
   return true;
 }
 
-function addMarker(icon, latlng) {
-    var marker = new google.maps.Marker({
-        position: latlng,
-        optimized: false,
-        zIndex: Z_SHADOW,
-        icon: {
-            url: icon,
-            scaledSize: new google.maps.Size(20,20),
-            size: new google.maps.Size(20,20),
-            anchor: new google.maps.Point(10, 10)
-        },
-        map: map,
-        clickable: false
-    });
-
-    return marker;
-}
-
 function removePrediction(vehicle_index) {
   if(vehicles[vehicle_index].prediction_polyline) {
     vehicles[vehicle_index].prediction_polyline.setMap(null);
@@ -715,14 +702,18 @@ function redrawPrediction(vehicle_index) {
     var max_alt = -99999;
     var latlng_burst = null;
     var	burst_index = 0;
+    var path_length = 0;
+
     for(var i = 0, ii = data.length; i < ii; i++) {
         latlng = new google.maps.LatLng(data[i].lat, data[i].lon);
         line.push(latlng);
+
         if(parseFloat(data[i].alt) > max_alt) {
             max_alt = parseFloat(data[i].alt);
             latlng_burst = latlng;
             burst_index = i;
         }
+        if(i > 1) path_length += google.maps.geometry.spherical.computeDistanceBetween(line[i-1], line[i]);
     }
 
     if(typeof vehicle.prediction_polyline !== 'undefined') {
@@ -735,9 +726,11 @@ function redrawPrediction(vehicle_index) {
             strokeColor: balloon_colors[vehicle.color_index],
             strokeOpacity: 0.4,
             strokeWeight: 3,
-            clickable: false,
+            clickable: true,
             draggable: false,
         });
+        vehicle.prediction_polyline.path_length = path_length;
+        google.maps.event.addListener(vehicle.prediction_polyline, 'click', mapInfoBox_handle_path);
     }
     var image_src;
     if(vehicle_names[vehicle_index] != "wb8elk2") { // WhiteStar
@@ -746,8 +739,22 @@ function redrawPrediction(vehicle_index) {
             vehicle.prediction_target.setPosition(latlng);
         } else {
             image_src = host_url + markers_url + "target-" + balloon_colors_name[vehicle.color_index] + ".png";
-            vehicle.prediction_target = addMarker(image_src, latlng);
+            vehicle.prediction_target = new google.maps.Marker({
+                position: latlng,
+                optimized: false,
+                zIndex: Z_SHADOW,
+                icon: {
+                    url: image_src,
+                    scaledSize: new google.maps.Size(20,20),
+                    size: new google.maps.Size(20,20),
+                    anchor: new google.maps.Point(10, 10)
+                },
+                map: map,
+                clickable: true
+            });
+            google.maps.event.addListener(vehicle.prediction_target, 'click', mapInfoBox_handle_prediction);
         }
+        vehicle.prediction_target.pdata = data[data.length-1];
     } else {
         if(vehicle.prediction_target) vehicle.prediction_target = null;
     }
@@ -757,8 +764,22 @@ function redrawPrediction(vehicle_index) {
             vehicle.prediction_burst.setPosition(latlng_burst);
         } else {
             image_src = host_url + markers_url + "balloon-pop.png";
-            vehicle.prediction_burst = addMarker(image_src, latlng_burst);
+            vehicle.prediction_burst =  new google.maps.Marker({
+                position: latlng_burst,
+                optimized: false,
+                zIndex: Z_SHADOW,
+                icon: {
+                    url: image_src,
+                    scaledSize: new google.maps.Size(20,20),
+                    size: new google.maps.Size(20,20),
+                    anchor: new google.maps.Point(10, 10)
+                },
+                map: map,
+                clickable: true
+            });
+            google.maps.event.addListener(vehicle.prediction_burst, 'click', mapInfoBox_handle_prediction);
         }
+        vehicle.prediction_burst.pdata = data[burst_index];
     } else {
         if(vehicle.prediction_burst) vehicle.prediction_burst = null;
     }
@@ -836,15 +857,33 @@ function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
 var mapInfoBox = new google.maps.InfoWindow();
 
 var mapInfoBox_handle_path = function(event) {
-    var value = "";
+    var value = ("path_length" in this) ? this.path_length : this.vehicle.path_length;
 
     if(offline.get('opt_imperial')) {
-        value = Math.round(this.vehicle.path_length*0.000621371192) + "miles";
+        value = Math.round(value*0.000621371192) + " miles";
     } else {
-        value = Math.round(this.vehicle.path_length/10)/100 + "km";
+        value = Math.round(value/10)/100 + " km";
     }
 
-    mapInfoBox.setContent("Length: " + value);
+    mapInfoBox.setContent("<span>Length: " + value + "</span>");
+    mapInfoBox.setPosition(event.latLng);
+    mapInfoBox.open(map);
+}
+var mapInfoBox_handle_prediction = function(event) {
+    var data = this.pdata;
+    var altitude;
+
+    if(offline.get('opt_imperial')) {
+        altitude = Math.round(alt*3.2808399) + " feet";
+    } else {
+        altitude = Math.round(data.alt) + " m";
+    }
+
+    mapInfoBox.setContent("<span>" + formatDate(new Date(parseInt(data.time) * 1000), true) + "</span><br/><br/>"
+                        + "<span>Altitude: " + altitude + "</span><br/>"
+                        + "<span>Latitude: " + data.lat + "</span><br/>"
+                        + "<span>Longtitude: " + data.lon + "</span>"
+                        );
     mapInfoBox.setPosition(event.latLng);
     mapInfoBox.open(map);
 }
@@ -858,7 +897,7 @@ var mapInfoBox_handle_horizons = function(event, obj,  title) {
     }
 
 
-    mapInfoBox.setContent(title + "<br/>r = "+ value);
+    mapInfoBox.setContent("<span>" + title + "</span><br/><span>r = "+ value + "</span>");
     mapInfoBox.setPosition(event.latLng);
     mapInfoBox.open(map);
 }
