@@ -729,9 +729,11 @@ function redrawPrediction(vehicle_index) {
             clickable: true,
             draggable: false,
         });
-        vehicle.prediction_polyline.path_length = path_length;
         google.maps.event.addListener(vehicle.prediction_polyline, 'click', mapInfoBox_handle_path);
     }
+
+    vehicle.prediction_polyline.path_length = path_length;
+
     var image_src;
     if(vehicle_names[vehicle_index] != "wb8elk2") { // WhiteStar
         var html = "";
