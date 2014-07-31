@@ -867,7 +867,7 @@ var mapInfoBox_handle_path = function(event) {
         value = Math.round(value/10)/100 + " km";
     }
 
-    mapInfoBox.setContent("<span>Length: " + value + "</span>");
+    mapInfoBox.setContent("<pre><b>Length:</b> " + value + "</pre>");
     mapInfoBox.setPosition(event.latLng);
     mapInfoBox.open(map);
 }
@@ -881,10 +881,12 @@ var mapInfoBox_handle_prediction = function(event) {
         altitude = Math.round(data.alt) + " m";
     }
 
-    mapInfoBox.setContent("<span>" + formatDate(new Date(parseInt(data.time) * 1000), true) + "</span><br/><br/>"
-                        + "<span>Altitude: " + altitude + "</span><br/>"
-                        + "<span>Latitude: " + data.lat + "</span><br/>"
-                        + "<span>Longtitude: " + data.lon + "</span>"
+    mapInfoBox.setContent("<pre>"
+                        + formatDate(new Date(parseInt(data.time) * 1000), true) + "\n\n"
+                        + "<b>Altitude:</b> " + altitude + "\n"
+                        + "<b>Latitude:</b> " + data.lat + "\n"
+                        + "<b>Longtitude:</b> " + data.lon + "\n"
+                        + "</pre>"
                         );
     mapInfoBox.setPosition(event.latLng);
     mapInfoBox.open(map);
@@ -899,7 +901,7 @@ var mapInfoBox_handle_horizons = function(event, obj,  title) {
     }
 
 
-    mapInfoBox.setContent("<span>" + title + "</span><br/><span>r = "+ value + "</span>");
+    mapInfoBox.setContent("<pre>" + title + "\nr = "+ value + "</pre>");
     mapInfoBox.setPosition(event.latLng);
     mapInfoBox.open(map);
 }
