@@ -221,6 +221,35 @@ var maptype_ids = ["roadmap","satellite","terrain"]
 for(var i in maptypes) maptype_ids.push(i);
 
 
+// mousemove event throttle hack for smoother maps pan on firefox and IE
+// taken from: http://stackoverflow.com/questions/22306130/how-to-limit-google-maps-api-lag-when-panning-the-map-with-lots-of-markers-and-p
+
+var mthrottle_last = {
+                        time : 0,     // last time we let an event pass.
+                        x    : -100,  // last x position af the event that passed.
+                        y    : -100   // last y position af the event that passed.
+                     };
+var mthrottle_period = 16;   // ms - don't let pass more than one event every 100ms.
+var mthrottle_space  = 40;    // px - let event pass if distance between the last and
+                              //      current position is greater than 2 px.
+
+function throttle_events(event) {
+    var now = window.performance.now();
+    var distance = Math.sqrt(Math.pow(event.clientX - mthrottle_last.x, 2) + Math.pow(event.clientY - mthrottle_last.y, 2));
+    var time = now - mthrottle_last.time;
+    if (distance * time < mthrottle_space * mthrottle_period) {    //event arrived too soon or mouse moved too little or both
+        if (event.stopPropagation) { // W3C/addEventListener()
+            event.stopPropagation();
+        } else { // Older IE.
+            event.cancelBubble = true;
+        };
+    } else {
+        mthrottle_last.time = now;
+        mthrottle_last.x    = event.clientX;
+        mthrottle_last.y    = event.clientY;
+    };
+};
+
 function load() {
     //initialize map object
     map = new google.maps.Map(document.getElementById('map'), {
@@ -242,6 +271,11 @@ function load() {
         },
         scrollwheel: true
     });
+
+    if(window.performance && window.performance.now && window.navigator.userAgent.indexOf("Firefox") != -1) {
+        document.getElementById('map').addEventListener("mousemove", throttle_events, true);
+    }
+
     // register custom map types
     for(var i in maptypes) {
         map.mapTypes.set(i, new google.maps.ImageMapType({
