@@ -1142,15 +1142,16 @@ function addPosition(position) {
 
         // if position array has at least 1 position
         if(vehicle.num_positions > 0) {
-            if(convert_time(vehicle.curr_position.gps_time) >= convert_time(position.gps_time)) {
+            if(convert_time(vehicle.curr_position.gps_time) == convert_time(position.gps_time)) {
                 if (("," + vehicle.curr_position.callsign + ",").indexOf("," + position.callsign + ",") === -1) {
                   vehicle.curr_position.callsign += "," + position.callsign;
                 }
-            } else {
 
+                vehicle.updated = true;
+            } else {
                 var dt = (convert_time(position.gps_time) - convert_time(vehicle.curr_position.gps_time)) / 1000; // convert to seconds
 
-                if(dt != 0) {
+                if(dt > 0) {
                     // calculate vertical rate
                     var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
                     vehicle.ascent_rate = 0.7 * rate
@@ -1170,29 +1171,21 @@ function addPosition(position) {
                         vehicle.alt_list.push(alt); // push value to the list
                     }
                 }
-
-                if(vehicle.curr_position.gps_lat != position.gps_lat
-                   || vehicle.curr_position.gps_lon != position.gps_lon) {
-                    // add the new position
-                    vehicle.positions.push(new_latlng);
-                    vehicle.num_positions++;
-
-                    vehicle.curr_position = position;
-                    graphAddLastPosition(vehicle_index);
-                    vehicle.updated = true;
-
-                    var poslen = vehicle.positions.length;
-                    if(poslen > 1) vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[poslen-2], vehicle.positions[poslen-1]);
-                }
             }
-        } else {
-            vehicle.updated = true;
+        }
+
+        if(!vehicle.curr_position
+           || vehicle.curr_position.gps_lat != position.gps_lat
+           || vehicle.curr_position.gps_lon != position.gps_lon) {
+            // add the new position
             vehicle.positions.push(new_latlng);
             vehicle.num_positions++;
+
             vehicle.curr_position = position;
             graphAddLastPosition(vehicle_index);
+            vehicle.updated = true;
 
-            var poslen = vehicle.positions.length;
+            var poslen = vehicle.num_positions;
             if(poslen > 1) vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[poslen-2], vehicle.positions[poslen-1]);
         }
     } else { // if car
