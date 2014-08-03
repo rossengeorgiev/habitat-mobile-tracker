@@ -308,6 +308,21 @@ var updateTimebox = function(date) {
     elm.find(".local").text("Local: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC"+((z<0)?"-":"+")+z);
 }
 
+var format_time_friendly = function(start, end) {
+    var dt = Math.floor((end - start) / 1000);
+    if(dt < 0) return null;
+
+    if(dt < 60) return dt + 's';
+    else if(dt < 3600) return Math.floor(dt/60)+'m';
+    else if(dt < 86400) {
+        dt = Math.floor(dt/60);
+        return Math.floor(dt/60)+'h '+(dt % 60)+'m';
+    } else {
+        dt = Math.floor(dt/3600);
+        return Math.floor(dt/24)+'d '+(dt % 24)+'h';
+    }
+}
+
 // runs every second
 var updateTime = function(date) {
     // update timebox
@@ -322,18 +337,8 @@ var updateTime = function(date) {
         elm.each(function(k,v) {
             var e = $(v);
             var ts = e.attr('data-timestamp');
-            var dt = Math.floor((now - ts) / 1000);
-            if(dt < 0) return;
-
-            if(dt < 60) e.text(dt+'s ago'); // less than a minute
-            else if(dt < 3600) e.text(Math.floor(dt/60)+'m ago'); // less than an hour
-            else if(dt < 86400) { // less than a day
-                dt = Math.floor(dt/60);
-                e.text(Math.floor(dt/60)+'h '+(dt % 60)+'m ago');
-            } else {
-                dt = Math.floor(dt/3600); // hours
-                e.text(Math.floor(dt/24)+'d '+(dt % 24)+'h ago');
-            }
+            var str = format_time_friendly(ts, now);
+            if(str) e.text(str + ' ago');
         });
     }
 }

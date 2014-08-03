@@ -867,7 +867,9 @@ var mapInfoBox_handle_path = function(event) {
         value = Math.round(value/10)/100 + " km";
     }
 
-    mapInfoBox.setContent("<pre><b>Length:</b> " + value + "</pre>");
+    var duration = ("vehicle" in this) ? "\n<b>Duration:</b> " + format_time_friendly(this.vehicle.start_time, convert_time(this.vehicle.curr_position.gps_time)) : '';
+
+    mapInfoBox.setContent("<pre><b>Length:</b> " + value + duration + "</pre>");
     mapInfoBox.setPosition(event.latLng);
     mapInfoBox.open(map);
 }
@@ -1070,7 +1072,8 @@ function addPosition(position) {
                             graph_data_updated: false,
                             graph_data: [],
                             graph_yaxes: [],
-                            updated: false
+                            updated: false,
+                            start_time: 2147483647000
                             };
 
         // deep copy yaxes config for graph
@@ -1191,6 +1194,12 @@ function addPosition(position) {
     } else { // if car
         vehicle.updated = true;
         vehicle.curr_position = position;
+    }
+
+    // record the start of flight
+    var newts = convert_time(vehicle.curr_position.gps_time);
+    if(newts < vehicle.start_time) {
+        vehicle.start_time = newts;
     }
 
     // record the highest altitude
