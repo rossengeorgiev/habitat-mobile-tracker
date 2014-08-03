@@ -64,6 +64,8 @@ var loadComplete = function(e) {
 var hysplit = {};
 var refresh_hysplit = function() {
     $.getJSON("http://spacenear.us/tracker/datanew.php?type=hysplit&format=json", function(data) {
+        var refresh = false;
+
         for(var k in data) {
             if(k in hysplit) {
                 // if the jobid is the same, skip to next one
@@ -75,8 +77,11 @@ var refresh_hysplit = function() {
             } else {
                 hysplit[k] = new google.maps.KmlLayer({url:"http://ready.arl.noaa.gov/hypubout/HYSPLITtraj_" + data[k] + ".kmz", preserveViewport:true });
                 hysplit[k].jobid = data[k];
+                refresh = true;
             }
         }
+
+        if(refresh) refreshUI();
     });
 }
 
