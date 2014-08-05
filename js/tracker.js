@@ -45,6 +45,7 @@ var ls_receivers = false;
 var ls_pred = false;
 
 var plot = null;
+var plot_open = false;
 
 // weather
 var weatherOverlayId = "nexrad-n0q-900913";
@@ -1245,7 +1246,7 @@ function addPosition(position) {
 }
 
 function updateGraph(idx, reset_selection) {
-    if(!plot) return;
+    if(!plot || !plot_open) return;
 
     if(polyMarker) polyMarker.setPosition(null);
 
@@ -1259,6 +1260,8 @@ function updateGraph(idx, reset_selection) {
 
     // replot graph, with this vehicle data, and this vehicles yaxes config
     plot = $.plot(plot_holder, vehicles[idx].graph_data, $.extend(false, plot_options, {yaxes:vehicles[idx].graph_yaxes}));
+
+    vehicles[idx].graph_data_updated = false;
 }
 
 function graphAddLastPosition(idx) {

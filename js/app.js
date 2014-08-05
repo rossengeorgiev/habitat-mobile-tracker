@@ -367,17 +367,23 @@ $(window).ready(function() {
             e.removeClass('active');
             var h = $('#map').height() + $('#telemetry_graph').height();
 
+            plot_open = false;
+
             //analytics
             if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI', 'Collapse', 'Telemetry Graph']);
         } else {
             e.addClass('active');
             var h = $('#map').height() - $('#telemetry_graph').height();
 
+            plot_open = true;
+
             //analytics
             if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI', 'Expand', 'Telemetry Graph']);
         }
         $('#map').stop(null,null).animate({'height': h}, function() {
             if(map) google.maps.event.trigger(map, 'resize');
+
+            if(plot_open && follow_vehicle != -1 && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, true);
         });
     });
 
