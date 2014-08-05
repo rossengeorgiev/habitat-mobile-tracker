@@ -37,9 +37,6 @@ var Z_SHADOW = 1000000;
 var Z_CAR = 1000001;
 var Z_PAYLOAD = 1000002;
 
-var bootstrapped = false;
-var zoom_timer;
-
 // localStorage vars
 var ls_receivers = false;
 var ls_pred = false;
@@ -1578,77 +1575,92 @@ var status = "";
 var bs_idx = 0;
 
 function update(response) {
-  if (response == null || !response.positions) {
-    return;
-  }
-
-  var updated_position = false;
-  for (var i = 0; i < response.positions.position.length; i++) {
-    var position = response.positions.position[i];
-    if (!position.picture) {
-      addPosition(position);
-      got_positions = true;
-      updated_position = true;
+    if (response == null
+            || !response.positions
+            || !response.positions.position
+            || !response.positions.position.length) {
+        return;
     }
-  }
 
-  if (response.positions.position.length > 0) {
-    var position = response.positions.position[response.positions.position.length-1];
-    position_id = position.position_id;
-  }
+    // create a dummy response object for postions
+    var lastPositions = { positions: { position: [] } };
+    var ctx_init = {
+        positions: response.positions.position,
+        lastPositions: lastPositions,
+        lastPPointer: lastPositions.positions.position,
+        idx: 0,
+        max: response.positions.position.length,
+        last_vehicle: null,
+        step: function(ctx) {
+            var draw_idx = -1;
 
-  if (updated_position) {
-      // create a dummy response object for postions
-      var lastPositions = { positions: { position: [] } };
-      var lastPPointer = lastPositions.positions.position;
+            var i = ctx.idx;
+            var max = i + 5000;
+            max = (max >= ctx.max) ? ctx.max : max;
 
-      for (var i = 0, ii = vehicle_names.length; i < ii; i++) {
-        if(!bootstrapped) {
-            setTimeout(function() {
-                var idx = bs_idx;
-                bs_idx += 1;
-                updatePolyline(idx);
-                updateVehicleInfo(idx, vehicles[idx].curr_position);
+            for (; i < max ; i++) {
+                var row = ctx.positions[i];
 
-                if(listScroll) listScroll.refresh();
-            }, 400*i);
-        } else if(vehicles[i].updated) {
-            updatePolyline(i);
+                if(row.position_id > position_id) { position_id = row.position_id; }
 
-            if(follow_vehicle == i) {
-                panTo(follow_vehicle);
+                if (!row.picture) {
+                    if(ctx.last_vehicle == null) ctx.last_vehicle = row.vehicle;
+
+                    addPosition(row);
+                    got_positions = true;
+
+                    if(ctx.last_vehicle != row.vehicle) {
+                        draw_idx = vehicle_names.indexOf(ctx.last_vehicle);
+                        ctx.last_vehicle = row.vehicle;
+                    }
+                }
             }
 
-            updateVehicleInfo(i, vehicles[i].curr_position);
+            ctx.idx = max;
 
-            // remember last position for each vehicle
-            lastPPointer.push(vehicles[i].curr_position);
+            if(ctx.idx < ctx.max) {
+              setTimeout(function() { ctx.step(ctx); }, 4);
+            } else {
+              ctx.idx = 0;
+              ctx.max = vehicle_names.length;
+              setTimeout(function() { ctx.draw(ctx); }, 16);
+            }
+        },
+        draw: function(ctx) {
+            if(vehicles[ctx.idx].updated) {
+                updatePolyline(ctx.idx);
+                updateVehicleInfo(ctx.idx, vehicles[ctx.idx].curr_position);
+
+                // remember last position for each vehicle
+                ctx.lastPPointer.push(vehicles[ctx.idx].curr_position);
+
+                if(listScroll) listScroll.refresh();
+                if(zoomed_in && follow_vehicle == ctx.idx) panTo(follow_vehicle);
+            }
+
+            ctx.idx++;
+
+            if(ctx.idx < ctx.max) {
+              setTimeout(function() { ctx.draw(ctx); }, 16);
+            } else {
+              setTimeout(function() { ctx.end(ctx); }, 16);
+            }
+        },
+        end: function(ctx) {
+          // update graph is current vehicles is followed
+          if(follow_vehicle != -1 && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, false);
+
+          // store in localStorage
+          offline.set('positions', ctx.lastPositions);
+
+          if (got_positions && !zoomed_in && vehicles.length) {
+              zoom_on_payload();
+              zoomed_in = true;
+          }
         }
-	  }
+    }
 
-      bootstrapped = true;
-
-      // update graph is current vehicles is followed
-      if(follow_vehicle != -1 && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, false);
-
-      // store in localStorage
-      offline.set('positions', lastPositions);
-  }
-
-  if (got_positions && !zoomed_in) {
-    if(vehicles.length == 0) return;
-
-    zoom_timer = setInterval(function() {
-        if(bootstrapped && bs_idx == vehicle_names.length) {
-            zoom_on_payload();
-            clearInterval(zoom_timer);
-        }
-    },100);
-
-    zoomed_in = true;
-  }
-
-  if(listScroll) listScroll.refresh();
+    ctx_init.step(ctx_init);
 }
 
 function zoom_on_payload() {
