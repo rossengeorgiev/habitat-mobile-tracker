@@ -1176,55 +1176,55 @@ function addPosition(position) {
 
     if(vehicle.vehicle_type == "balloon") {
         var new_latlng = new google.maps.LatLng(position.gps_lat, position.gps_lon);
+        var dt = (convert_time(position.gps_time) - convert_time(vehicle.curr_position.gps_time)) / 1000; // convert to seconds
 
-        // if position array has at least 1 position
-        if(vehicle.num_positions > 0) {
-            if(convert_time(vehicle.curr_position.gps_time) == convert_time(position.gps_time)) {
-                if (("," + vehicle.curr_position.callsign + ",").indexOf("," + position.callsign + ",") === -1) {
-                  vehicle.curr_position.callsign += "," + position.callsign;
-                }
+        if(dt == 0) {
+            if (("," + vehicle.curr_position.callsign + ",").indexOf("," + position.callsign + ",") === -1) {
+              vehicle.curr_position.callsign += "," + position.callsign;
+            }
 
+            vehicle.updated = true;
+        }
+        else if(dt > 0) {
+            if(vehicle.num_positions > 0) {
+                // calculate vertical rate
+                var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
+                vehicle.ascent_rate = 0.7 * rate
+                                      + 0.3 * vehicle.ascent_rate;
+
+                // calculate horizontal rate
+                vehicle.horizontal_rate = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(position.gps_lat, position.gps_lon),
+                                                                                                new google.maps.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon)) / dt;
+             }
+
+            // record altitude values for the drowing a mini profile
+            // only record altitude values in 2minute interval
+            if(convert_time(vehicle.curr_position.gps_time) - vehicle.time_last_alt >= 120000) { // 120s = 2minutes
+                vehicle.time_last_alt = convert_time(vehicle.curr_position.gps_time);
+                var alt = parseInt(vehicle.curr_position.gps_alt);
+
+                if(alt > vehicle.alt_max) vehicle.alt_max = alt; // larged value in the set is required for encoding later
+
+                vehicle.alt_list.push(alt); // push value to the list
+            }
+
+            // add the new position
+            if(!vehicle.curr_position
+               || vehicle.curr_position.gps_lat != position.gps_lat
+               || vehicle.curr_position.gps_lon != position.gps_lon) {
+                // add the new position
+                vehicle.positions.push(new_latlng);
+                vehicle.num_positions++;
+
+                vehicle.curr_position = position;
+                graphAddLastPosition(vehicle_index);
                 vehicle.updated = true;
-            } else {
-                var dt = (convert_time(position.gps_time) - convert_time(vehicle.curr_position.gps_time)) / 1000; // convert to seconds
 
-                if(dt > 0) {
-                    // calculate vertical rate
-                    var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
-                    vehicle.ascent_rate = 0.7 * rate
-                                          + 0.3 * vehicle.ascent_rate;
-
-                    // calculate horizontal rate
-                    vehicle.horizontal_rate = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(position.gps_lat, position.gps_lon),
-                                                                                                    new google.maps.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon)) / dt;
-
-                    // only record altitude values in 2minute interval
-                    if(convert_time(vehicle.curr_position.gps_time) - vehicle.time_last_alt >= 120000) { // 120s = 2minutes
-                        vehicle.time_last_alt = convert_time(vehicle.curr_position.gps_time);
-                        var alt = parseInt(vehicle.curr_position.gps_alt);
-
-                        if(alt > vehicle.alt_max) vehicle.alt_max = alt; // larged value in the set is required for encoding later
-
-                        vehicle.alt_list.push(alt); // push value to the list
-                    }
-                }
+                var poslen = vehicle.num_positions;
+                if(poslen > 1) vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[poslen-2], vehicle.positions[poslen-1]);
             }
         }
 
-        if(!vehicle.curr_position
-           || vehicle.curr_position.gps_lat != position.gps_lat
-           || vehicle.curr_position.gps_lon != position.gps_lon) {
-            // add the new position
-            vehicle.positions.push(new_latlng);
-            vehicle.num_positions++;
-
-            vehicle.curr_position = position;
-            graphAddLastPosition(vehicle_index);
-            vehicle.updated = true;
-
-            var poslen = vehicle.num_positions;
-            if(poslen > 1) vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[poslen-2], vehicle.positions[poslen-1]);
-        }
     } else { // if car
         vehicle.updated = true;
         vehicle.curr_position = position;
