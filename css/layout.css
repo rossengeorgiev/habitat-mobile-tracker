@@ -42,10 +42,6 @@ header h1{
     float: left;
 }
 
-header span#app_name {
-    float: right;
-}
-
 /* Grey Area */
 #grey-section{
     width: 100%;

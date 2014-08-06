@@ -178,9 +178,12 @@ header {
 }
 #app_name {
     line-height: normal;
-    margin-top: 10px;
-    position: relative;
+    margin-top: 6px;
+    position: absolute;
+    right: 30px;
     height: 40px;
+    text-align: right;
+    cursor: pointer;
 }
 header > div {
     position: relative;
@@ -219,12 +222,13 @@ header > div {
 }
 
 #locate-me {
-    float: right;
+    position: absolute;
+    right: 0px;
+    top: 12px;
     font-size: 25px;
-    height: 45px;
-    line-height: 50px;
-    margin-top: 5px;
-    margin-left: 5px;
+    height: 25px;
+    width: 25px;
+    line-height: 25px;
     cursor: pointer;
 }
 
@@ -460,23 +464,23 @@ header > div {
     position: relative;
     margin: 20px auto;
     width: 290px;
-    padding-left: 5px;
-    padding-right: 5px;
 }
 .slimContainer hr {
     margin-bottom: 10px;
 }
 .slimContainer .row {
-    width: 100%;
+    width: 280px;
     display: block;
     margin: 5px;
     vertical-align: middle;
+    position: relative;
 }
 .slimContainer .row.info {
     margin-top: 10px;
 }
 .slimContainer .row > span {
     float: left;
+    width: 200px;
 }
 .slimContainer .row.option > span {
     line-height: 30px;
@@ -488,7 +492,8 @@ header > div {
 /* iOS styled switch buttons
  */
 .switch {
-    float: right;
+    position: absolute;
+    right: 0px;
     height: 28px;
     width: 77px;
     border: 1px solid #979797;
@@ -687,6 +692,12 @@ header > div {
     #main .row .header .graph {
         width: 150px;
         height: 40px;
+    }
+    #locate-me {
+        display: none;
+    }
+    #app_name {
+        right: 0px;
     }
 }
 

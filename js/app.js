@@ -20,6 +20,7 @@ var embed = {
     vlist: true,
     graph: true,
     graph_exapnded: false,
+    latestonly: is_mobile
 }
 var params = window.location.search.substring(1).split('&');
 
@@ -34,8 +35,11 @@ for(var idx in params) {
         case "expandgraph": if(line[1] == "1") embed.graph_expanded = true; break;
         case "filter": vfilter = line[1]; break;
         case "nyan": nyan_mode = true; break;
+        case "latestonly": embed.latestonly = (parseInt(line[1]) == 1) ? true : false; break;
     }
 }
+
+if(embed.latestonly) $("#latestonly").show();
 
 if(embed.enabled) {
     //analytics
@@ -43,6 +47,8 @@ if(embed.enabled) {
 }
 
 $.ajaxSetup({ cache: true });
+
+var force_check_cache = false;
 
 // handle cachin events and display a loading bar
 var loadComplete = function(e) {
@@ -118,7 +124,7 @@ cache.addEventListener('cached', loadComplete, false);
 cache.addEventListener('error', loadComplete, false);
 
 // if the browser supports progress events, display a loading bar
-cache.addEventListener('checking', function() { clearTimeout(initTimer); $('#loading .bar,#loading').show(); $('#loading .complete').css({width: 0}); }, false);
+cache.addEventListener('checking', function() { if(map && !force_check_cache) return; force_check_cache = false; clearTimeout(initTimer); $('#loading .bar,#loading').show(); $('#loading .complete').css({width: 0}); }, false);
 cache.addEventListener('progress', function(e) { $('#loading .complete').stop(true,true).animate({width: (200/e.total)*e.loaded}); }, false);
 
 var listScroll;
@@ -259,8 +265,8 @@ var positionUpdateHandle = function(position) {
         updateCurrentPosition(lat, lon);
 
         // round the coordinates
-        lat = parseInt(lat * 1000000)/1000000;  // 6 decimal places
-        lon = parseInt(lon * 1000000)/1000000;  // 6 decimal places
+        lat = parseInt(lat * 10000)/10000;  // 4 decimal places (11m accuracy at equator)
+        lon = parseInt(lon * 10000)/10000;  // 4 decimal places
         speed = parseInt(speed * 10)/10;        // 1 decimal place
         accuracy = parseInt(accuracy);
         alt = parseInt(alt);
@@ -644,7 +650,14 @@ $(window).ready(function() {
     $('#sw_cache').click(function() {
         var e = $(this).removeClass('off').addClass('on');
         if(confirm("The app will automatically reload, if new version is available.")) {
-            applicationCache.update();
+            force_check_cache = true;
+
+            try {
+                applicationCache.update();
+            } catch (e) {
+                force_check_cache = false;
+                alert("There is no applicationCache available");
+            }
         }
         e.removeClass('on').addClass('off');
     });
@@ -657,7 +670,7 @@ $(window).ready(function() {
         // if we have geolocation services, show the locate me button
         // the button pants the map to the user current location
         if(is_mobile && !embed.enabled) $(".chasecar").show();
-        $("#locate-me").show().click(function() {
+        $("#locate-me,#app_name").attr('style','').click(function() {
             if(map && currentPosition) {
                 // disable following of vehicles
                 stopFollow();

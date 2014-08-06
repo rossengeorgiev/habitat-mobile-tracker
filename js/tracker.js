@@ -705,8 +705,10 @@ function updateVehicleInfo(index, newPosition) {
   $('.landscape .vehicle'+index).html(a + l + b);
 
   // redraw canvas
-  var c = $('.vehicle'+index+' .graph');
-  drawAltitudeProfile(c.get(0), c.get(1), vehicles[index].alt_list, vehicles[index].alt_max);
+  if(!embed.latestonly) {
+      var c = $('.vehicle'+index+' .graph');
+      drawAltitudeProfile(c.get(0), c.get(1), vehicles[index].alt_list, vehicles[index].alt_max);
+  }
 
   // mark vehicles as redrawn
   vehicles[index].updated = false;
@@ -1169,7 +1171,6 @@ function addPosition(position) {
         vehicles.push(vehicle_info);
     }
 
-
     var vehicle_index = $.inArray(position.vehicle, vehicle_names);
     var vehicle = vehicles[vehicle_index];
 
@@ -1198,7 +1199,7 @@ function addPosition(position) {
 
             // record altitude values for the drowing a mini profile
             // only record altitude values in 2minute interval
-            if(convert_time(vehicle.curr_position.gps_time) - vehicle.time_last_alt >= 120000) { // 120s = 2minutes
+            if(!embed.lastestonly && convert_time(vehicle.curr_position.gps_time) - vehicle.time_last_alt >= 120000) { // 120s = 2minutes
                 vehicle.time_last_alt = convert_time(vehicle.curr_position.gps_time);
                 var alt = parseInt(vehicle.curr_position.gps_alt);
 
@@ -1212,8 +1213,12 @@ function addPosition(position) {
                || vehicle.curr_position.gps_lat != position.gps_lat
                || vehicle.curr_position.gps_lon != position.gps_lon) {
                 // add the new position
-                vehicle.positions.push(new_latlng);
-                vehicle.num_positions++;
+                if(embed.latestonly) {
+                    vehicle.num_positions= 1;
+                } else {
+                    vehicle.positions.push(new_latlng);
+                    vehicle.num_positions++;
+                }
 
                 vehicle.curr_position = position;
                 graphAddLastPosition(vehicle_index);
@@ -1223,7 +1228,6 @@ function addPosition(position) {
                 if(poslen > 1) vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[poslen-2], vehicle.positions[poslen-1]);
             }
         }
-
     } else { // if car
         vehicle.updated = true;
         vehicle.curr_position = position;
@@ -1342,11 +1346,14 @@ function refresh() {
   //$('#status_bar').html(status);
 
   //if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'ajax', 'refresh', 'Vehicles']);
+  //
+  var data_str = "type=positions&format=json&max_positions=" + max_positions + "&position_id=" + position_id + "&vehicles=" + encodeURIComponent(vfilter);
+  if(embed.latestonly) data_str = "mode=latest&" + data_str;
 
   $.ajax({
     type: "GET",
     url: data_url,
-    data: "format=json&max_positions=" + max_positions + "&position_id=" + position_id + "&vehicles=" + encodeURIComponent(vfilter),
+    data: data_str,
     dataType: "json",
     success: function(response, textStatus) {
         update(response);
@@ -1670,7 +1677,7 @@ function zoom_on_payload() {
     while(++i < ii) if(vehicles[i].vehicle_type == "balloon") break;
 
     if(i == ii) return;
-    else {
+    else if(vehicles[i].num_positions > 1) {
         // find the bounds of the ballons first and last positions
         var bounds = new google.maps.LatLngBounds();
         bounds.extend(vehicles[i].positions[0]);
