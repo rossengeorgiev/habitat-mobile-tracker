@@ -530,8 +530,13 @@ function roundNumber(number, digits) {
   return rndedNum;
 }
 
+function convert_time(text) {
+    var b = text.split(/[^0-9]/);
+    return Date.UTC(b[0],--b[1],b[2],b[3],b[4],b[5]);
+}
+
 function stringToDateUTC(text) {
-    return new Date(text.replace(" ","T") + "Z");
+    return new Date(convert_time(text));
 }
 
 function formatDate(date,utc) {
@@ -823,10 +828,6 @@ function updatePolyline(vehicle_index) {
     for(k in vehicles[vehicle_index].polyline) {
         vehicles[vehicle_index].polyline[k].setPath(vehicles[vehicle_index].positions);
     }
-}
-
-function convert_time(text) {
-  return stringToDateUTC(text).getTime();
 }
 
 function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
