@@ -68,21 +68,22 @@ var loadComplete = function(e) {
 }
 
 var hysplit = {};
+var hysplit_data = {};
 var refresh_hysplit = function() {
     $.getJSON("http://spacenear.us/tracker/datanew.php?type=hysplit&format=json", function(data) {
         var refresh = false;
 
         for(var k in data) {
-            if(k in hysplit) {
+            if(k in hysplit_data) {
                 // if the jobid is the same, skip to next one
-                if(hysplit[k].jobid == data[k]) continue;
+                if(hysplit_data[k].jobid == data[k].jobid) continue;
 
                 // otherwise update the url
-                hysplit[k].setUrl("http://ready.arl.noaa.gov/hypubout/HYSPLITtraj_" + data[k] + ".kmz");
-                hysplit[k].jobid = data[k];
+                hysplit_data[k] = data[k];
+                hysplit[k].setUrl(hysplit_data[k].url_kmz);
             } else {
-                hysplit[k] = new google.maps.KmlLayer({url:"http://ready.arl.noaa.gov/hypubout/HYSPLITtraj_" + data[k] + ".kmz", preserveViewport:true });
-                hysplit[k].jobid = data[k];
+                hysplit_data[k] = data[k];
+                hysplit[k] = new google.maps.KmlLayer({url: hysplit_data[k].url_kmz, preserveViewport:true });
                 refresh = true;
             }
         }
