@@ -1080,6 +1080,7 @@ function addPosition(position) {
                             subhorizon_circle: subhorizon_circle,
                             num_positions: 0,
                             positions: [],
+                            positions_ts: [],
                             path_length: 0,
                             curr_position: position,
                             line: [],
@@ -1176,16 +1177,16 @@ function addPosition(position) {
 
     if(vehicle.vehicle_type == "balloon") {
         var new_latlng = new google.maps.LatLng(position.gps_lat, position.gps_lon);
-        var dt = (convert_time(position.gps_time) - convert_time(vehicle.curr_position.gps_time)) / 1000; // convert to seconds
+        var new_ts = convert_time(position.gps_time);
+        var curr_ts = convert_time(vehicle.curr_position.gps_time);
+        var dt = (new_ts - curr_ts) / 1000; // convert to seconds
 
-        if(dt == 0) {
+        if(dt == 0 && vehicle.num_positions) {
             if (("," + vehicle.curr_position.callsign + ",").indexOf("," + position.callsign + ",") === -1) {
               vehicle.curr_position.callsign += "," + position.callsign;
             }
-
-            vehicle.updated = true;
         }
-        else if(dt > 0) {
+        else if(dt >= 0) {
             if(vehicle.num_positions > 0) {
                 // calculate vertical rate
                 var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
@@ -1199,8 +1200,8 @@ function addPosition(position) {
 
             // record altitude values for the drowing a mini profile
             // only record altitude values in 2minute interval
-            if(!embed.lastestonly && convert_time(vehicle.curr_position.gps_time) - vehicle.time_last_alt >= 120000) { // 120s = 2minutes
-                vehicle.time_last_alt = convert_time(vehicle.curr_position.gps_time);
+            if(!embed.lastestonly && curr_ts - vehicle.time_last_alt >= 120000) { // 120s = 2minutes
+                vehicle.time_last_alt = curr_ts;
                 var alt = parseInt(vehicle.curr_position.gps_alt);
 
                 if(alt > vehicle.alt_max) vehicle.alt_max = alt; // larged value in the set is required for encoding later
@@ -1209,25 +1210,57 @@ function addPosition(position) {
             }
 
             // add the new position
-            if(!vehicle.curr_position
-               || vehicle.curr_position.gps_lat != position.gps_lat
-               || vehicle.curr_position.gps_lon != position.gps_lon) {
-                // add the new position
-                if(embed.latestonly) {
-                    vehicle.num_positions= 1;
-                } else {
-                    vehicle.positions.push(new_latlng);
-                    vehicle.num_positions++;
-                }
-
-                vehicle.curr_position = position;
-                graphAddLastPosition(vehicle_index);
-                vehicle.updated = true;
-
-                var poslen = vehicle.num_positions;
-                if(poslen > 1) vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[poslen-2], vehicle.positions[poslen-1]);
+            if(embed.latestonly) {
+                vehicle.num_positions= 1;
+            } else {
+                vehicle.positions.push(new_latlng);
+                vehicle.positions_ts.push(new_ts);
+                vehicle.num_positions++;
             }
+
+            // increment length
+            var poslen = vehicle.num_positions;
+            if(poslen > 1) vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[poslen-2], vehicle.positions[poslen-1]);
+
+            vehicle.curr_position = position;
+            graphAddPosition(vehicle_index, vehicle.curr_position);
+
         }
+        else if(vehicle.positions_ts.indexOf(new_ts) == -1) { // backlog packets, need to splice them into the array
+            // TODO:
+            // 1. altitude profile, will bug out if packets are in reverse order for example, fix or redo it
+            // 2. check TODO on graphAddPosition()
+
+            // find out the index at which we should insert the new point
+            var xref = vehicle.positions_ts;
+            var idx = -1, len = xref.length;
+            while(++idx < len) {
+                if(xref[idx] > new_ts) {
+                    break;
+                }
+            }
+
+            // recalculate the distance in the section where we insert
+            if(idx == 0) {
+                vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[0], new_latlng);
+            } else {
+                // subtracked the distance between the two points where we gonna insert the new one
+                vehicle.path_length -= google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[idx-1], vehicle.positions[idx]);
+
+                // calculate the distance with the new point in place
+                vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[idx-1], new_latlng);
+                vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[idx], new_latlng);
+            }
+
+            // insert the new position into our arrays
+            vehicle.positions.splice(idx, 0, new_latlng);
+            vehicle.positions_ts.splice(idx, 0, new_ts);
+            vehicle.num_positions++;
+
+            graphAddPosition(vehicle_index, position);
+        }
+
+        vehicle.updated = true;
     } else { // if car
         vehicle.updated = true;
         vehicle.curr_position = position;
@@ -1266,15 +1299,32 @@ function updateGraph(idx, reset_selection) {
     vehicles[idx].graph_data_updated = false;
 }
 
-function graphAddLastPosition(idx) {
+function graphAddPosition(idx, new_data) {
     if(!plot) return;
 
     vehicles[idx].graph_data_updated = true;
-    var data = vehicles[idx].graph_data;
-    var new_data = vehicles[idx].curr_position;
-    var ts = convert_time(new_data.gps_time);
 
-    if(vehicles[idx].graph_data.length) {
+    var data = vehicles[idx].graph_data;
+    var ts = convert_time(new_data.gps_time);
+    var splice_idx = 0;
+    var splice = false;
+
+    if(data.length && data[0].data.length) {
+        if(data[0].data[data[0].data.length - 1][0] > ts) splice = true;
+    }
+
+    if(splice) {
+        // adjust splice_idx to account for null entries
+        var xref = data[0].data;
+        var i = xref.length - 1;
+        for(; i >= 0; i--) {
+            if(ts > xref[i][0]) break;
+        }
+        splice_idx = i+1;
+
+        //TODO: correct/adjust null entries
+    }
+    else if(vehicles[idx].graph_data.length) {
         var ts_last_idx = data[0].data.length - 1;
         var ts_last = data[0].data[ts_last_idx][0];
 
@@ -1308,7 +1358,12 @@ function graphAddLastPosition(idx) {
     }
 
     // push latest altitude
-    data[0].data.push([ts, parseInt(new_data.gps_alt)]);
+    if(splice) {
+        data[0].data.splice(splice_idx, 0, [ts, parseInt(new_data.gps_alt)]);
+    } else {
+        data[0].data.push([ts, parseInt(new_data.gps_alt)]);
+    }
+
     if(parseInt(new_data.gps_alt) < 0) delete vehicles[idx].graph_yaxes[i].min;
     i++;
 
@@ -1334,7 +1389,11 @@ function graphAddLastPosition(idx) {
 
         if(k != data[i].key) return;
 
-        data[i].data.push([ts, parseFloat(v)]);
+        if(splice) {
+            data[i].data.splice(splice_idx,0, [ts, parseFloat(v)]);
+        } else {
+            data[i].data.push([ts, parseFloat(v)]);
+        }
         if(parseFloat(v) < 0) delete vehicles[idx].graph_yaxes[i].min;
 
         i++;
@@ -1598,7 +1657,6 @@ function update(response) {
         lastPPointer: lastPositions.positions.position,
         idx: 0,
         max: response.positions.position.length,
-        last_vehicle: null,
         step: function(ctx) {
             var draw_idx = -1;
 
@@ -1612,15 +1670,8 @@ function update(response) {
                 if(row.position_id > position_id) { position_id = row.position_id; }
 
                 if (!row.picture) {
-                    if(ctx.last_vehicle == null) ctx.last_vehicle = row.vehicle;
-
                     addPosition(row);
                     got_positions = true;
-
-                    if(ctx.last_vehicle != row.vehicle) {
-                        draw_idx = vehicle_names.indexOf(ctx.last_vehicle);
-                        ctx.last_vehicle = row.vehicle;
-                    }
                 }
             }
 
