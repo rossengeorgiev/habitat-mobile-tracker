@@ -1106,6 +1106,7 @@ function addPosition(position) {
                             time_last_alt: 0,
                             alt_max: 100,
                             graph_data_updated: false,
+                            graph_data_map: {},
                             graph_data: [],
                             graph_yaxes: [],
                             updated: false,
@@ -1223,7 +1224,7 @@ function addPosition(position) {
             if(poslen > 1) vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[poslen-2], vehicle.positions[poslen-1]);
 
             vehicle.curr_position = position;
-            graphAddPosition(vehicle_index, vehicle.curr_position);
+            graphAddPosition(vehicle_index, position);
 
         }
         else if(vehicle.positions_ts.indexOf(new_ts) == -1) { // backlog packets, need to splice them into the array
@@ -1302,46 +1303,48 @@ function updateGraph(idx, reset_selection) {
 function graphAddPosition(idx, new_data) {
     if(!plot) return;
 
-    vehicles[idx].graph_data_updated = true;
+    var vehicle = vehicles[idx];
+    vehicle.graph_data_updated = true;
 
     var data = vehicles[idx].graph_data;
     var ts = convert_time(new_data.gps_time);
     var splice_idx = 0;
     var splice = false;
 
-    if(data.length && data[0].data.length) {
-        if(data[0].data[data[0].data.length - 1][0] > ts) splice = true;
-    }
-
-    if(splice) {
-        // adjust splice_idx to account for null entries
-        var xref = data[0].data;
-        var i = xref.length - 1;
-        for(; i >= 0; i--) {
-            if(ts > xref[i][0]) break;
-        }
-        splice_idx = i+1;
-
-        //TODO: correct/adjust null entries
-    }
-    else if(vehicles[idx].graph_data.length) {
+    if(data.length) {
         var ts_last_idx = data[0].data.length - 1;
         var ts_last = data[0].data[ts_last_idx][0];
 
-        //insert gap when there are 3mins, or more, without telemetry
-        var gap_size = 180000; // 3 mins in milis
-        var pad_size = 120000; // 2 min
-
-        if(ts_last + gap_size < ts) {
-            $.each(data, function(k,v) {
-                v.data.push([ts_last+pad_size, v.data[v.data.length - 1][1]]);
-                v.data.push([ts_last+pad_size+1, null]);
-                v.nulls += 2;
-            })
+        if(data[0].data.length) {
+            if(data[0].data[ts_last_idx][0] >= ts) splice = true;
         }
 
+        if(splice) {
+            // adjust splice_idx to account for null entries
+            var xref = data[0].data;
+            var i = xref.length - 1;
+            for(; i >= 0; i--) {
+                if(ts > xref[i][0]) break;
+            }
+            splice_idx = i+1;
+
+            //TODO: correct/adjust null entries
+        }
+        else {
+            //insert gap when there are 3mins, or more, without telemetry
+            var gap_size = 180000; // 3 mins in milis
+            var pad_size = 120000; // 2 min
+
+            if(ts_last + gap_size < ts) {
+                $.each(data, function(k,v) {
+                    v.data.push([ts_last+pad_size, v.data[v.data.length - 1][1]]);
+                    v.data.push([ts_last+pad_size+1, null]);
+                    v.nulls += 2;
+                })
+            }
+        }
         // update the selection upper limit to the latest timestamp, only if the upper limit is equal to the last timestamp
-        if(plot_options.xaxis && follow_vehicle == idx && ts_last == plot_options.xaxis.max) plot_options.xaxis.max = ts;
+        if(plot_options.xaxis && follow_vehicle == idx && ts_last == plot_options.xaxis.max && ts > ts_last) plot_options.xaxis.max = ts;
     }
 
     var i = 0;
@@ -1355,6 +1358,7 @@ function graphAddPosition(idx, new_data) {
                     nulls: 0,
                     data: []
                   };
+
     }
 
     // push latest altitude
@@ -1364,16 +1368,22 @@ function graphAddPosition(idx, new_data) {
         data[0].data.push([ts, parseInt(new_data.gps_alt)]);
     }
 
-    if(parseInt(new_data.gps_alt) < 0) delete vehicles[idx].graph_yaxes[i].min;
-    i++;
+    if(parseInt(new_data.gps_alt) < 0) delete vehicle.graph_yaxes[i].min;
 
     // the rest of the series is from the data field
     var json = $.parseJSON(new_data.data);
     if(!json) return;
 
+    // init empty data matrix
+    var data_matrix = [];
+    for(var k in vehicle.graph_data_map) data_matrix[vehicle.graph_data_map[k]] = [ts, null];
+
     $.each(json, function(k, v) {
         if(isNaN(v) || v=="") return;        // only take data that is numerical
-        if(i >= 8) return;  // up to 8 seperate data plots
+
+        i = (k in vehicle.graph_data_map) ? vehicle.graph_data_map[k] : data.length;
+
+        if(i >= 8) return;  // up to 8 seperate data plots only
 
         if(data[i] === undefined) {
             data[i] = {
@@ -1384,20 +1394,24 @@ function graphAddPosition(idx, new_data) {
                         data: []
                       };
 
-           if(isInt(v)) $.extend(true, data[i], { noInterpolate: true, lines: { steps: true }});
+            vehicle.graph_data_map[k] = i;
+            data_matrix[i] = [ts, null];
+
+            if(isInt(v)) $.extend(true, data[i], { noInterpolate: true, lines: { steps: true }});
         }
 
-        if(k != data[i].key) return;
+        if(parseFloat(v) < 0) delete vehicle.graph_yaxes[i].min;
 
-        if(splice) {
-            data[i].data.splice(splice_idx,0, [ts, parseFloat(v)]);
-        } else {
-            data[i].data.push([ts, parseFloat(v)]);
-        }
-        if(parseFloat(v) < 0) delete vehicles[idx].graph_yaxes[i].min;
-
-        i++;
+        data_matrix[i][1] = parseFloat(v);
     });
+
+    for(var k in data_matrix) {
+        if(splice) {
+            data[k].data.splice(splice_idx, 0, data_matrix[k]);
+        } else {
+            data[k].data.push(data_matrix[k]);
+        }
+    }
 }
 
 function refresh() {
