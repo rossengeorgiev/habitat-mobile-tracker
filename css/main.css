@@ -480,6 +480,8 @@ header > div {
 }
 .slimContainer .row > span {
     float: left;
+}
+.slimContainer .row.option > span {
     width: 200px;
 }
 .slimContainer .row.option > span {
