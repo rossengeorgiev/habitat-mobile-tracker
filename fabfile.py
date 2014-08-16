@@ -21,7 +21,7 @@ def stage_master():
     local("git push -f origin")
     local("git push -f ukhas")
 
-def deploy():
+def deploy(reset=False, head='HEAD^'):
     wd = "/var/www/habitat/mobile-tracker/"
 
     with settings(warn_only=True):
@@ -30,7 +30,9 @@ def deploy():
             return
 
     with cd(wd):
-        run("git reset --hard")
+        if reset == 'reset':
+            run("git reset --hard " + head)
+
         run("git pull")
         run("./build.sh")
 
