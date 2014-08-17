@@ -1308,39 +1308,75 @@ function graphAddPosition(idx, new_data) {
 
     var data = vehicles[idx].graph_data;
     var ts = convert_time(new_data.gps_time);
-    var splice_idx = 0;
     var splice = false;
+    var splice_idx = 0;
+    var splice_remove = 0;
+    var splice_pad = false;
+    var gap_size = 180000; // 3 mins in milis
+    var pad_size = 120000; // 2 min
 
     if(data.length) {
         var ts_last_idx = data[0].data.length - 1;
         var ts_last = data[0].data[ts_last_idx][0];
 
         if(data[0].data.length) {
-            if(data[0].data[ts_last_idx][0] >= ts) splice = true;
+            if(data[0].data[ts_last_idx][0] > ts) splice = true;
         }
 
         if(splice) {
-            // adjust splice_idx to account for null entries
+            // Good luck figuring out the following code. -Rossen
+
+            // find an insertion point for the new datum
             var xref = data[0].data;
-            var i = xref.length - 1;
+            var i = max = xref.length - 1;
             for(; i >= 0; i--) {
                 if(ts > xref[i][0]) break;
             }
             splice_idx = i+1;
 
-            //TODO: correct/adjust null entries
+
+            if(i > -1) {
+                // this is if new datum hits padded area
+                if((xref[i][1] == null && xref[i][0] - 1 + (gap_size - pad_size) >= ts)) {
+                    splice_remove = 2;
+                    splice_idx = i-1;
+                }
+                else if(i+1 <= max && xref[i+1][1] == null) {
+                    splice_remove = 2;
+                    splice_idx = i;
+                }
+                else if(i+2 <= max && xref[i+2][1] == null) {
+                    splice_remove = 2;
+                    splice_idx = i+1;
+
+                }
+                // should we pad before the new datum
+                else if (xref[i][1] != null && xref[i][0] + gap_size < ts) {
+                    // pad with previous datum
+                    $.each(data, function(k,v) {
+                        v.data.splice(i+1, 0, [xref[i][0]+pad_size, v.data[i][1]], [xref[i][0]+pad_size+1, null]);
+                        v.nulls += 2;
+                    });
+
+                    splice_idx += 2;
+                }
+
+            }
+
+            // should we pad after
+            if(ts + gap_size < xref[splice_idx+splice_remove][0]) {
+                splice_pad = true;
+            }
+
         }
         else {
             //insert gap when there are 3mins, or more, without telemetry
-            var gap_size = 180000; // 3 mins in milis
-            var pad_size = 120000; // 2 min
-
             if(ts_last + gap_size < ts) {
                 $.each(data, function(k,v) {
-                    v.data.push([ts_last+pad_size, v.data[v.data.length - 1][1]]);
+                    v.data.push([ts_last+pad_size, v.data[ts_last_idx][1]]);
                     v.data.push([ts_last+pad_size+1, null]);
                     v.nulls += 2;
-                })
+                });
             }
         }
         // update the selection upper limit to the latest timestamp, only if the upper limit is equal to the last timestamp
@@ -1363,7 +1399,13 @@ function graphAddPosition(idx, new_data) {
 
     // push latest altitude
     if(splice) {
-        data[0].data.splice(splice_idx, 0, [ts, parseInt(new_data.gps_alt)]);
+        if(splice_pad) {
+            data[0].data.splice(splice_idx, splice_remove, [ts, parseInt(new_data.gps_alt)], [ts+pad_size, parseInt(new_data.gps_alt)], [ts+pad_size+1, null]);
+            data[0].nulls += 2;
+        } else {
+            data[0].data.splice(splice_idx, splice_remove, [ts, parseInt(new_data.gps_alt)]);
+        }
+        data[0].nulls -= splice_remove;
     } else {
         data[0].data.push([ts, parseInt(new_data.gps_alt)]);
     }
@@ -1407,7 +1449,13 @@ function graphAddPosition(idx, new_data) {
 
     for(var k in data_matrix) {
         if(splice) {
-            data[k].data.splice(splice_idx, 0, data_matrix[k]);
+            if(splice_pad) {
+                data[k].data.splice(splice_idx, splice_remove, data_matrix[k], [ts+pad_size, data_matrix[k][1]], [ts+pad_size+1, null]);
+                data[k].nulls += 2;
+            } else {
+                data[k].data.splice(splice_idx, splice_remove, data_matrix[k]);
+            }
+            data[k].nulls -= splice_remove;
         } else {
             data[k].data.push(data_matrix[k]);
         }
