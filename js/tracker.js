@@ -43,6 +43,47 @@ var ls_pred = false;
 
 var plot = null;
 var plot_open = false;
+var plot_holder = "#telemetry_graph .holder";
+var plot_options = {
+    crosshair: {
+        mode: "x"
+    },
+    legend: {
+        show: true,
+        sorted: false,
+        position: 'nw',
+        noColumns: 1,
+        backgroundColor: null,
+        backgroundOpacity: 0
+    },
+    grid: {
+        show: true,
+        hoverable: true,
+        aboveData: true,
+        borderWidth: 0,
+    },
+    selection: {
+        mode: "x"
+    },
+    yaxes: [
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+        {show: false, min: 0 },
+    ],
+    xaxes: [
+        {
+            show: true,
+            mode: "time",
+            timeformat: "%m/%d %H:%M"
+        }
+    ]
+};
 
 // weather
 var weatherOverlayId = "nexrad-n0q-900913";
@@ -707,7 +748,7 @@ function updateVehicleInfo(index, newPosition) {
   // redraw canvas
   if(!embed.latestonly) {
       var c = $('.vehicle'+index+' .graph');
-      drawAltitudeProfile(c.get(0), c.get(1), vehicles[index].alt_list, vehicles[index].alt_max);
+      drawAltitudeProfile(c.get(0), c.get(1), vehicles[index].graph_data[0], vehicles[index].max_alt);
   }
 
   // mark vehicles as redrawn
@@ -832,8 +873,11 @@ function updatePolyline(vehicle_index) {
     }
 }
 
-function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
+function drawAltitudeProfile(c1, c2, series, alt_max) {
     alt_max = (alt_max < 2000) ? 2000 : alt_max;
+    var alt_list = series.data;
+    var len = alt_list.length;
+    var real_len = len - series.nulls;
 
     var ctx1 = c1.getContext("2d");
     var ctx2 = c2.getContext("2d");
@@ -842,7 +886,7 @@ function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
     c2 = $(c2);
 
     var ratio = window.devicePixelRatio;
-    var cw1 = 150 * ratio;
+    var cw1 = 180 * ratio;
     var ch1 = 40 * ratio;
     var cw2 = 60 * ratio;
     var ch2 = 40 * ratio;
@@ -857,9 +901,9 @@ function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
     ctx2.lineWidth = 2 * ratio;
     ctx2.strokeStyle= "#33B5F5";
 
-    var xt1 = (cw1 - (2 * ratio)) / alt_list.length;
+    var xt1 = (cw1 - (2 * ratio)) / real_len;
     var yt1 = (ch1 - (6 * ratio)) / alt_max;
-    var xt2 = (cw2 - (2 * ratio)) / alt_list.length;
+    var xt2 = (cw2 - (2 * ratio)) / real_len;
     var yt2 = (ch2 - (6 * ratio)) / alt_max;
 
     xt1 = (xt1 > 1) ? 1 : xt1;
@@ -868,21 +912,54 @@ function drawAltitudeProfile(c1, c2, alt_list, alt_max) {
     yt2 = (yt2 > 1) ? 1 : yt2;
 
     ctx1.beginPath();
-    ctx1.moveTo(0,c1.height);
     ctx2.beginPath();
-    ctx2.moveTo(0,c2.height);
+
+    // start line at the ground, depending in the first altitude datum
+    if(alt_list[0][1] < 2000) {
+        ctx1.lineTo(0,ch1);
+        ctx2.lineTo(0,ch2);
+    }
+
 
     var i;
-    for(i = 0; i < alt_list.length; i++) {
-        ctx1.lineTo(1+((i+1)*xt1), ch1 - (alt_list[i] * yt1));
-        ctx2.lineTo(1+((i+1)*xt2), ch2 - (alt_list[i] * yt2));
+    // draw all altitude points, if they are not too many
+    if(cw1*2 > real_len) {
+        for(i = 0; i < real_len; i++) {
+            var alt = alt_list[i][1];
+
+            ctx1.lineTo(1+((i+1)*xt1), ch1 - (alt * yt1));
+            ctx2.lineTo(1+((i+1)*xt2), ch2 - (alt * yt2));
+
+            if(i+2 < len && alt_list[i+2][1] == null) i += 2;
+        }
+    }
+    // if they are too many, downsample to keep the loop short
+    else {
+        xt1 = 0.5;
+        xt2 = 0.16666666666;
+        var max = cw1 * 2;
+        var step = (1.0*len) / max;
+
+        for(i = 0; i < max; i++) {
+            var alt = alt_list[Math.floor(i*step)][1];
+            if(alt == null) continue;
+
+            ctx1.lineTo(1+((i+1)*xt1), ch1 - (alt * yt1));
+            ctx2.lineTo(1+((i+1)*xt2), ch2 - (alt * yt2));
+        }
+
+        // fix index for fill
+        i = len - 1;
     }
 
     ctx1.stroke();
     ctx2.stroke();
 
+    // close the path, so it can be filled
     ctx1.lineTo(1+((i+1)*xt1), ch1);
     ctx2.lineTo(1+((i+1)*xt2), ch2);
+    ctx1.lineTo(0,ch1);
+    ctx2.lineTo(0,ch2);
 
     ctx1.closePath();
     ctx2.closePath();
@@ -1102,9 +1179,6 @@ function addPosition(position) {
                             color_index: c,
                             prediction_traget: null,
                             prediction_burst: null,
-                            alt_list: [0],
-                            time_last_alt: 0,
-                            alt_max: 100,
                             graph_data_updated: false,
                             graph_data_map: {},
                             graph_data: [],
@@ -1114,7 +1188,7 @@ function addPosition(position) {
                             };
 
         // deep copy yaxes config for graph
-        if(plot) $.each($.extend(false, plot_options.yaxes, {}), function(k,v) { vehicle_info.graph_yaxes.push(v) });
+        $.each($.extend(false, plot_options.yaxes, {}), function(k,v) { vehicle_info.graph_yaxes.push(v) });
 
         // nyan mod
         if(nyan_mode && vehicle_info.vehicle_type == "balloon") {
@@ -1199,20 +1273,11 @@ function addPosition(position) {
                                                                                                 new google.maps.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon)) / dt;
              }
 
-            // record altitude values for the drowing a mini profile
-            // only record altitude values in 2minute interval
-            if(!embed.lastestonly && curr_ts - vehicle.time_last_alt >= 120000) { // 120s = 2minutes
-                vehicle.time_last_alt = curr_ts;
-                var alt = parseInt(vehicle.curr_position.gps_alt);
-
-                if(alt > vehicle.alt_max) vehicle.alt_max = alt; // larged value in the set is required for encoding later
-
-                vehicle.alt_list.push(alt); // push value to the list
-            }
-
             // add the new position
             if(embed.latestonly) {
                 vehicle.num_positions= 1;
+                vehicle.positions.push(new_latlng);
+                vehicle.positions_ts.push(new_ts);
             } else {
                 vehicle.positions.push(new_latlng);
                 vehicle.positions_ts.push(new_ts);
@@ -1228,10 +1293,6 @@ function addPosition(position) {
 
         }
         else if(vehicle.positions_ts.indexOf(new_ts) == -1) { // backlog packets, need to splice them into the array
-            // TODO:
-            // 1. altitude profile, will bug out if packets are in reverse order for example, fix or redo it
-            // 2. check TODO on graphAddPosition()
-
             // find out the index at which we should insert the new point
             var xref = vehicle.positions_ts;
             var idx = -1, len = xref.length;
@@ -1301,7 +1362,6 @@ function updateGraph(idx, reset_selection) {
 }
 
 function graphAddPosition(idx, new_data) {
-    if(!plot) return;
 
     var vehicle = vehicles[idx];
     vehicle.graph_data_updated = true;
@@ -1411,6 +1471,10 @@ function graphAddPosition(idx, new_data) {
     }
 
     if(parseInt(new_data.gps_alt) < 0) delete vehicle.graph_yaxes[i].min;
+
+    // we don't record extra data, if there is no telemetry graph loaded
+    // altitude is used for altitude profile
+    if(!plot) return;
 
     // the rest of the series is from the data field
     var json = $.parseJSON(new_data.data);
