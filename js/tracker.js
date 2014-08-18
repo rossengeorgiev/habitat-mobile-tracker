@@ -1428,6 +1428,21 @@ function graphAddPosition(idx, new_data) {
         if(i >= 8) return;  // up to 8 seperate data plots only
 
         if(data[i] === undefined) {
+            // when a new data field comes in packet other than the first one
+            if(data[0].data.length > 1) {
+                var xref = data[0].data;
+
+                data[i] = {};
+                data[i].data = new Array(xref.length);
+
+                // we intialize it's series entry with empty data
+                // all series need to be the same length for slicing to work
+                for(var k in xref) {
+                    data[i].data[k] = [xref[k][9], null];
+                }
+            }
+
+            // configure series
             data[i] = {
                         label: k + " = 0",
                         key: k,
@@ -1439,6 +1454,7 @@ function graphAddPosition(idx, new_data) {
             vehicle.graph_data_map[k] = i;
             data_matrix[i] = [ts, null];
 
+            // additinal series configuration
             if(isInt(v)) $.extend(true, data[i], { noInterpolate: true, lines: { steps: true }});
         }
 
