@@ -746,7 +746,7 @@ function updateVehicleInfo(index, newPosition) {
   $('.landscape .vehicle'+index).html(a + l + b);
 
   // redraw canvas
-  if(!embed.latestonly) {
+  if(!embed.latestonly && vehicles[index].graph_data.length) {
       var c = $('.vehicle'+index+' .graph');
       drawAltitudeProfile(c.get(0), c.get(1), vehicles[index].graph_data[0], vehicles[index].max_alt);
   }
