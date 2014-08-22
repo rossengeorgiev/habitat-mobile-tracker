@@ -1457,6 +1457,78 @@ function graphAddPosition(idx, new_data) {
 
     }
 
+    if(parseInt(new_data.gps_alt) < 0) delete vehicle.graph_yaxes[i].min;
+
+    // we don't record extra data, if there is no telemetry graph loaded
+    // altitude is used for altitude profile
+    if(plot) {
+
+        // the rest of the series is from the data field
+        var json = $.parseJSON(new_data.data);
+        if(!json) return;
+
+        // init empty data matrix
+        var data_matrix = [];
+        for(var k in vehicle.graph_data_map) data_matrix[vehicle.graph_data_map[k]] = [ts, null];
+
+        $.each(json, function(k, v) {
+            if(isNaN(v) || v=="") return;        // only take data that is numerical
+
+            i = (k in vehicle.graph_data_map) ? vehicle.graph_data_map[k] : data.length;
+
+            if(i >= 8) return;  // up to 8 seperate data plots only
+
+            if(data[i] === undefined) {
+                // configure series
+                data[i] = {
+                            label: k + " = 0",
+                            key: k,
+                            yaxis: i + 1,
+                            nulls: 0,
+                            data: []
+                          };
+
+                // when a new data field comes in packet other than the first one
+                if(data[0].data.length > 0) {
+                    var xref = data[0].data;
+
+                    data[i].data = new Array(xref.length);
+
+                    // we intialize it's series entry with empty data
+                    // all series need to be the same length for slicing to work
+                    for(var kk in xref) {
+                        data[i].data[kk] = [xref[kk][0], null];
+                    }
+
+                }
+
+                vehicle.graph_data_map[k] = i;
+                data_matrix[i] = [ts, null];
+
+                // additinal series configuration
+                if(isInt(v)) $.extend(true, data[i], { noInterpolate: true, lines: { steps: true }});
+            }
+
+            if(parseFloat(v) < 0) delete vehicle.graph_yaxes[i].min;
+
+            data_matrix[i][1] = parseFloat(v);
+        });
+
+        for(var k in data_matrix) {
+            if(splice) {
+                if(splice_pad) {
+                    data[k].data.splice(splice_idx, splice_remove, data_matrix[k], [ts+pad_size, data_matrix[k][1]], [ts+pad_size+1, null]);
+                    data[k].nulls += 2;
+                } else {
+                    data[k].data.splice(splice_idx, splice_remove, data_matrix[k]);
+                }
+                data[k].nulls -= splice_remove;
+            } else {
+                data[k].data.push(data_matrix[k]);
+            }
+        }
+    }
+
     // push latest altitude
     if(splice) {
         if(splice_pad) {
@@ -1468,77 +1540,6 @@ function graphAddPosition(idx, new_data) {
         data[0].nulls -= splice_remove;
     } else {
         data[0].data.push([ts, parseInt(new_data.gps_alt)]);
-    }
-
-    if(parseInt(new_data.gps_alt) < 0) delete vehicle.graph_yaxes[i].min;
-
-    // we don't record extra data, if there is no telemetry graph loaded
-    // altitude is used for altitude profile
-    if(!plot) return;
-
-    // the rest of the series is from the data field
-    var json = $.parseJSON(new_data.data);
-    if(!json) return;
-
-    // init empty data matrix
-    var data_matrix = [];
-    for(var k in vehicle.graph_data_map) data_matrix[vehicle.graph_data_map[k]] = [ts, null];
-
-    $.each(json, function(k, v) {
-        if(isNaN(v) || v=="") return;        // only take data that is numerical
-
-        i = (k in vehicle.graph_data_map) ? vehicle.graph_data_map[k] : data.length;
-
-        if(i >= 8) return;  // up to 8 seperate data plots only
-
-        if(data[i] === undefined) {
-            // when a new data field comes in packet other than the first one
-            if(data[0].data.length > 1) {
-                var xref = data[0].data;
-
-                data[i] = {};
-                data[i].data = new Array(xref.length);
-
-                // we intialize it's series entry with empty data
-                // all series need to be the same length for slicing to work
-                for(var k in xref) {
-                    data[i].data[k] = [xref[k][9], null];
-                }
-            }
-
-            // configure series
-            data[i] = {
-                        label: k + " = 0",
-                        key: k,
-                        yaxis: i + 1,
-                        nulls: 0,
-                        data: []
-                      };
-
-            vehicle.graph_data_map[k] = i;
-            data_matrix[i] = [ts, null];
-
-            // additinal series configuration
-            if(isInt(v)) $.extend(true, data[i], { noInterpolate: true, lines: { steps: true }});
-        }
-
-        if(parseFloat(v) < 0) delete vehicle.graph_yaxes[i].min;
-
-        data_matrix[i][1] = parseFloat(v);
-    });
-
-    for(var k in data_matrix) {
-        if(splice) {
-            if(splice_pad) {
-                data[k].data.splice(splice_idx, splice_remove, data_matrix[k], [ts+pad_size, data_matrix[k][1]], [ts+pad_size+1, null]);
-                data[k].nulls += 2;
-            } else {
-                data[k].data.splice(splice_idx, splice_remove, data_matrix[k]);
-            }
-            data[k].nulls -= splice_remove;
-        } else {
-            data[k].data.push(data_matrix[k]);
-        }
     }
 }
 
