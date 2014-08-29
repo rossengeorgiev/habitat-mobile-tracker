@@ -441,20 +441,23 @@ function habitat_data(jsondata) {
   }
 
   var suffixes = {
-    "battery": "V",
+    "battery": " V",
+    "solar_panel": " V",
     "temperature": "&deg;C",
+    "temperature_internal": "&deg;C",
     "temperature_external": "&deg;C",
     "temperature_radio": "&deg;C",
-    "pressure": "Pa",
-    "voltage_solar_1": "V",
-    "voltage_solar_2": "V",
+    "pressure": " Pa",
+    "voltage_solar_1": " V",
+    "voltage_solar_2": " V",
     "battery_percent": "%",
-    "uplink_rssi": "dBm",
-    "rssi_last_message": "dBm",
-    "rssi_floor": "dBm",
+    "uplink_rssi": " dBm",
+    "rssi_last_message": " dBm",
+    "rssi_floor": " dBm",
+    "bearing": "&deg;",
     "iss_azimuth": "&deg;",
     "iss_elevation": "&deg;",
-    "light_intensity": "lx",
+    "light_intensity": " lx",
     "spam": ""
   }
 
@@ -488,7 +491,7 @@ function habitat_data(jsondata) {
         name = guess_name(k);
 
       if (suffixes[k] !== undefined)
-        suffix = " " + suffixes[k];
+        suffix = suffixes[k];
 
       output += "<dt>" + v + suffix + "</dt><dd>" + name + "</dd>";
     }
