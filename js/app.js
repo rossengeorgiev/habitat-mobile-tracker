@@ -578,7 +578,8 @@ $(window).ready(function() {
         "#sw_haxis_hours",
         "#sw_daylight",
         "#sw_hide_receivers",
-        "#sw_hide_timebox"
+        "#sw_hide_timebox",
+        "#sw_hilight_vehicle"
     ];
 
     // applies functionality when switches are toggled
@@ -606,8 +607,12 @@ $(window).ready(function() {
 
         // execute functionality
         switch(name) {
-            case "opt_imperial":;
-            case "opt_haxis_hours":;
+            case "opt_hilight_vehicle":
+                if(on) focusVehicle(follow_vehicle);
+                else focusVehicle(-1);
+                break;
+            case "opt_imperial":
+            case "opt_haxis_hours":
                 refreshUI();
                 break;
             case "opt_daylight":

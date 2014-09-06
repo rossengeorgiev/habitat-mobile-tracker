@@ -533,9 +533,33 @@ function updateZoom() {
   }
 }
 
+function focusVehicle(index, ignoreOpt) {
+    if(!offline.get('opt_hilight_vehicle') && ignoreOpt == undefined) return;
+
+    var opacityFocused = 0.8;
+    var opacityOther = 0.1;
+
+    if(index < 0) opacityOther = opacityFocused;
+
+    for(var i in vehicles) {
+        var vehicle = vehicles[i];
+
+        if(i == index) {
+            if(vehicle.horizon_circle) vehicle.horizon_circle.setOptions({strokeOpacity:opacityFocused});
+            if(vehicle.subhorizon_circle) vehicle.subhorizon_circle.setOptions({strokeOpacity:opacityFocused});
+            for(var j in vehicle.polyline) vehicle.polyline[j].setOptions({strokeOpacity:opacityFocused});
+        }
+        else {
+            if(vehicle.horizon_circle) vehicle.horizon_circle.setOptions({strokeOpacity:opacityOther});
+            if(vehicle.subhorizon_circle) vehicle.subhorizon_circle.setOptions({strokeOpacity:opacityOther});
+            for(var j in vehicle.polyline) vehicle.polyline[j].setOptions({strokeOpacity:opacityOther});
+        }
+    }
+}
 
 function stopFollow() {
 	if(follow_vehicle != -1) {
+        focusVehicle(-1);
         // remove target mark
         $("#main .row.follow").removeClass("follow");
 
@@ -555,6 +579,8 @@ function followVehicle(index) {
 	if(follow_vehicle != -1  && vehicles.length) vehicles[follow_vehicle].follow = false;
 
     if(follow_vehicle != index) {
+        focusVehicle(index);
+
 		follow_vehicle = index;
 		vehicles[follow_vehicle].follow = true;
 
