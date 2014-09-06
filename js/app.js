@@ -20,7 +20,8 @@ var embed = {
     vlist: true,
     graph: true,
     graph_exapnded: false,
-    latestonly: is_mobile
+    latestonly: is_mobile,
+    focus: ""
 }
 var params = window.location.search.substring(1).split('&');
 
@@ -36,6 +37,7 @@ for(var idx in params) {
         case "filter": vfilter = line[1]; break;
         case "nyan": nyan_mode = true; break;
         case "latestonly": embed.latestonly = (parseInt(line[1]) == 1) ? true : false; break;
+        case "focus": embed.focus = line[1]; break;
     }
 }
 

@@ -1915,7 +1915,12 @@ function update(response) {
 function zoom_on_payload() {
     // find a the first balloon
     var i = -1, ii = vehicles.length;
-    while(++i < ii) if(vehicles[i].vehicle_type == "balloon") break;
+
+    if(embed.focus != "" && vehicle_names.indexOf(embed.focus) > -1) {
+        i = vehicle_names.indexOf(embed.focus);
+    } else {
+        while(++i < ii) if(vehicles[i].vehicle_type == "balloon") break;
+    }
 
     if(i == ii) return;
     else if(vehicles[i].num_positions > 1) {
