@@ -1038,8 +1038,7 @@ function addPosition(position) {
         var point = new google.maps.LatLng(position.gps_lat, position.gps_lon);
         var image_src = "";
         var color_index = 0;
-        if(position.vehicle.search(/(chase)/i) != -1  // whitelist
-           && position.vehicle.search(/icarus/i) == -1) {  // blacklist
+        if(position.vehicle.search(/(chase)/i) != -1) {
             vehicle_type = "car";
             color_index = car_index++;
             var c = color_index % car_colors.length;
@@ -1051,6 +1050,24 @@ function addPosition(position) {
                     size: new google.maps.Size(55,25),
                     scaledSize: new google.maps.Size(55,25),
                     anchor: new google.maps.Point(27,22)
+                },
+                zIndex: Z_CAR,
+                position: point,
+                map: map,
+                optimized: false,
+                title: position.vehicle
+            });
+        }
+        else if(position.vehicle == "XX") {
+            vehicle_type = "xmark";
+            var image_src = host_url + markers_url + "balloon-xmark.png";
+
+            marker = new google.maps.Marker({
+                icon: {
+                    url: image_src,
+                    size: new google.maps.Size(48,38),
+                    scaledSize: new google.maps.Size(48,38),
+                    anchor: new google.maps.Point(24,18)
                 },
                 zIndex: Z_CAR,
                 position: point,
@@ -1177,7 +1194,6 @@ function addPosition(position) {
                             ascent_rate: 0.0,
                             horizontal_rate: 0.0,
                             max_alt: parseFloat(position.gps_alt),
-                            path_enabled: vehicle_type == "balloon" && position.vehicle.toLowerCase().indexOf("iss") == -1,
                             follow: false,
                             color_index: c,
                             prediction_traget: null,
@@ -1759,6 +1775,8 @@ function updatePredictions(r) {
 
     var i = 0, ii = r.length;
     for(; i < ii; i++) {
+        if(r[i].vehicle == "XX") continue;
+
 		var vehicle_index = $.inArray(r[i].vehicle, vehicle_names);
 		if(vehicle_index != -1) {
 			if(vehicles[vehicle_index].prediction && vehicles[vehicle_index].prediction.time == r[i].time) {
