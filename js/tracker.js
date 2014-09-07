@@ -85,6 +85,15 @@ var plot_options = {
     ]
 };
 
+// aprs overlay
+var overlayAPRS = new google.maps.ImageMapType({
+    getTileUrl: function(coord, zoom) {
+        var n = Math.pow(2,zoom);
+        return (coord.y<0 || coord.y>=n || zoom > 5) ? null : "tiles/aprs/tile_"+zoom+"_"+wrapTiles(coord.x,zoom)+"_"+coord.y+".png";
+    },
+    tileSize: new google.maps.Size(256,256)
+});
+
 // weather
 var weatherOverlayId = "nexrad-n0q-900913";
 var weatherOverlay = new google.maps.ImageMapType({
@@ -384,6 +393,9 @@ function load() {
     // initialize clouds layer
     layers_clouds = new google.maps.weather.CloudLayer();
     if(offline.get('opt_layers_clouds')) layers_clouds.setMap(map);
+
+    // load if aprs layer, if selected
+    if(offline.get('opt_layers_aprs')) map.overlayMapTypes.setAt("1", overlayAPRS);
 }
 
 function unload() {

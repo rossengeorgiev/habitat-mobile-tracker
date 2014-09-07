@@ -574,6 +574,7 @@ $(window).ready(function() {
     // list of all switches
     var opts = [
         "#sw_layers_clouds",
+        "#sw_layers_aprs",
         "#sw_offline",
         "#sw_station",
         "#sw_imperial",
@@ -639,6 +640,10 @@ $(window).ready(function() {
                     elm.addClass('present').show();
                     $('#lookanglesbox').css({top:'40px'});
                 }
+                break;
+            case "opt_layers_aprs":
+                if(on) map.overlayMapTypes.setAt("1", overlayAPRS);
+                else map.overlayMapTypes.setAt("1", null);
                 break;
             case "opt_layers_clouds":
                 if(on) { layers_clouds.setMap(map); }
