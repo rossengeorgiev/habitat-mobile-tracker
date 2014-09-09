@@ -977,7 +977,7 @@ function drawAltitudeProfile(c1, c2, series, alt_max) {
     // if they are too many, downsample to keep the loop short
     else {
         xt1 = 0.5;
-        xt2 = 0.16666666666;
+        xt2 = 0.16;
         var max = cw1 * 2;
         var step = (1.0*len) / max;
 
