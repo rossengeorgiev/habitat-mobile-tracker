@@ -1219,7 +1219,18 @@ function addPosition(position) {
                             path_length: 0,
                             curr_position: position,
                             line: [],
-                            polyline: [new google.maps.Polyline({
+                            polyline: [
+                                new google.maps.Polyline({
+                                map: map,
+                                zIndex: Z_PATH,
+                                strokeColor: "#ffffff",
+                                strokeOpacity: 0.8,
+                                strokeWeight: 5,
+                                clickable: true,
+                                draggable: false,
+                                geodesic: true
+                                }),
+                                new google.maps.Polyline({
                                 map: map,
                                 zIndex: Z_PATH,
                                 strokeColor: balloon_colors[c],
@@ -1227,7 +1238,9 @@ function addPosition(position) {
                                 strokeWeight: 3,
                                 clickable: true,
                                 draggable: false,
-                            })],
+                                geodesic: true
+                                }),
+                            ],
                             prediction: null,
                             ascent_rate: 0.0,
                             horizontal_rate: 0.0,
@@ -1284,6 +1297,7 @@ function addPosition(position) {
                                 strokeWeight: (k*4) + 2,
                                 clickable: true,
                                 draggable: false,
+                                geodesic: true
                             }));
             }
         }
