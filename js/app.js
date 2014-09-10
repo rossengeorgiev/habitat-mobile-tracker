@@ -21,7 +21,8 @@ var embed = {
     graph: true,
     graph_exapnded: false,
     latestonly: is_mobile,
-    focus: ""
+    focus: "",
+    docid: ""
 }
 var params = window.location.search.substring(1).split('&');
 
@@ -38,6 +39,7 @@ for(var idx in params) {
         case "nyan": nyan_mode = true; break;
         case "latestonly": embed.latestonly = (parseInt(line[1]) == 1) ? true : false; break;
         case "focus": embed.focus = line[1]; break;
+        case "docid": embed.docid = line[1]; break;
     }
 }
 

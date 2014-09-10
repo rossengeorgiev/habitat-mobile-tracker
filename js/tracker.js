@@ -3,6 +3,11 @@ var position_id = 0;
 var data_url = "http://spacenear.us/tracker/datanew.php";
 var receivers_url = "http://spacenear.us/tracker/receivers.php";
 var predictions_url = "http://spacenear.us/tracker/get_predictions.php";
+
+var habitat_max = 200;
+var habitat_url = "http://habitat.habhub.org/habitat/";
+var habitat_url_payload_telemetry = habitat_url + "_design/payload_telemetry/_view/payload_time?startkey=[%22{ID}%22,{START}]&endkey=[%22{ID}%22,{END}]&include_docs=true&limit=" + habitat_max + "&skip=";
+
 var host_url = "";
 var markers_url = "img/markers/";
 var vehicle_names = [];
@@ -1685,6 +1690,108 @@ function refreshPredictions() {
     });
 }
 
+function habitat_translation_layer(json_result, url, skip) {
+    if(json_result.rows == 0) return;
+
+    json_result = json_result.rows;
+
+    var result = {positions: { position: [] }};
+    var blacklist = {
+        altitude: 1,
+        date: 1,
+        latitude: 1,
+        longitude: 1,
+        payload: 1,
+        sentence_id: 1,
+        time: 1,
+    }
+
+    for(var i in json_result) {
+        var doc = json_result[i].doc;
+        if(doc.data.latitude == 0 && doc.data.longitude == 0) continue;
+
+        var row = {
+            'position_id': 0,
+            'vehicle': doc.data.payload,
+            'server_time': doc.data._parsed.time_parsed,
+            'sequence': doc.data.sentence_id,
+            'gps_lat': doc.data.latitude,
+            'gps_lon': doc.data.longitude,
+            'gps_alt': doc.data.altitude,
+            'callsign': "HABITAT ARCHIVE",
+            'data': {}
+        }
+
+        try {
+            row['gps_time'] = "20" + doc.data.date.replace(/([0-9]{2})/g, "$1-") + doc.data.time;
+        } catch (e) {
+            row['gps_time'] = row['server_time'];
+        }
+
+        // move all other properties as data
+        for(var x in doc.data) {
+            // skip internal and reserved vars
+            if(x[0] == '_' || blacklist.hasOwnProperty(x)) continue;
+
+            row.data[x] = doc.data[x];
+        }
+        row.data = JSON.stringify(row.data);
+
+        // append the packet
+        result.positions.position.push(row);
+    }
+
+    if(result.positions.position.length) update(result);
+
+    skip += habitat_max;
+    var req_url = url + skip;
+
+    setTimeout(function() {
+        $.getJSON(req_url, function(response) {
+                habitat_translation_layer(response, url, skip);
+        });
+    }, 1000);
+}
+
+function initHabitat() {
+    $.ajax({
+        type: "GET",
+        url: habitat_url + embed.docid,
+        data: "",
+        dataType: "json",
+        success: function(response, textStatus) {
+            if(response.type == "flight") {
+                if(response.payloads.length == 0) {
+                    alert("no payloads for that flight doc")
+                    return;
+                }
+
+                ts_start = convert_time(response.start) / 1000;
+                ts_end = convert_time(response.end) / 1000;
+
+                response.payloads.forEach( function(payload_id) {
+
+                    var url = habitat_url_payload_telemetry.replace(/\{ID\}/g, payload_id);
+                    url = url.replace("{START}", ts_start).replace("{END}", ts_end);
+
+                    $.getJSON(url+0, function(response) {
+                            habitat_translation_layer(response, url, 0);
+                    });
+                });
+            }
+            else {
+                alert("docid is not a flight doc");
+            }
+        },
+        error: function() {
+            alert("Unable to load flight doc");
+        },
+        complete: function(request, textStatus) {
+        }
+    });
+}
+
+
 var periodical, periodical_receivers, periodical_predictions;
 var timer_seconds = 15;
 
@@ -1696,14 +1803,19 @@ function startAjax() {
 
     // the periodical starts here, the * 1000 is because milliseconds required
 
-    //periodical = setInterval(refresh, timer_seconds * 1000);
-    refresh();
+    if(embed.docid != "") {
+        initHabitat();
+    }
+    else {
+        //periodical = setInterval(refresh, timer_seconds * 1000);
+        refresh();
 
-    //periodical_listeners = setInterval(refreshReceivers, 60 * 1000);
-    refreshReceivers();
+        //periodical_listeners = setInterval(refreshReceivers, 60 * 1000);
+        refreshReceivers();
 
-    //periodical_predictions = setInterval(refreshPredictions, 2 * timer_seconds * 1000);
-    refreshPredictions();
+        //periodical_predictions = setInterval(refreshPredictions, 2 * timer_seconds * 1000);
+        refreshPredictions();
+    }
 }
 
 function stopAjax() {
@@ -1926,7 +2038,7 @@ function update(response) {
           if(follow_vehicle != -1 && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, false);
 
           // store in localStorage
-          offline.set('positions', ctx.lastPositions);
+          if(embed.docid == "") offline.set('positions', ctx.lastPositions);
 
           if (got_positions && !zoomed_in && vehicles.length) {
               zoom_on_payload();
