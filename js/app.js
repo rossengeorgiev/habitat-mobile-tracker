@@ -255,7 +255,7 @@ var positionUpdateHandle = function(position) {
             $('#cc_timestamp').text('just now');
 
             // update look angles once we get position
-            if(follow_vehicle > -1) { update_lookangles(follow_vehicle); }
+            if(follow_vehicle != null) { update_lookangles(follow_vehicle); }
 
             if(CHASE_enabled) {
                 ChaseCar.updatePosition(callsign, position);
@@ -394,7 +394,7 @@ $(window).ready(function() {
         $('#map').stop(null,null).animate({'height': h}, function() {
             if(map) google.maps.event.trigger(map, 'resize');
 
-            if(plot_open && follow_vehicle != -1 && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, true);
+            if(plot_open && follow_vehicle != null && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, true);
         });
     });
 
@@ -406,7 +406,7 @@ $(window).ready(function() {
         event.stopPropagation();
 
         var elm = $(this);
-        var name = vehicle_names[elm.attr('data-index')]
+        var name = elm.attr('data-vcallsign');
 
         if(elm.hasClass("active")) {
             elm.removeClass('active');
@@ -448,7 +448,8 @@ $(window).ready(function() {
     // follow vehicle by clicking on data
     $('#main').on('click', '.row .data', function() {
         var e = $(this).parent();
-        followVehicle(parseInt(e.attr('class').match(/vehicle(\d+)/)[1]));
+
+        followVehicle(e.attr('data-vcallsign'));
     });
 
     // expand/collapse data when header is clicked
@@ -462,7 +463,7 @@ $(window).ready(function() {
             listScroll.refresh();
 
             // disable following only we are collapsing the followed vehicle
-            if(follow_vehicle == parseInt(e.attr('class').match(/vehicle(\d+)/)[1])) {
+            if(follow_vehicle != null && follow_vehicle == e.attr('data-vcallsign')) {
                 stopFollow();
             }
         } else {
@@ -479,7 +480,7 @@ $(window).ready(function() {
             }
 
             // pan to selected vehicle
-            followVehicle(parseInt(e.attr('class').match(/vehicle(\d+)/)[1]));
+            followVehicle(e.attr('data-vcallsign'));
         }
     });
 

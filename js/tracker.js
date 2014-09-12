@@ -10,8 +10,8 @@ var habitat_url_payload_telemetry = habitat_url + "_design/payload_telemetry/_vi
 
 var host_url = "";
 var markers_url = "img/markers/";
-var vehicle_names = [];
-var vehicles = [];
+var vehicles = {};
+var elm_uuid = 0;
 
 var receiver_names = [];
 var receivers = [];
@@ -19,7 +19,7 @@ var receivers = [];
 var got_positions = false;
 var zoomed_in = false;
 var max_positions = 0; // maximum number of positions that ajax request should return (0 means no maximum)
-var follow_vehicle = -1;
+var follow_vehicle = null;
 
 var car_index = 0;
 var car_colors = ["blue", "red", "green", "yellow"];
@@ -185,7 +185,7 @@ function calculate_lookangles(a, b) {
     }
 }
 
-function update_lookangles(idx) {
+function update_lookangles(vcallsign) {
     if(GPS_ts == null) { return; }
     else if($("#lookanglesbox span").first().is(":hidden")) {
         $("#lookanglesbox div").hide().parent().find("span").show();
@@ -193,7 +193,7 @@ function update_lookangles(idx) {
 
     var a = {lat: GPS_lat, lon: GPS_lon, alt: GPS_alt};
 
-    var xref = vehicles[idx].curr_position;
+    var xref = vehicles[vcallsign].curr_position;
     var b = {lat: parseFloat(xref.gps_lat), lon: parseFloat(xref.gps_lon), alt: parseFloat(xref.gps_alt)};
 
     var look = calculate_lookangles(a,b);
@@ -407,15 +407,15 @@ function unload() {
   google.maps.Unload();
 }
 
-function panTo(vehicle_index) {
-    if(vehicle_index < 0) return;
+function panTo(vcallsign) {
+    if(!vcallsign) return;
 
     // update lookangles
-    update_lookangles(vehicle_index);
+    update_lookangles(vcallsign);
 
     // pan map
-    if(vehicles[vehicle_index].marker_shadow) map.panTo(vehicles[vehicle_index].marker_shadow.getPosition());
-    else map.panTo(vehicles[vehicle_index].marker.getPosition());
+    if(vehicles[vcallsign].marker_shadow) map.panTo(vehicles[vcallsign].marker_shadow.getPosition());
+    else map.panTo(vehicles[vcallsign].marker.getPosition());
 }
 
 function title_case(s) {
@@ -523,12 +523,12 @@ function habitat_data(jsondata) {
   }
 }
 
-function updateAltitude(index) {
+function updateAltitude(vcallsign) {
   var pixel_altitude = 0;
   var zoom = map.getZoom();
-  var position = vehicles[index].curr_position;
+  var position = vehicles[vcallsign].curr_position;
 
-  if(vehicles[index].marker.mode == 'landed') return;
+  if(vehicles[vcallsign].marker.mode == 'landed') return;
 
   if(zoom > 18) zoom = 18;
   if(position.gps_alt > 0) {
@@ -539,29 +539,29 @@ function updateAltitude(index) {
   } else if(position.gps_alt > 55000) {
     position.gps_alt = 55000;
   }
-  vehicles[index].marker.setAltitude(pixel_altitude);
+  vehicles[vcallsign].marker.setAltitude(pixel_altitude);
 }
 
 function updateZoom() {
-  for(var index = 0, ii = vehicles.length; index < ii; index++) {
-    if(vehicles[index].vehicle_type == "balloon") {
-      updateAltitude(index);
+  for(var vcallsign in vehicles) {
+    if(vehicles[vcallsign].vehicle_type == "balloon") {
+      updateAltitude(vcallsign);
     }
   }
 }
 
-function focusVehicle(index, ignoreOpt) {
+function focusVehicle(vcallsign, ignoreOpt) {
     if(!offline.get('opt_hilight_vehicle') && ignoreOpt == undefined) return;
 
     var opacityFocused = 0.8;
     var opacityOther = 0.1;
 
-    if(index < 0) opacityOther = opacityFocused;
+    if(vcallsign == null) opacityOther = opacityFocused;
 
     for(var i in vehicles) {
         var vehicle = vehicles[i];
 
-        if(i == index) {
+        if(i == vcallsign) {
             if(vehicle.horizon_circle) vehicle.horizon_circle.setOptions({strokeOpacity:opacityFocused});
             if(vehicle.subhorizon_circle) vehicle.subhorizon_circle.setOptions({strokeOpacity:opacityFocused});
             for(var j in vehicle.polyline) vehicle.polyline[j].setOptions({strokeOpacity:opacityFocused});
@@ -575,13 +575,14 @@ function focusVehicle(index, ignoreOpt) {
 }
 
 function stopFollow() {
-	if(follow_vehicle != -1) {
-        focusVehicle(-1);
+	if(follow_vehicle != null) {
+        focusVehicle(null);
+
         // remove target mark
         $("#main .row.follow").removeClass("follow");
 
         vehicles[follow_vehicle].follow = false;
-        follow_vehicle = -1;
+        follow_vehicle = null;
 
         // reset nite overlay
         nite.setDate(null);
@@ -592,23 +593,25 @@ function stopFollow() {
     }
 }
 
-function followVehicle(index) {
-	if(follow_vehicle != -1  && vehicles.length) vehicles[follow_vehicle].follow = false;
+function followVehicle(vcallsign) {
+    if(vcallsign == null) { stopFollow(); return; }
 
-    if(follow_vehicle != index) {
-        focusVehicle(index);
+	if(vehicles.hasOwnProperty(follow_vehicle)) vehicles[follow_vehicle].follow = false;
 
-		follow_vehicle = index;
+    if(follow_vehicle != vcallsign) {
+        focusVehicle(vcallsign);
+
+		follow_vehicle = vcallsign;
 		vehicles[follow_vehicle].follow = true;
 
         // add target mark
         $("#main .row.follow").removeClass("follow");
-        $("#main .vehicle"+follow_vehicle).addClass("follow");
+        $("#main .vehicle"+vehicles[vcallsign].uuid).addClass("follow");
 
-        updateGraph(index, true);
+        updateGraph(vcallsign, true);
 	}
 
-    panTo(index);
+    panTo(vcallsign);
 }
 
 function roundNumber(number, digits) {
@@ -644,8 +647,8 @@ function formatDate(date,utc) {
     }
 }
 
-function updateVehicleInfo(index, newPosition) {
-  var vehicle = vehicles[index];
+function updateVehicleInfo(vcallsign, newPosition) {
+  var vehicle = vehicles[vcallsign];
   var latlng = new google.maps.LatLng(newPosition.gps_lat, newPosition.gps_lon);
 
   // update market z-index based on latitude, 90 being background and -90 foreground
@@ -662,7 +665,7 @@ function updateVehicleInfo(index, newPosition) {
 
   // update horizon circles and icon
   if(vehicle.vehicle_type == "balloon") {
-    updateAltitude(index);
+    updateAltitude(vcallsign);
     var horizon_km = Math.sqrt(12.756 * newPosition.gps_alt);
     vehicle.horizon_circle.setRadius(Math.round(horizon_km)*1000);
 
@@ -695,7 +698,7 @@ function updateVehicleInfo(index, newPosition) {
       vehicle.subhorizon_circle.setVisible(false);
 
     } else if(vehicle.ascent_rate > -3.0 ||
-              vehicle_names[index] == "wb8elk2") {
+              vcallsign == "wb8elk2") {
     	vehicle.marker.setMode("balloon");
     } else {
     	vehicle.marker.setMode("parachute");
@@ -703,14 +706,15 @@ function updateVehicleInfo(index, newPosition) {
   }
 
   var image = vehicle.image_src;
-
-  var elm = $('.vehicle' + index);
+  var elm = $('.vehicle' + vehicle.uuid);
 
   // if the vehicle doesn't exist in the list
   if (elm.length == 0) {
-    $('.portrait').append('<div class="row vehicle'+index+'"></div>');
-    $('.landscape').append('<div class="row vehicle'+index+'"></div>');
+    $('.portrait').append('<div class="row vehicle'+vehicle.uuid+'" data-vcallsign="'+vcallsign+'"></div>');
+    $('.landscape').append('<div class="row vehicle'+vehicle.uuid+'" data-vcallsign="'+vcallsign+'"></div>');
 
+  } else if(elm.attr('data-vcallsign') == undefined) {
+    elm.attr('data-vcallsign', vcallsign);
   }
 
   // decides how to dispaly the horizonal speed
@@ -731,7 +735,7 @@ function updateVehicleInfo(index, newPosition) {
                     + roundNumber(newPosition.gps_lat, 6) + ', ' + roundNumber(newPosition.gps_lon, 6) +'</a>'
                     + ' <i class="icon-location"></i>';
   } else if(ua.indexOf('android') > -1) {
-      coords_text = '<a id="launch_mapapp" href="geo:'+newPosition.gps_lat+','+newPosition.gps_lon+'?q='+newPosition.gps_lat+','+newPosition.gps_lon+'('+vehicle_names[index]+')">'
+      coords_text = '<a id="launch_mapapp" href="geo:'+newPosition.gps_lat+','+newPosition.gps_lon+'?q='+newPosition.gps_lat+','+newPosition.gps_lon+'('+vcallsign+')">'
                     + roundNumber(newPosition.gps_lat, 6) + ', ' + roundNumber(newPosition.gps_lon, 6) +'</a>'
                     + ' <i class="icon-location"></i>';
   } else {
@@ -747,12 +751,12 @@ function updateVehicleInfo(index, newPosition) {
 
   // start
   var a    = '<div class="header">'
-           + '<span>' + vehicle_names[index] + ' <i class="icon-target"></i></span>'
+           + '<span>' + vcallsign + ' <i class="icon-target"></i></span>'
            + '<canvas class="graph"></canvas>'
            + '<i class="arrow"></i></div>'
            + '<div class="data">'
            + '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />'
-           + ((vehicle_names[index] in hysplit) ? '<span class="hysplit '+((hysplit[vehicle_names[index]].getMap()) ? 'active' : '')+'" data-index="'+index+'">HYSPLIT</span>' : '')
+           + ((vcallsign in hysplit) ? '<span class="hysplit '+((hysplit[vcallsign].getMap()) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'">HYSPLIT</span>' : '')
            + '<div class="left">'
            + '<dl>';
   // end
@@ -788,38 +792,38 @@ function updateVehicleInfo(index, newPosition) {
            + '';
 
   // update html
-  $('.portrait .vehicle'+index).html(a + p + b);
-  $('.landscape .vehicle'+index).html(a + l + b);
+  $('.portrait .vehicle'+vehicle.uuid).html(a + p + b);
+  $('.landscape .vehicle'+vehicle.uuid).html(a + l + b);
 
   // redraw canvas
-  if(!wvar.latestonly && vehicles[index].graph_data.length) {
-      var c = $('.vehicle'+index+' .graph');
-      drawAltitudeProfile(c.get(0), c.get(1), vehicles[index].graph_data[0], vehicles[index].max_alt);
+  if(!wvar.latestonly && vehicle.graph_data.length) {
+      var c = $('.vehicle'+vehicle.uuid+' .graph');
+      drawAltitudeProfile(c.get(0), c.get(1), vehicle.graph_data[0], vehicle.max_alt);
   }
 
   // mark vehicles as redrawn
-  vehicles[index].updated = false;
+  vehicle.updated = false;
 
   return true;
 }
 
-function removePrediction(vehicle_index) {
-  if(vehicles[vehicle_index].prediction_polyline) {
-    vehicles[vehicle_index].prediction_polyline.setMap(null);
-    vehicles[vehicle_index].prediction_polyline = null;
+function removePrediction(vcallsign) {
+  if(vehicles[vcallsign].prediction_polyline) {
+    vehicles[vcallsign].prediction_polyline.setMap(null);
+    vehicles[vcallsign].prediction_polyline = null;
   }
-  if(vehicles[vehicle_index].prediction_target) {
-    vehicles[vehicle_index].prediction_target.setMap(null);
-    vehicles[vehicle_index].prediction_target = null;
+  if(vehicles[vcallsign].prediction_target) {
+    vehicles[vcallsign].prediction_target.setMap(null);
+    vehicles[vcallsign].prediction_target = null;
   }
-  if(vehicles[vehicle_index].prediction_burst) {
-    vehicles[vehicle_index].prediction_burst.setMap(null);
-    vehicles[vehicle_index].prediction_burst = null;
+  if(vehicles[vcallsign].prediction_burst) {
+    vehicles[vcallsign].prediction_burst.setMap(null);
+    vehicles[vcallsign].prediction_burst = null;
   }
 }
 
-function redrawPrediction(vehicle_index) {
-    var vehicle = vehicles[vehicle_index];
+function redrawPrediction(vcallsign) {
+    var vehicle = vehicles[vcallsign];
 	var data = vehicle.prediction.data;
 	if(data.warnings || data.errors) return;
 
@@ -861,7 +865,7 @@ function redrawPrediction(vehicle_index) {
     vehicle.prediction_polyline.path_length = path_length;
 
     var image_src;
-    if(vehicle_names[vehicle_index] != "wb8elk2") { // WhiteStar
+    if(vcallsign != "wb8elk2") { // WhiteStar
         var html = "";
         if(vehicle.prediction_target) {
             vehicle.prediction_target.setPosition(latlng);
@@ -887,7 +891,7 @@ function redrawPrediction(vehicle_index) {
         if(vehicle.prediction_target) vehicle.prediction_target = null;
     }
 
-    if(burst_index != 0 && vehicle_names[vehicle_index] != "wb8elk2") {
+    if(burst_index != 0 && vcallsign != "wb8elk2") {
         if(vehicle.prediction_burst) {
             vehicle.prediction_burst.setPosition(latlng_burst);
         } else {
@@ -913,9 +917,9 @@ function redrawPrediction(vehicle_index) {
     }
 }
 
-function updatePolyline(vehicle_index) {
-    for(k in vehicles[vehicle_index].polyline) {
-        vehicles[vehicle_index].polyline[k].setPath(vehicles[vehicle_index].positions);
+function updatePolyline(vcallsign) {
+    for(var k in vehicles[vcallsign].polyline) {
+        vehicles[vcallsign].polyline[k].setPath(vehicles[vcallsign].positions);
     }
 }
 
@@ -1070,9 +1074,10 @@ var mapInfoBox_handle_truehorizon = function(event) { mapInfoBox_handle_horizons
 var mapInfoBox_handle_horizon = function(event) { mapInfoBox_handle_horizons(event, this, "5° Horizon"); }
 
 function addPosition(position) {
+    var vcallsign = position.vehicle;
+
     // check if the vehicle is already in the list, if not create a new item
-    if($.inArray(position.vehicle, vehicle_names) == -1) {
-        vehicle_names.push(position.vehicle);
+    if(!vehicles.hasOwnProperty(vcallsign)) {
         var marker = null;
         var marker_shadow = null;
         var vehicle_type = "";
@@ -1081,7 +1086,7 @@ function addPosition(position) {
         var point = new google.maps.LatLng(position.gps_lat, position.gps_lon);
         var image_src = "";
         var color_index = 0;
-        if(position.vehicle.search(/(chase)/i) != -1) {
+        if(vcallsign.search(/(chase)/i) != -1) {
             vehicle_type = "car";
             color_index = car_index++;
             var c = color_index % car_colors.length;
@@ -1098,10 +1103,10 @@ function addPosition(position) {
                 position: point,
                 map: map,
                 optimized: false,
-                title: position.vehicle
+                title: vcallsign
             });
         }
-        else if(position.vehicle == "XX") {
+        else if(vcallsign == "XX") {
             vehicle_type = "xmark";
             var image_src = host_url + markers_url + "balloon-xmark.png";
 
@@ -1116,14 +1121,14 @@ function addPosition(position) {
                 position: point,
                 map: map,
                 optimized: false,
-                title: position.vehicle
+                title: vcallsign
             });
         } else {
             vehicle_type = "balloon";
             color_index = balloon_index++;
             var c = color_index % balloon_colors.length;
 
-            image_src = host_url + markers_url + "balloon-" + ((position.vehicle == "PIE") ? "rpi" : balloon_colors_name[c]) + ".png";
+            image_src = host_url + markers_url + "balloon-" + ((vcallsign == "PIE") ? "rpi" : balloon_colors_name[c]) + ".png";
             marker_shadow = new google.maps.Marker({
                 map: map,
                 zIndex: Z_SHADOW,
@@ -1147,10 +1152,10 @@ function addPosition(position) {
                             size: new google.maps.Size(46,84),
                             scaledSize: new google.maps.Size(46,84)
                 },
-                title: position.vehicle,
+                title: vcallsign,
             });
             marker.shadow = marker_shadow;
-            marker.balloonColor = (position.vehicle == "PIE") ? "rpi" : balloon_colors_name[c];
+            marker.balloonColor = (vcallsign == "PIE") ? "rpi" : balloon_colors_name[c];
             marker.mode = 'balloon';
             marker.setMode = function(mode) {
                 this.mode = mode;
@@ -1211,7 +1216,9 @@ function addPosition(position) {
             });
             subhorizon_circle.bindTo('center', marker_shadow, 'position');
         }
-        var vehicle_info = {vehicle_type: vehicle_type,
+        var vehicle_info = {
+                            uuid: elm_uuid++,
+                            vehicle_type: vehicle_type,
                             ascent_rate: 0,
                             marker: marker,
                             marker_shadow: marker_shadow,
@@ -1320,11 +1327,10 @@ function addPosition(position) {
         if(vehicle_info.subhorizon_circle) google.maps.event.addListener(vehicle_info.subhorizon_circle, 'click', mapInfoBox_handle_horizon);
 
         // let the nyan free
-        vehicles.push(vehicle_info);
+        vehicles[vcallsign] = vehicle_info;
     }
 
-    var vehicle_index = $.inArray(position.vehicle, vehicle_names);
-    var vehicle = vehicles[vehicle_index];
+    var vehicle = vehicles[vcallsign];
 
     if(vehicle.vehicle_type == "balloon") {
         var new_latlng = new google.maps.LatLng(position.gps_lat, position.gps_lon);
@@ -1365,7 +1371,7 @@ function addPosition(position) {
             if(poslen > 1) vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[poslen-2], vehicle.positions[poslen-1]);
 
             vehicle.curr_position = position;
-            graphAddPosition(vehicle_index, position);
+            graphAddPosition(vcallsign, position);
 
         }
         else if(vehicle.positions_ts.indexOf(new_ts) == -1) { // backlog packets, need to splice them into the array
@@ -1395,7 +1401,7 @@ function addPosition(position) {
             vehicle.positions_ts.splice(idx, 0, new_ts);
             vehicle.num_positions++;
 
-            graphAddPosition(vehicle_index, position);
+            graphAddPosition(vcallsign, position);
         }
 
         vehicle.updated = true;
@@ -1418,7 +1424,7 @@ function addPosition(position) {
     return;
 }
 
-function updateGraph(idx, reset_selection) {
+function updateGraph(vcallsign, reset_selection) {
     if(!plot || !plot_open) return;
 
     if(polyMarker) polyMarker.setPosition(null);
@@ -1432,17 +1438,17 @@ function updateGraph(idx, reset_selection) {
     }
 
     // replot graph, with this vehicle data, and this vehicles yaxes config
-    plot = $.plot(plot_holder, vehicles[idx].graph_data, $.extend(false, plot_options, {yaxes:vehicles[idx].graph_yaxes}));
+    plot = $.plot(plot_holder, vehicles[vcallsign].graph_data, $.extend(false, plot_options, {yaxes:vehicles[vcallsign].graph_yaxes}));
 
-    vehicles[idx].graph_data_updated = false;
+    vehicles[vcallsign].graph_data_updated = false;
 }
 
-function graphAddPosition(idx, new_data) {
+function graphAddPosition(vcallsign, new_data) {
 
-    var vehicle = vehicles[idx];
+    var vehicle = vehicles[vcallsign];
     vehicle.graph_data_updated = true;
 
-    var data = vehicles[idx].graph_data;
+    var data = vehicle.graph_data;
     var ts = convert_time(new_data.gps_time);
     var splice = false;
     var splice_idx = 0;
@@ -1516,7 +1522,7 @@ function graphAddPosition(idx, new_data) {
             }
         }
         // update the selection upper limit to the latest timestamp, only if the upper limit is equal to the last timestamp
-        if(plot_options.xaxis && follow_vehicle == idx && ts_last == plot_options.xaxis.max && ts > ts_last) plot_options.xaxis.max = ts;
+        if(plot_options.xaxis && follow_vehicle == vcallsign && ts_last == plot_options.xaxis.max && ts > ts_last) plot_options.xaxis.max = ts;
     }
 
     var i = 0;
@@ -1941,29 +1947,32 @@ function updatePredictions(r) {
     for(; i < ii; i++) {
         if(r[i].vehicle == "XX") continue;
 
-		var vehicle_index = $.inArray(r[i].vehicle, vehicle_names);
-		if(vehicle_index != -1) {
-			if(vehicles[vehicle_index].prediction && vehicles[vehicle_index].prediction.time == r[i].time) {
+        var vcallsign = r[i].vehicle;
+
+		if(vehicles.hasOwnProperty(vcallsign)) {
+            var vehicle = vehicles[vcallsign];
+
+			if(vehicle.prediction && vehicle.prediction.time == r[i].time) {
 				continue;
 			}
-            vehicles[vehicle_index].prediction = r[i];
-            if(parseInt(vehicles[vehicle_index].prediction.landed) == 0) {
-                vehicles[vehicle_index].prediction.data = $.parseJSON(r[i].data);
-                redrawPrediction(vehicle_index);
+            vehicle.prediction = r[i];
+            if(parseInt(vehicle.prediction.landed) == 0) {
+                vehicle.prediction.data = $.parseJSON(r[i].data);
+                redrawPrediction(vcallsign);
             } else {
-                removePrediction(vehicle_index);
+                removePrediction(vcallsign);
             }
 	    }
 	}
 }
 
 function refreshUI() {
-    for (var i = 0, ii = vehicle_names.length; i < ii; i++) {
-        updateVehicleInfo(i, vehicles[i].curr_position);
+    for(var vcallsign in vehicles) {
+        updateVehicleInfo(vcallsign, vehicles[vcallsign].curr_position);
     }
 
     mapInfoBox.close();
-    if(follow_vehicle > -1) update_lookangles(follow_vehicle);
+    if(follow_vehicle != null) update_lookangles(follow_vehicle);
 }
 
 var status = "";
@@ -2008,41 +2017,43 @@ function update(response) {
             if(ctx.idx < ctx.max) {
               setTimeout(function() { ctx.step(ctx); }, 4);
             } else {
-              ctx.idx = 0;
-              ctx.max = vehicle_names.length;
+              ctx.list = Object.keys(vehicles);
               setTimeout(function() { ctx.draw(ctx); }, 16);
             }
         },
         draw: function(ctx) {
-            if(vehicles[ctx.idx].updated) {
-                updatePolyline(ctx.idx);
-                updateVehicleInfo(ctx.idx, vehicles[ctx.idx].curr_position);
+            if(ctx.list.length < 1) {
+              setTimeout(function() { ctx.end(ctx); }, 16);
+              return;
+            }
+
+            // pop a callsign from the top
+            var vcallsign = ctx.list.shift();
+            var vehicle = vehicles[vcallsign];
+
+            if(vehicle.updated) {
+                updatePolyline(vcallsign);
+                updateVehicleInfo(vcallsign, vehicle.curr_position);
 
                 // remember last position for each vehicle
-                ctx.lastPPointer.push(vehicles[ctx.idx].curr_position);
+                ctx.lastPPointer.push(vehicle.curr_position);
 
                 if(listScroll) listScroll.refresh();
-                if(zoomed_in && follow_vehicle == ctx.idx) panTo(follow_vehicle);
+                if(zoomed_in && follow_vehicle == vcallsign) panTo(follow_vehicle);
             }
 
-            ctx.idx++;
-
-            if(ctx.idx < ctx.max) {
-              setTimeout(function() { ctx.draw(ctx); }, 16);
-            } else {
-              setTimeout(function() { ctx.end(ctx); }, 16);
-            }
+            // step to the next callsign
+            setTimeout(function() { ctx.draw(ctx); }, 16);
         },
         end: function(ctx) {
           // update graph is current vehicles is followed
-          if(follow_vehicle != -1 && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, false);
+          if(follow_vehicle != null && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, false);
 
           // store in localStorage
           if(wvar.docid == "") offline.set('positions', ctx.lastPositions);
 
-          if (got_positions && !zoomed_in && vehicles.length) {
+          if (got_positions && !zoomed_in && Object.keys(vehicles).length) {
               zoom_on_payload();
-              zoomed_in = true;
           }
         }
     }
@@ -2051,21 +2062,28 @@ function update(response) {
 }
 
 function zoom_on_payload() {
-    // find a the first balloon
-    var i = -1, ii = vehicles.length;
 
-    if(wvar.focus != "" && vehicle_names.indexOf(wvar.focus) > -1) {
-        i = vehicle_names.indexOf(wvar.focus);
+    // find a the first balloon
+    var target = null, vcallsign = null;
+
+    if(wvar.focus != "" && vehicles.hasOwnProperty(wvar.focus)) {
+        target = vehicles[wvar.focus];
+        vcallsign = wvar.focus;
     } else {
-        while(++i < ii) if(vehicles[i].vehicle_type == "balloon") break;
+        for(var k in vehicles) {
+            if(vehicles[k].vehicle_type == "balloon") {
+                vcallsign = k;
+                target = vehicles[k];
+                break;
+            }
+        }
     }
 
-    if(i == ii) return;
-    else if(vehicles[i].num_positions > 1) {
+    if(target) {
         // find the bounds of the ballons first and last positions
         var bounds = new google.maps.LatLngBounds();
-        bounds.extend(vehicles[i].positions[0]);
-        bounds.extend(vehicles[i].positions[vehicles[i].positions.length - 1]);
+        bounds.extend(target.positions[0]);
+        bounds.extend(target.positions[target.positions.length - 1]);
 
         // fit the map to those bounds
         map.fitBounds(bounds);
@@ -2074,16 +2092,30 @@ function zoom_on_payload() {
         if(map.getZoom() > 11) map.setZoom(11);
     }
 
+    // this condition is true, when we there is no focus vehicle specified, or balloon in list
+    // we then fallback to zooming in onto the first vehicle, if there is one
+    if(target == null) {
+        var list = Object.keys(vehicles);
+
+        // if there are no vehicles, return, else zoom in on the first one
+        if(list.length == 0) return;
+        else {
+            vcallsign = list[0];
+            target = vehicles[vcallsign];
+        }
+    }
 
     // pan and follow the vehicle
-    followVehicle(i);
+    followVehicle(vcallsign);
 
     // expand list element
-    $('.vehicle'+i).addClass('active');
+    $('.vehicle'+target.uuid).addClass('active');
 
     // scroll list to the expanded element
     listScroll.refresh();
-    listScroll.scrollToElement('.portrait .vehicle'+i);
+    listScroll.scrollToElement('.portrait .vehicle'+target.uuid);
+
+    zoomed_in = true;
 }
 
 function isInt(n) {

@@ -102,10 +102,10 @@ $(window).ready(function() {
         var p = $("iframe").contents()[0].defaultView;
 
         if(elm.prop("checked")) {
-            p.embed.vlist = true;
+            p.wvar.vlist = true;
             elm.prop("checked", true);
         } else {
-            p.embed.vlist = false;
+            p.wvar.vlist = false;
             elm.prop("checked", false);
         }
 

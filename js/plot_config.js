@@ -72,7 +72,7 @@ function updateLegend() {
         }
     }
 
-    if(follow_vehicle != -1 && vehicles[follow_vehicle].positions.length) {
+    if(follow_vehicle != null && vehicles[follow_vehicle].positions.length) {
         // adjust index for null data points
         var null_count = 0;
         var data_ref = vehicles[follow_vehicle].graph_data[0];
