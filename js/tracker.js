@@ -792,7 +792,7 @@ function updateVehicleInfo(index, newPosition) {
   $('.landscape .vehicle'+index).html(a + l + b);
 
   // redraw canvas
-  if(!embed.latestonly && vehicles[index].graph_data.length) {
+  if(!wvar.latestonly && vehicles[index].graph_data.length) {
       var c = $('.vehicle'+index+' .graph');
       drawAltitudeProfile(c.get(0), c.get(1), vehicles[index].graph_data[0], vehicles[index].max_alt);
   }
@@ -1350,7 +1350,7 @@ function addPosition(position) {
              }
 
             // add the new position
-            if(embed.latestonly) {
+            if(wvar.latestonly) {
                 vehicle.num_positions= 1;
                 vehicle.positions.push(new_latlng);
                 vehicle.positions_ts.push(new_ts);
@@ -1626,7 +1626,7 @@ function refresh() {
   //if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'ajax', 'refresh', 'Vehicles']);
   //
   var data_str = "type=positions&format=json&max_positions=" + max_positions + "&position_id=" + position_id + "&vehicles=" + encodeURIComponent(vfilter);
-  if(embed.latestonly) data_str = "mode=latest&" + data_str;
+  if(wvar.latestonly) data_str = "mode=latest&" + data_str;
 
   $.ajax({
     type: "GET",
@@ -1756,7 +1756,7 @@ function habitat_translation_layer(json_result, url, skip) {
 function initHabitat() {
     $.ajax({
         type: "GET",
-        url: habitat_url + embed.docid,
+        url: habitat_url + wvar.docid,
         data: "",
         dataType: "json",
         success: function(response, textStatus) {
@@ -1803,7 +1803,7 @@ function startAjax() {
 
     // the periodical starts here, the * 1000 is because milliseconds required
 
-    if(embed.docid != "") {
+    if(wvar.docid != "") {
         initHabitat();
     }
     else {
@@ -2038,7 +2038,7 @@ function update(response) {
           if(follow_vehicle != -1 && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, false);
 
           // store in localStorage
-          if(embed.docid == "") offline.set('positions', ctx.lastPositions);
+          if(wvar.docid == "") offline.set('positions', ctx.lastPositions);
 
           if (got_positions && !zoomed_in && vehicles.length) {
               zoom_on_payload();
@@ -2054,8 +2054,8 @@ function zoom_on_payload() {
     // find a the first balloon
     var i = -1, ii = vehicles.length;
 
-    if(embed.focus != "" && vehicle_names.indexOf(embed.focus) > -1) {
-        i = vehicle_names.indexOf(embed.focus);
+    if(wvar.focus != "" && vehicle_names.indexOf(wvar.focus) > -1) {
+        i = vehicle_names.indexOf(wvar.focus);
     } else {
         while(++i < ii) if(vehicles[i].vehicle_type == "balloon") break;
     }

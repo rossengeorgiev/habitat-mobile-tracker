@@ -11,11 +11,11 @@ if(
  || navigator.userAgent.match(/BlackBerry/i)
  ) is_mobile = true;
 
-// embed detection
+// wvar detection
 var vfilter = "";
 var nyan_mode = false;
 
-var embed = {
+var wvar = {
     enabled: false,
     vlist: true,
     graph: true,
@@ -31,21 +31,21 @@ for(var idx in params) {
     if(line.length < 2) continue;
 
     switch(line[0]) {
-        case "embed": if(line[1] == "1") embed.enabled = true; break;
-        case "hidelist": if(line[1] == "1") embed.vlist = false; break;
-        case "hidegraph": if(line[1] == "1") embed.graph = false; break;
-        case "expandgraph": if(line[1] == "1") embed.graph_expanded = true; break;
+        case "wvar": if(line[1] == "1") wvar.enabled = true; break;
+        case "hidelist": if(line[1] == "1") wvar.vlist = false; break;
+        case "hidegraph": if(line[1] == "1") wvar.graph = false; break;
+        case "expandgraph": if(line[1] == "1") wvar.graph_expanded = true; break;
         case "filter": vfilter = line[1]; break;
         case "nyan": nyan_mode = true; break;
-        case "latestonly": embed.latestonly = (parseInt(line[1]) == 1) ? true : false; break;
-        case "focus": embed.focus = line[1]; break;
-        case "docid": embed.docid = line[1]; break;
+        case "latestonly": wvar.latestonly = (parseInt(line[1]) == 1) ? true : false; break;
+        case "focus": wvar.focus = line[1]; break;
+        case "docid": wvar.docid = line[1]; break;
     }
 }
 
-if(embed.latestonly) $("#latestonly").show();
+if(wvar.latestonly) $("#latestonly").show();
 
-if(embed.enabled) {
+if(wvar.enabled) {
     //analytics
     if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'Functionality', 'Embed Opts', window.location.search]);
 }
@@ -103,11 +103,11 @@ function trackerInit() {
 
     if(map) return;
 
-    if(is_mobile || embed.enabled) $(".nav .embed").hide();
+    if(is_mobile || wvar.enabled) $(".nav .wvar").hide();
 
     if(!is_mobile) {
         $.getScript("js/init_plot.js", function() { checkSize(); if(!map) load(); });
-        if(embed.graph) $('#telemetry_graph').attr('style','');
+        if(wvar.graph) $('#telemetry_graph').attr('style','');
 
         // fetch hysplit jobs
         setInterval(refresh_hysplit, 60 * 1000);
@@ -153,7 +153,7 @@ function checkSize() {
 
     $("#mapscreen,.flatpage").height(h-hh-5);
 
-    sw = (embed.vlist) ? 199 : 0;
+    sw = (wvar.vlist) ? 199 : 0;
 
     $('.container').width(w-20);
 
@@ -169,7 +169,7 @@ function checkSize() {
         $('#main').width(sw);
     } else { // portrait mode
         //if(h < 420) h = 420;
-        var mh = (embed.vlist) ? 180 : 0;
+        var mh = (wvar.vlist) ? 180 : 0;
 
         $('body,#loading').height(h);
         $('#map,#mapscreen').height(h-hh-5-mh);
@@ -399,7 +399,7 @@ $(window).ready(function() {
     });
 
     // expand graph on startup, if nessary
-    if(embed.graph_expanded) $('#telemetry_graph .graph_label').click();
+    if(wvar.graph_expanded) $('#telemetry_graph .graph_label').click();
 
     // hysplit button
     $("#main").on('click','.row .data .hysplit', function(event) {
@@ -684,7 +684,7 @@ $(window).ready(function() {
     if(navigator.geolocation) {
         // if we have geolocation services, show the locate me button
         // the button pants the map to the user current location
-        if(is_mobile && !embed.enabled) $(".chasecar").show();
+        if(is_mobile && !wvar.enabled) $(".chasecar").show();
         $("#locate-me,#app_name").attr('style','').click(function() {
             if(map && currentPosition) {
                 // disable following of vehicles
