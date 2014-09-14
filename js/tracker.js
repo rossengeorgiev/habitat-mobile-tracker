@@ -25,7 +25,7 @@ var car_index = 0;
 var car_colors = ["blue", "red", "green", "yellow"];
 var balloon_index = 0;
 var balloon_colors_name = ["red", "blue", "green", "yellow", "purple", "orange", "cyan"];
-var balloon_colors = ["#f00", "blue", "green", "#ff0", "#c700e6", "#ff8a0f", "#0fffca"];
+var balloon_colors = ["#f00", "blue", "green", "#FDFC30", "#c700e6", "#ff8a0f", "#0fffca"];
 
 var map = null;
 var overlay = null;
@@ -553,7 +553,7 @@ function updateZoom() {
 function focusVehicle(vcallsign, ignoreOpt) {
     if(!offline.get('opt_hilight_vehicle') && ignoreOpt == undefined) return;
 
-    var opacityFocused = 0.8;
+    var opacityFocused = 1;
     var opacityOther = 0.1;
 
     if(vcallsign == null) opacityOther = opacityFocused;
@@ -562,14 +562,14 @@ function focusVehicle(vcallsign, ignoreOpt) {
         var vehicle = vehicles[i];
 
         if(i == vcallsign) {
-            if(vehicle.horizon_circle) vehicle.horizon_circle.setOptions({strokeOpacity:opacityFocused});
-            if(vehicle.subhorizon_circle) vehicle.subhorizon_circle.setOptions({strokeOpacity:opacityFocused});
-            for(var j in vehicle.polyline) vehicle.polyline[j].setOptions({strokeOpacity:opacityFocused});
+            if(vehicle.horizon_circle) vehicle.horizon_circle.setOptions({zIndex:2,strokeOpacity:opacityFocused * 0.6});
+            if(vehicle.subhorizon_circle) vehicle.subhorizon_circle.setOptions({zIndex:2,strokeOpacity:opacityFocused * 0.8});
+            for(var j in vehicle.polyline) vehicle.polyline[j].setOptions({zIndex:2,strokeOpacity:opacityFocused});
         }
         else {
-            if(vehicle.horizon_circle) vehicle.horizon_circle.setOptions({strokeOpacity:opacityOther});
-            if(vehicle.subhorizon_circle) vehicle.subhorizon_circle.setOptions({strokeOpacity:opacityOther});
-            for(var j in vehicle.polyline) vehicle.polyline[j].setOptions({strokeOpacity:opacityOther});
+            if(vehicle.horizon_circle) vehicle.horizon_circle.setOptions({zIndex:1,strokeOpacity:opacityOther * 0.6});
+            if(vehicle.subhorizon_circle) vehicle.subhorizon_circle.setOptions({zIndex:1,strokeOpacity:opacityOther * 0.8});
+            for(var j in vehicle.polyline) vehicle.polyline[j].setOptions({zIndex:1,strokeOpacity:opacityOther});
         }
     }
 }
@@ -1235,8 +1235,8 @@ function addPosition(position) {
                                 new google.maps.Polyline({
                                 map: map,
                                 zIndex: Z_PATH,
-                                strokeColor: "#ffffff",
-                                strokeOpacity: 0.8,
+                                strokeColor: (['cyan','yellow'].indexOf(balloon_colors_name[c]) > -1 ? '#888888' : "#ffffff"),
+                                strokeOpacity: 1,
                                 strokeWeight: 5,
                                 clickable: true,
                                 draggable: false,
@@ -1246,7 +1246,7 @@ function addPosition(position) {
                                 map: map,
                                 zIndex: Z_PATH,
                                 strokeColor: balloon_colors[c],
-                                strokeOpacity: 0.8,
+                                strokeOpacity: 1,
                                 strokeWeight: 3,
                                 clickable: true,
                                 draggable: false,
