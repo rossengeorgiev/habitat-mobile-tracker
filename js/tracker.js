@@ -94,7 +94,7 @@ var plot_options = {
 var overlayAPRS = new google.maps.ImageMapType({
     getTileUrl: function(coord, zoom) {
         var n = Math.pow(2,zoom);
-        return (coord.y<0 || coord.y>=n || zoom > 5) ? null : "tiles/aprs/tile_"+zoom+"_"+wrapTiles(coord.x,zoom)+"_"+coord.y+".png";
+        return (coord.y<0 || coord.y>=n || zoom > 6) ? null : "tiles/aprs/tile_"+zoom+"_"+wrapTiles(coord.x,zoom)+"_"+coord.y+".png";
     },
     tileSize: new google.maps.Size(256,256)
 });
