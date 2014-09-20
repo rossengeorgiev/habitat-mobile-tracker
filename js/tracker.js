@@ -1543,11 +1543,10 @@ function graphAddPosition(vcallsign, new_data) {
 
     // we don't record extra data, if there is no telemetry graph loaded
     // altitude is used for altitude profile
-    if(plot) {
+    if(plot && new_data.data != "") {
 
         // the rest of the series is from the data field
         var json = $.parseJSON(new_data.data);
-        if(!json) return;
 
         // init empty data matrix
         var data_matrix = [];
