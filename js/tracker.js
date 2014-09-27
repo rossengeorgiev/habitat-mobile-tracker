@@ -1553,7 +1553,7 @@ function graphAddPosition(vcallsign, new_data) {
         for(var k in vehicle.graph_data_map) data_matrix[vehicle.graph_data_map[k]] = [ts, null];
 
         $.each(json, function(k, v) {
-            if(isNaN(v) || v=="") return;        // only take data that is numerical
+            if(isNaN(v) || v==="") return;        // only take data that is numerical
 
             i = (k in vehicle.graph_data_map) ? vehicle.graph_data_map[k] : data.length;
 
