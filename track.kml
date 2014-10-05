@@ -1,12 +1,20 @@
-<kml xmlns="http://earth.google.com/kml/2.0">
+<?php
+header('Content-Type: application/vnd.google-earth.kml+xml');
+
+parse_str($_SERVER['QUERY_STRING'], $tmp);
+$qstr = htmlspecialchars(http_build_query($tmp));
+
+?>
+<kml xmlns="http://earth.google.com/kml/2.0" >
   <Document>
     <NetworkLink>
       <name>Habitat Mobile Tracker</name>
       <Url>
-        <href>http://spacenear.us/tracker/datanew.php?format=kml</href>
+      <href>http://spacenear.us/tracker/datanew.php?format=kml&amp;<?=$qstr?></href>
         <refreshMode>onInterval</refreshMode>
         <refreshInterval>20</refreshInterval>
       </Url>
     </NetworkLink>
   </Document>
 </kml>
+
