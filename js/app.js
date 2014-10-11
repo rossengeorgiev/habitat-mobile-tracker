@@ -615,7 +615,7 @@ $(window).ready(function() {
         switch(name) {
             case "opt_hilight_vehicle":
                 if(on) focusVehicle(follow_vehicle);
-                else focusVehicle(-1);
+                else focusVehicle(null, true);
                 break;
             case "opt_imperial":
             case "opt_haxis_hours":
