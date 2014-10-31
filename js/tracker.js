@@ -20,6 +20,7 @@ var got_positions = false;
 var zoomed_in = false;
 var max_positions = 0; // maximum number of positions that ajax request should return (0 means no maximum)
 var follow_vehicle = null;
+var manual_pan = false;
 
 var car_index = 0;
 var car_colors = ["blue", "red", "green", "yellow"];
@@ -357,6 +358,10 @@ function load() {
         updateZoom();
     });
 
+    google.maps.event.addListener(map, 'dragstart', function() {
+        manual_pan = true;
+    });
+
     // only start population the map, once its completely loaded
     google.maps.event.addListenerOnce(map, 'idle', function(){
         startAjax();
@@ -611,6 +616,7 @@ function followVehicle(vcallsign) {
         updateGraph(vcallsign, true);
 	}
 
+    manual_pan = false;
     panTo(vcallsign);
 }
 
@@ -2038,7 +2044,7 @@ function update(response) {
                 ctx.lastPPointer.push(vehicle.curr_position);
 
                 if(listScroll) listScroll.refresh();
-                if(zoomed_in && follow_vehicle == vcallsign) panTo(follow_vehicle);
+                if(zoomed_in && follow_vehicle == vcallsign && !manual_pan) panTo(follow_vehicle);
             }
 
             // step to the next callsign
