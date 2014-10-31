@@ -35,10 +35,10 @@ for(var idx in params) {
         case "hidelist": if(line[1] == "1") wvar.vlist = false; break;
         case "hidegraph": if(line[1] == "1") wvar.graph = false; break;
         case "expandgraph": if(line[1] == "1") wvar.graph_expanded = true; break;
-        case "filter": vfilter = line[1]; break;
+        case "filter": vfilter = decodeURIComponent(line[1]); break;
         case "nyan": nyan_mode = true; break;
         case "latestonly": wvar.latestonly = (parseInt(line[1]) == 1) ? true : false; break;
-        case "focus": wvar.focus = line[1]; break;
+        case "focus": wvar.focus = decodeURIComponent(line[1]); break;
         case "docid": wvar.docid = line[1]; break;
     }
 }
