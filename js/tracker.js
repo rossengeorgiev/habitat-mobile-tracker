@@ -158,7 +158,7 @@ function calculate_lookangles(a, b) {
     var aa = Math.sqrt(Math.pow(sa, 2) + Math.pow(sb, 2));
     var ab = (Math.sin(a.lat) * Math.sin(b.lat)) + (Math.cos(a.lat) * Math.cos(b.lat) * Math.cos(d_lon));
     var angle_at_centre = Math.atan2(aa, ab);
-    var great_circle_distance = angle_at_centre * EARTH_RADIUS
+    var great_circle_distance = angle_at_centre * EARTH_RADIUS;
 
     ta = EARTH_RADIUS + a.alt;
     tb = EARTH_RADIUS + b.alt;
@@ -183,11 +183,11 @@ function calculate_lookangles(a, b) {
         'azimuth': bearing,
         'range': distance,
         'bearing': str_bearing
-    }
+    };
 }
 
 function update_lookangles(vcallsign) {
-    if(GPS_ts == null) { return; }
+    if(GPS_ts === null) { return; }
     else if($("#lookanglesbox span").first().is(":hidden")) {
         $("#lookanglesbox div").hide().parent().find("span").show();
     }
@@ -217,8 +217,8 @@ function makeQuad(x, y, zoom) {
     for (var i = zoom; i > 0; i--) {
       var mask = 1 << (i - 1);
       var cell = 0;
-      if ((x & mask) != 0) cell++;
-      if ((y & mask) != 0) cell += 2;
+      if ((x & mask) !== 0) cell++;
+      if ((y & mask) !== 0) cell += 2;
       quad += cell;
     }
     return quad;
@@ -268,10 +268,10 @@ var maptypes = {
          18,
          function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c','d'][Math.round(Math.random()*2)]+'.tile.stamen.com/watercolor/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
     ]
-}
+};
 
 // generate a list of names for the UI
-var maptype_ids = ["roadmap","satellite","terrain"]
+var maptype_ids = ["roadmap","satellite","terrain"];
 for(var i in maptypes) maptype_ids.push(i);
 
 
@@ -296,13 +296,13 @@ function throttle_events(event) {
             event.stopPropagation();
         } else { // Older IE.
             event.cancelBubble = true;
-        };
+        }
     } else {
         mthrottle_last.time = now;
         mthrottle_last.x    = event.clientX;
         mthrottle_last.y    = event.clientY;
-    };
-};
+    }
+}
 
 function load() {
     //initialize map object
@@ -378,7 +378,7 @@ function load() {
         if(offline.get('opt_hide_timebox')) {
             elm.removeClass('animate').hide();
             $("#lookanglesbox").css({top:'7px'});
-        };
+        }
 
         // prep for animation
         $(".slickbox.animate").css({width:iconW}).find("span").hide();
@@ -392,7 +392,7 @@ function load() {
 
         // animate lookanglesbox, delayed start by 300ms
         $("#lookanglesbox").delay(200).fadeIn(500,"easeOut").animate({width:origW},400,"easeOut", function() {
-          if(GPS_ts == null) {
+          if(GPS_ts === null) {
               $("#lookanglesbox .nopos").fadeIn(500, "easeOut");
           } else if($("#lookanglesbox span:first").is(":hidden")) {
               $("#lookanglesbox .nofollow").fadeIn(500, "easeOut");
@@ -451,16 +451,15 @@ function habitat_data(jsondata) {
     "radiation": "Radiation (CPM)",
     "temperature_radio": "Temperature, Radio",
     "uplink_rssi": "Uplink RSSI",
-    "light_intensity": "Light Intensity",
     "light_intensity": "Light Intensity"
-  }
+  };
 
   var hide_keys = {
     "spam": true,
     "battery_millivolts": true,
     "temperature_internal_x10": true,
     "uplink_rssi_raw": true
-  }
+  };
 
   var suffixes = {
     "battery": " V",
@@ -481,7 +480,7 @@ function habitat_data(jsondata) {
     "iss_elevation": "&deg;",
     "light_intensity": " lx",
     "spam": ""
-  }
+  };
 
   try
   {
@@ -556,31 +555,31 @@ function updateZoom() {
 }
 
 function focusVehicle(vcallsign, ignoreOpt) {
-    if(!offline.get('opt_hilight_vehicle') && ignoreOpt == undefined) return;
+    if(!offline.get('opt_hilight_vehicle') && ignoreOpt === undefined) return;
 
     var opacityFocused = 1;
     var opacityOther = 0.1;
 
-    if(vcallsign == null) opacityOther = opacityFocused;
+    if(vcallsign === null) opacityOther = opacityFocused;
 
     for(var i in vehicles) {
-        var vehicle = vehicles[i];
+        var vehicle = vehicles[i], j;
 
         if(i == vcallsign) {
             if(vehicle.horizon_circle) vehicle.horizon_circle.setOptions({zIndex:2,strokeOpacity:opacityFocused * 0.6});
             if(vehicle.subhorizon_circle) vehicle.subhorizon_circle.setOptions({zIndex:2,strokeOpacity:opacityFocused * 0.8});
-            for(var j in vehicle.polyline) vehicle.polyline[j].setOptions({zIndex:2,strokeOpacity:opacityFocused});
+            for(j in vehicle.polyline) vehicle.polyline[j].setOptions({zIndex:2,strokeOpacity:opacityFocused});
         }
         else {
             if(vehicle.horizon_circle) vehicle.horizon_circle.setOptions({zIndex:1,strokeOpacity:opacityOther * 0.6});
             if(vehicle.subhorizon_circle) vehicle.subhorizon_circle.setOptions({zIndex:1,strokeOpacity:opacityOther * 0.8});
-            for(var j in vehicle.polyline) vehicle.polyline[j].setOptions({zIndex:1,strokeOpacity:opacityOther});
+            for(j in vehicle.polyline) vehicle.polyline[j].setOptions({zIndex:1,strokeOpacity:opacityOther});
         }
     }
 }
 
 function stopFollow() {
-	if(follow_vehicle != null) {
+	if(follow_vehicle !== null) {
         focusVehicle(null);
 
         // remove target mark
@@ -594,12 +593,12 @@ function stopFollow() {
         nite.refresh();
 
         // update lookangles box
-        if(GPS_ts != null) $("#lookanglesbox span").hide().parent().find(".nofollow").show();
+        if(GPS_ts !== null) $("#lookanglesbox span").hide().parent().find(".nofollow").show();
     }
 }
 
 function followVehicle(vcallsign) {
-    if(vcallsign == null) { stopFollow(); return; }
+    if(vcallsign === null) { stopFollow(); return; }
 
 	if(vehicles.hasOwnProperty(follow_vehicle)) vehicles[follow_vehicle].follow = false;
 
@@ -689,12 +688,12 @@ function updateVehicleInfo(vcallsign, newPosition) {
 
     // indicates whenever a payload has landed
     var landed = (
-                     vehicle.max_alt > 1500         // if it has gone up
-                     && vehicle.ascent_rate < 1.0   // and has negative ascent_rate, aka is descending
-                     && newPosition.gps_alt < 350              // and is under 350 meters altitude
-                 ) || (                                     // or
-                     newPosition.gps_alt < 600                 // under 600m and has no position update for more than 30 minutes
-                     && (new Date().getTime() - convert_time(newPosition.gps_time)) > 1800000
+                     vehicle.max_alt > 1500 &&      // if it has gone up
+                     vehicle.ascent_rate < 1.0 &&   // and has negative ascent_rate, aka is descending
+                     newPosition.gps_alt < 350      // and is under 350 meters altitude
+                 ) || (                             // or
+                     newPosition.gps_alt < 600 &&   // under 600m and has no position update for more than 30 minutes
+                     (new Date().getTime() - convert_time(newPosition.gps_time)) > 1800000
                  );
 
     if(landed) {
@@ -715,21 +714,21 @@ function updateVehicleInfo(vcallsign, newPosition) {
   var elm = $('.vehicle' + vehicle.uuid);
 
   // if the vehicle doesn't exist in the list
-  if (elm.length == 0) {
+  if (elm.length === 0) {
     $('.portrait').append('<div class="row vehicle'+vehicle.uuid+'" data-vcallsign="'+vcallsign+'"></div>');
     $('.landscape').append('<div class="row vehicle'+vehicle.uuid+'" data-vcallsign="'+vcallsign+'"></div>');
 
-  } else if(elm.attr('data-vcallsign') == undefined) {
+  } else if(elm.attr('data-vcallsign') === undefined) {
     elm.attr('data-vcallsign', vcallsign);
   }
 
   // decides how to dispaly the horizonal speed
-  var imp = offline.get('opt_imperial');
+  var imp = offline.get('opt_imperial'), hrate_text;
   var ascent_text = imp ? (vehicle.ascent_rate * 196.850394).toFixed(1) + ' ft/min' : vehicle.ascent_rate.toFixed(1) + ' m/s';
   if (offline.get('opt_haxis_hours')) {
-          var hrate_text = imp ? (vehicle.horizontal_rate * 2.23693629).toFixed(1) + ' mph' : (vehicle.horizontal_rate * 3.6).toFixed(1) + ' km/h';
+          hrate_text = imp ? (vehicle.horizontal_rate * 2.23693629).toFixed(1) + ' mph' : (vehicle.horizontal_rate * 3.6).toFixed(1) + ' km/h';
   } else {
-          var hrate_text = imp ? (vehicle.horizontal_rate * 196.850394).toFixed(1) + ' ft/min' : vehicle.horizontal_rate.toFixed(1) + ' m/s';
+          hrate_text = imp ? (vehicle.horizontal_rate * 196.850394).toFixed(1) + ' ft/min' : vehicle.horizontal_rate.toFixed(1) + ' m/s';
   }
 
   var coords_text;
@@ -737,13 +736,13 @@ function updateVehicleInfo(vcallsign, newPosition) {
 
   // determine how to link the vehicle coordinates to a native app, if on a mobile device
   if(ua.indexOf('iphone') > -1) {
-      coords_text = '<a id="launch_mapapp" href="maps://?q='+newPosition.gps_lat+','+newPosition.gps_lon+'">'
-                    + roundNumber(newPosition.gps_lat, 6) + ', ' + roundNumber(newPosition.gps_lon, 6) +'</a>'
-                    + ' <i class="icon-location"></i>';
+      coords_text = '<a id="launch_mapapp" href="maps://?q='+newPosition.gps_lat+','+newPosition.gps_lon+'">' +
+                    roundNumber(newPosition.gps_lat, 6) + ', ' + roundNumber(newPosition.gps_lon, 6) +'</a>' +
+                    ' <i class="icon-location"></i>';
   } else if(ua.indexOf('android') > -1) {
-      coords_text = '<a id="launch_mapapp" href="geo:'+newPosition.gps_lat+','+newPosition.gps_lon+'?q='+newPosition.gps_lat+','+newPosition.gps_lon+'('+vcallsign+')">'
-                    + roundNumber(newPosition.gps_lat, 6) + ', ' + roundNumber(newPosition.gps_lon, 6) +'</a>'
-                    + ' <i class="icon-location"></i>';
+      coords_text = '<a id="launch_mapapp" href="geo:'+newPosition.gps_lat+','+newPosition.gps_lon+'?q='+newPosition.gps_lat+','+newPosition.gps_lon+'('+vcallsign+')">' +
+                    roundNumber(newPosition.gps_lat, 6) + ', ' + roundNumber(newPosition.gps_lon, 6) +'</a>' +
+                    ' <i class="icon-location"></i>';
   } else {
       coords_text = roundNumber(newPosition.gps_lat, 6) + ', ' + roundNumber(newPosition.gps_lon, 6);
   }
@@ -756,46 +755,46 @@ function updateVehicleInfo(vcallsign, newPosition) {
 
 
   // start
-  var a    = '<div class="header">'
-           + '<span>' + vcallsign + ' <i class="icon-target"></i></span>'
-           + '<canvas class="graph"></canvas>'
-           + '<i class="arrow"></i></div>'
-           + '<div class="data">'
-           + '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />'
-           + ((vcallsign in hysplit) ? '<span class="hysplit '+((hysplit[vcallsign].getMap()) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'">HYSPLIT</span>' : '')
-           + '<div class="left">'
-           + '<dl>';
+  var a    = '<div class="header">' +
+           '<span>' + vcallsign + ' <i class="icon-target"></i></span>' +
+           '<canvas class="graph"></canvas>' +
+           '<i class="arrow"></i></div>' +
+           '<div class="data">' +
+           '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />' +
+           ((vcallsign in hysplit) ? '<span class="hysplit '+((hysplit[vcallsign].getMap()) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'">HYSPLIT</span>' : '') +
+           '<div class="left">' +
+           '<dl>';
   // end
-  var b    = '</dl>'
-           + '</div>' // right
-           + '</div>' // data
-           + '';
-  var c    = '<dt class="receivers">Recieved <i class="friendly-dtime" data-timestamp='+(convert_time(newPosition.server_time))+'></i> via:</dt><dd class="receivers">'
-           + newPosition.callsign.split(",").join(", ") + '</dd>'
+  var b    = '</dl>' +
+           '</div>' + // right
+           '</div>' + // data
+           '';
+  var c    = '<dt class="receivers">Recieved <i class="friendly-dtime" data-timestamp='+(convert_time(newPosition.server_time))+'></i> via:</dt><dd class="receivers">' +
+           newPosition.callsign.split(",").join(", ") + '</dd>';
 
   if(!newPosition.callsign) c = '';
 
 
   // mid for portrait
-  var p    = '<dt>'+formatDate(stringToDateUTC(newPosition.gps_time))+'</dt><dd>datetime (local)</dd>'
-           + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
-           + c // receivers if any
-           + '</dl>'
-           + '</div>' // left
-           + '<div class="right">'
-           + '<dl>'
-           + ((vehicle.vehicle_type == "car") ? '' : '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>')
-           + '<dt>'+text_alt+'</dt><dd>altitude</dd>'
-           + '<dt>'+text_alt_max+'</dt><dd>max alt</dd>'
-           + '';
+  var p    = '<dt>'+formatDate(stringToDateUTC(newPosition.gps_time))+'</dt><dd>datetime (local)</dd>' +
+           '<dt>'+coords_text+'</dt><dd>coordinates</dd>' +
+           c +// receivers if any
+           '</dl>' +
+           '</div>' + // left
+           '<div class="right">' +
+           '<dl>' +
+           ((vehicle.vehicle_type == "car") ? '' : '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>') +
+           '<dt>'+text_alt+'</dt><dd>altitude</dd>' +
+           '<dt>'+text_alt_max+'</dt><dd>max alt</dd>' +
+           '';
   // mid for landscape
-  var l    = ((vehicle.vehicle_type == "car") ? '' : '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>')
-           + '<dt>'+text_alt+' ('+text_alt_max+')</dt><dd>altitude (max)</dd>'
-           + '<dt>'+formatDate(stringToDateUTC(newPosition.gps_time))+'</dt><dd>datetime (local)</dd>'
-           + '<dt>'+coords_text+'</dt><dd>coordinates</dd>'
-           + habitat_data(newPosition.data)
-           + c // receivers if any
-           + '';
+  var l    = ((vehicle.vehicle_type == "car") ? '' : '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>') +
+           '<dt>'+text_alt+' ('+text_alt_max+')</dt><dd>altitude (max)</dd>' +
+           '<dt>'+formatDate(stringToDateUTC(newPosition.gps_time))+'</dt><dd>datetime (local)</dd>' +
+           '<dt>'+coords_text+'</dt><dd>coordinates</dd>' +
+           habitat_data(newPosition.data) +
+           c + // receivers if any
+           '';
 
   // update html
   $('.portrait .vehicle'+vehicle.uuid).html(a + p + b);
@@ -803,8 +802,8 @@ function updateVehicleInfo(vcallsign, newPosition) {
 
   // redraw canvas
   if(!wvar.latestonly && vehicle.graph_data.length) {
-      var c = $('.vehicle'+vehicle.uuid+' .graph');
-      drawAltitudeProfile(c.get(0), c.get(1), vehicle.graph_data[0], vehicle.max_alt);
+      var can = $('.vehicle'+vehicle.uuid+' .graph');
+      drawAltitudeProfile(can.get(0), can.get(1), vehicle.graph_data[0], vehicle.max_alt);
   }
 
   // mark vehicles as redrawn
@@ -897,7 +896,7 @@ function redrawPrediction(vcallsign) {
         if(vehicle.prediction_target) vehicle.prediction_target = null;
     }
 
-    if(burst_index != 0 && vcallsign != "wb8elk2") {
+    if(burst_index !== 0 && vcallsign != "wb8elk2") {
         if(vehicle.prediction_burst) {
             vehicle.prediction_burst.setPosition(latlng_burst);
         } else {
@@ -977,16 +976,16 @@ function drawAltitudeProfile(c1, c2, series, alt_max) {
     }
 
 
-    var i;
+    var i, alt;
     // draw all altitude points, if they are not too many
     if(cw1*2 > real_len) {
         for(i = 0; i < real_len; i++) {
-            var alt = alt_list[i][1];
+            alt = alt_list[i][1];
 
             ctx1.lineTo(1+((i+1)*xt1), ch1 - (alt * yt1));
             ctx2.lineTo(1+((i+1)*xt2), ch2 - (alt * yt2));
 
-            if(i+2 < len && alt_list[i+2][1] == null) i += 2;
+            if(i+2 < len && alt_list[i+2][1] === null) i += 2;
         }
     }
     // if they are too many, downsample to keep the loop short
@@ -997,8 +996,8 @@ function drawAltitudeProfile(c1, c2, series, alt_max) {
         var step = (1.0*len) / max;
 
         for(i = 0; i < max; i++) {
-            var alt = alt_list[Math.floor(i*step)][1];
-            if(alt == null) continue;
+            alt = alt_list[Math.floor(i*step)][1];
+            if(alt === null) continue;
 
             ctx1.lineTo(1+((i+1)*xt1), ch1 - (alt * yt1));
             ctx2.lineTo(1+((i+1)*xt2), ch2 - (alt * yt2));
@@ -1040,7 +1039,8 @@ var mapInfoBox_handle_path = function(event) {
     mapInfoBox.setContent("<pre><b>Length:</b> " + value + duration + "</pre>");
     mapInfoBox.setPosition(event.latLng);
     mapInfoBox.open(map);
-}
+};
+
 var mapInfoBox_handle_prediction = function(event) {
     var data = this.pdata;
     var altitude;
@@ -1051,16 +1051,17 @@ var mapInfoBox_handle_prediction = function(event) {
         altitude = Math.round(data.alt) + " m";
     }
 
-    mapInfoBox.setContent("<pre>"
-                        + formatDate(new Date(parseInt(data.time) * 1000), true) + "\n\n"
-                        + "<b>Altitude:</b> " + altitude + "\n"
-                        + "<b>Latitude:</b> " + data.lat + "\n"
-                        + "<b>Longtitude:</b> " + data.lon + "\n"
-                        + "</pre>"
+    mapInfoBox.setContent("<pre>" +
+                        formatDate(new Date(parseInt(data.time) * 1000), true) + "\n\n" +
+                        "<b>Altitude:</b> " + altitude + "\n" +
+                        "<b>Latitude:</b> " + data.lat + "\n" +
+                        "<b>Longtitude:</b> " + data.lon + "\n" +
+                        "</pre>"
                         );
     mapInfoBox.setPosition(event.latLng);
     mapInfoBox.open(map);
-}
+};
+
 var mapInfoBox_handle_horizons = function(event, obj,  title) {
     var value = "";
 
@@ -1074,10 +1075,10 @@ var mapInfoBox_handle_horizons = function(event, obj,  title) {
     mapInfoBox.setContent("<pre>" + title + "\nr = "+ value + "</pre>");
     mapInfoBox.setPosition(event.latLng);
     mapInfoBox.open(map);
-}
+};
 
-var mapInfoBox_handle_truehorizon = function(event) { mapInfoBox_handle_horizons(event, this, "True Horizon"); }
-var mapInfoBox_handle_horizon = function(event) { mapInfoBox_handle_horizons(event, this, "5° Horizon"); }
+var mapInfoBox_handle_truehorizon = function(event) { mapInfoBox_handle_horizons(event, this, "True Horizon"); };
+var mapInfoBox_handle_horizon = function(event) { mapInfoBox_handle_horizons(event, this, "5° Horizon"); };
 
 function addPosition(position) {
     var vcallsign = position.vehicle;
@@ -1092,11 +1093,12 @@ function addPosition(position) {
         var point = new google.maps.LatLng(position.gps_lat, position.gps_lon);
         var image_src = "";
         var color_index = 0;
+        var c;
         if(vcallsign.search(/(chase)/i) != -1) {
             vehicle_type = "car";
             color_index = car_index++;
-            var c = color_index % car_colors.length;
-            var image_src = host_url + markers_url + "car-" + car_colors[c] + ".png";
+            c = color_index % car_colors.length;
+            image_src = host_url + markers_url + "car-" + car_colors[c] + ".png";
 
             marker = new google.maps.Marker({
                 icon: {
@@ -1114,7 +1116,7 @@ function addPosition(position) {
         }
         else if(vcallsign == "XX") {
             vehicle_type = "xmark";
-            var image_src = host_url + markers_url + "balloon-xmark.png";
+            image_src = host_url + markers_url + "balloon-xmark.png";
 
             marker = new google.maps.Marker({
                 icon: {
@@ -1132,7 +1134,7 @@ function addPosition(position) {
         } else {
             vehicle_type = "balloon";
             color_index = balloon_index++;
-            var c = color_index % balloon_colors.length;
+            c = color_index % balloon_colors.length;
 
             image_src = host_url + markers_url + "balloon-" + ((vcallsign == "PIE") ? "rpi" : balloon_colors_name[c]) + ".png";
             marker_shadow = new google.maps.Marker({
@@ -1187,12 +1189,12 @@ function addPosition(position) {
                         };
                 }
                 this.setIcon(img);
-            }
+            };
             marker.setAltitude = function(alt) {
                 var pos = overlay.getProjection().fromLatLngToDivPixel(this.shadow.getPosition());
                 pos.y -= alt;
                 this.setPosition(overlay.getProjection().fromDivPixelToLatLng(pos));
-            }
+            };
             marker.setAltitude(0);
 
             horizon_circle = new google.maps.Circle({
@@ -1225,7 +1227,6 @@ function addPosition(position) {
         var vehicle_info = {
                             uuid: elm_uuid++,
                             vehicle_type: vehicle_type,
-                            ascent_rate: 0,
                             marker: marker,
                             marker_shadow: marker_shadow,
                             image_src: image_src,
@@ -1276,7 +1277,7 @@ function addPosition(position) {
                             };
 
         // deep copy yaxes config for graph
-        $.each($.extend(false, plot_options.yaxes, {}), function(k,v) { vehicle_info.graph_yaxes.push(v) });
+        $.each($.extend(false, plot_options.yaxes, {}), function(k,v) { vehicle_info.graph_yaxes.push(v); });
 
         // nyan mod
         if(nyan_mode && vehicle_info.vehicle_type == "balloon") {
@@ -1323,9 +1324,9 @@ function addPosition(position) {
         // hook infobox
 
         // polyline
-        for(var k in vehicle_info.polyline) {
-            vehicle_info.polyline[k].vehicle = vehicle_info;
-            google.maps.event.addListener(vehicle_info.polyline[k], 'click', mapInfoBox_handle_path);
+        for(var pkey in vehicle_info.polyline) {
+            vehicle_info.polyline[pkey].vehicle = vehicle_info;
+            google.maps.event.addListener(vehicle_info.polyline[pkey], 'click', mapInfoBox_handle_path);
         }
 
         // horizon circles
@@ -1344,7 +1345,7 @@ function addPosition(position) {
         var curr_ts = convert_time(vehicle.curr_position.gps_time);
         var dt = (new_ts - curr_ts) / 1000; // convert to seconds
 
-        if(dt == 0 && vehicle.num_positions) {
+        if(dt === 0 && vehicle.num_positions) {
             if (("," + vehicle.curr_position.callsign + ",").indexOf("," + position.callsign + ",") === -1) {
               vehicle.curr_position.callsign += "," + position.callsign;
             }
@@ -1353,8 +1354,7 @@ function addPosition(position) {
             if(vehicle.num_positions > 0) {
                 // calculate vertical rate
                 var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
-                vehicle.ascent_rate = 0.7 * rate
-                                      + 0.3 * vehicle.ascent_rate;
+                vehicle.ascent_rate = 0.7 * rate + 0.3 * vehicle.ascent_rate;
 
                 // calculate horizontal rate
                 vehicle.horizontal_rate = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(position.gps_lat, position.gps_lon),
@@ -1391,7 +1391,7 @@ function addPosition(position) {
             }
 
             // recalculate the distance in the section where we insert
-            if(idx == 0) {
+            if(idx === 0) {
                 vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[0], new_latlng);
             } else {
                 // subtracked the distance between the two points where we gonna insert the new one
@@ -1462,6 +1462,7 @@ function graphAddPosition(vcallsign, new_data) {
     var splice_pad = false;
     var gap_size = 180000; // 3 mins in milis
     var pad_size = 120000; // 2 min
+    var i;
 
     if(data.length) {
         var ts_last_idx = data[0].data.length - 1;
@@ -1476,7 +1477,8 @@ function graphAddPosition(vcallsign, new_data) {
 
             // find an insertion point for the new datum
             var xref = data[0].data;
-            var i = max = xref.length - 1;
+            i = xref.length - 1;
+            var max = i;
             for(; i >= 0; i--) {
                 if(ts > xref[i][0]) break;
             }
@@ -1485,21 +1487,21 @@ function graphAddPosition(vcallsign, new_data) {
 
             if(i > -1) {
                 // this is if new datum hits padded area
-                if((xref[i][1] == null && xref[i][0] - 1 + (gap_size - pad_size) >= ts)) {
+                if((xref[i][1] === null && xref[i][0] - 1 + (gap_size - pad_size) >= ts)) {
                     splice_remove = 2;
                     splice_idx = i-1;
                 }
-                else if(i+1 <= max && xref[i+1][1] == null) {
+                else if(i+1 <= max && xref[i+1][1] === null) {
                     splice_remove = 2;
                     splice_idx = i;
                 }
-                else if(i+2 <= max && xref[i+2][1] == null) {
+                else if(i+2 <= max && xref[i+2][1] === null) {
                     splice_remove = 2;
                     splice_idx = i+1;
 
                 }
                 // should we pad before the new datum
-                else if (xref[i][1] != null && xref[i][0] + gap_size < ts) {
+                else if (xref[i][1] !== null && xref[i][0] + gap_size < ts) {
                     // pad with previous datum
                     $.each(data, function(k,v) {
                         v.data.splice(i+1, 0, [xref[i][0]+pad_size, v.data[i][1]], [xref[i][0]+pad_size+1, null]);
@@ -1531,7 +1533,7 @@ function graphAddPosition(vcallsign, new_data) {
         if(plot_options.xaxis && follow_vehicle == vcallsign && ts_last == plot_options.xaxis.max && ts > ts_last) plot_options.xaxis.max = ts;
     }
 
-    var i = 0;
+    i = 0;
     // altitude is always first in the series
     if(data[i] === undefined) {
         data[i] = {
@@ -1549,14 +1551,15 @@ function graphAddPosition(vcallsign, new_data) {
 
     // we don't record extra data, if there is no telemetry graph loaded
     // altitude is used for altitude profile
-    if(plot && new_data.data != "") {
+    if(plot && new_data.data !== "") {
 
         // the rest of the series is from the data field
         var json = $.parseJSON(new_data.data);
 
         // init empty data matrix
         var data_matrix = [];
-        for(var k in vehicle.graph_data_map) data_matrix[vehicle.graph_data_map[k]] = [ts, null];
+        var k;
+        for(k in vehicle.graph_data_map) data_matrix[vehicle.graph_data_map[k]] = [ts, null];
 
         $.each(json, function(k, v) {
             if(isNaN(v) || v==="") return;        // only take data that is numerical
@@ -1601,7 +1604,7 @@ function graphAddPosition(vcallsign, new_data) {
             data_matrix[i][1] = parseFloat(v);
         });
 
-        for(var k in data_matrix) {
+        for(k in data_matrix) {
             if(splice) {
                 if(splice_pad) {
                     data[k].data.splice(splice_idx, splice_remove, data_matrix[k], [ts+pad_size, data_matrix[k][1]], [ts+pad_size+1, null]);
@@ -1702,7 +1705,7 @@ function refreshPredictions() {
 }
 
 function habitat_translation_layer(json_result, url, skip) {
-    if(json_result.rows == 0) return;
+    if(json_result.rows === 0) return;
 
     json_result = json_result.rows;
 
@@ -1715,11 +1718,11 @@ function habitat_translation_layer(json_result, url, skip) {
         payload: 1,
         sentence_id: 1,
         time: 1,
-    }
+    };
 
     for(var i in json_result) {
         var doc = json_result[i].doc;
-        if(doc.data.latitude == 0 && doc.data.longitude == 0) continue;
+        if(doc.data.latitude === 0 && doc.data.longitude === 0) continue;
 
         var row = {
             'position_id': 0,
@@ -1731,12 +1734,12 @@ function habitat_translation_layer(json_result, url, skip) {
             'gps_alt': doc.data.altitude,
             'callsign': "HABITAT ARCHIVE",
             'data': {}
-        }
+        };
 
         try {
-            row['gps_time'] = "20" + doc.data.date.replace(/([0-9]{2})/g, "$1-") + doc.data.time;
+            row.gps_time = "20" + doc.data.date.replace(/([0-9]{2})/g, "$1-") + doc.data.time;
         } catch (e) {
-            row['gps_time'] = row['server_time'];
+            row.gps_time = row.server_time;
         }
 
         // move all other properties as data
@@ -1772,8 +1775,8 @@ function initHabitat() {
         dataType: "json",
         success: function(response, textStatus) {
             if(response.type == "flight") {
-                if(response.payloads.length == 0) {
-                    alert("no payloads for that flight doc")
+                if(response.payloads.length === 0) {
+                    alert("no payloads for that flight doc");
                     return;
                 }
 
@@ -1814,7 +1817,7 @@ function startAjax() {
 
     // the periodical starts here, the * 1000 is because milliseconds required
 
-    if(wvar.docid != "") {
+    if(wvar.docid !== "") {
         initHabitat();
     }
     else {
@@ -1924,7 +1927,7 @@ function updateReceivers(r) {
     }
 
     // clear old receivers
-    var i = 0;
+    i = 0;
     for(; i < receivers.length;) {
         var e = receivers[i];
         if(e.fresh) {
@@ -1961,7 +1964,7 @@ function updatePredictions(r) {
 				continue;
 			}
             vehicle.prediction = r[i];
-            if(parseInt(vehicle.prediction.landed) == 0) {
+            if(parseInt(vehicle.prediction.landed) === 0) {
                 vehicle.prediction.data = $.parseJSON(r[i].data);
                 redrawPrediction(vcallsign);
             } else {
@@ -1977,17 +1980,17 @@ function refreshUI() {
     }
 
     mapInfoBox.close();
-    if(follow_vehicle != null) update_lookangles(follow_vehicle);
+    if(follow_vehicle !== null) update_lookangles(follow_vehicle);
 }
 
 var status = "";
 var bs_idx = 0;
 
 function update(response) {
-    if (response == null
-            || !response.positions
-            || !response.positions.position
-            || !response.positions.position.length) {
+    if (response === null ||
+        !response.positions ||
+        !response.positions.position ||
+        !response.positions.position.length) {
         return;
     }
 
@@ -2052,16 +2055,16 @@ function update(response) {
         },
         end: function(ctx) {
           // update graph is current vehicles is followed
-          if(follow_vehicle != null && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, false);
+          if(follow_vehicle !== null && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, false);
 
           // store in localStorage
-          if(wvar.docid == "") offline.set('positions', ctx.lastPositions);
+          if(wvar.docid === "") offline.set('positions', ctx.lastPositions);
 
           if (got_positions && !zoomed_in && Object.keys(vehicles).length) {
               zoom_on_payload();
           }
         }
-    }
+    };
 
     ctx_init.step(ctx_init);
 }
@@ -2071,7 +2074,7 @@ function zoom_on_payload() {
     // find a the first balloon
     var target = null, vcallsign = null;
 
-    if(wvar.focus != "" && vehicles.hasOwnProperty(wvar.focus)) {
+    if(wvar.focus !== "" && vehicles.hasOwnProperty(wvar.focus)) {
         target = vehicles[wvar.focus];
         vcallsign = wvar.focus;
     } else {
@@ -2099,11 +2102,11 @@ function zoom_on_payload() {
 
     // this condition is true, when we there is no focus vehicle specified, or balloon in list
     // we then fallback to zooming in onto the first vehicle, if there is one
-    if(target == null) {
+    if(target === null) {
         var list = Object.keys(vehicles);
 
         // if there are no vehicles, return, else zoom in on the first one
-        if(list.length == 0) return;
+        if(list.length === 0) return;
         else {
             vcallsign = list[0];
             target = vehicles[vcallsign];

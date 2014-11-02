@@ -2,13 +2,13 @@
 var is_mobile = false;
 
 if(
- navigator.userAgent.match(/Android/i)
- || navigator.userAgent.match(/iPhone/i)
- || navigator.userAgent.match(/iPod/i)
- || navigator.userAgent.match(/iPad/i)
- || navigator.userAgent.match(/Windows Phone/i)
- || navigator.userAgent.match(/webOS/i)
- || navigator.userAgent.match(/BlackBerry/i)
+ navigator.userAgent.match(/Android/i) ||
+ navigator.userAgent.match(/iPhone/i) ||
+ navigator.userAgent.match(/iPod/i) ||
+ navigator.userAgent.match(/iPad/i) ||
+ navigator.userAgent.match(/Windows Phone/i) ||
+ navigator.userAgent.match(/webOS/i) ||
+ navigator.userAgent.match(/BlackBerry/i)
  ) is_mobile = true;
 
 // wvar detection
@@ -23,7 +23,8 @@ var wvar = {
     latestonly: is_mobile,
     focus: "",
     docid: ""
-}
+};
+
 var params = window.location.search.substring(1).split('&');
 
 for(var idx in params) {
@@ -62,14 +63,14 @@ var loadComplete = function(e) {
         // swapCache may throw exception if the isn't a previous cache
         try {
             window.applicationCache.swapCache();
-        } catch(e) {}
+        } catch(v) {}
 
         window.location.reload();
         return;
     }
 
     $('#loading .complete').stop(true,true).animate({width: 200}, {complete: trackerInit });
-}
+};
 
 var hysplit = {};
 var hysplit_data = {};
@@ -94,7 +95,7 @@ var refresh_hysplit = function() {
 
         if(refresh) refreshUI();
     });
-}
+};
 
 // loads the tracker interface
 function trackerInit() {
@@ -140,7 +141,7 @@ var GPS_alt = null;
 var GPS_speed = null;
 var CHASE_enabled = null;
 var CHASE_listenerSent = false;
-var CHASE_timer = 0
+var CHASE_timer = 0;
 var callsign = "";
 
 function checkSize() {
@@ -228,9 +229,9 @@ var positionUpdateHandle = function(position) {
                 var hours = Math.floor(delta_ts / 3600);
                 var minutes = Math.floor(delta_ts / 60) % 60;
                 var ts_str = (delta_ts >= 60) ?
-                                    ((hours)?hours+'h ':'')
-                                    + ((minutes)?minutes+'m':'')
-                                    + ' ago'
+                                    ((hours)?hours+'h ':'') +
+                                    ((minutes)?minutes+'m':'') +
+                                    ' ago'
                                 : 'just now';
                 $('#cc_timestamp').text(ts_str);
             }, 30000);
@@ -239,12 +240,13 @@ var positionUpdateHandle = function(position) {
         }
 
         // save position and update only if different is available
-        if(CHASE_timer < (new Date()).getTime()
-           && (
-           GPS_lat != lat
-           || GPS_lon != lon
-           || GPS_alt != alt
-           || GPS_speed != speed)
+        if(CHASE_timer < (new Date()).getTime() &&
+           (
+           GPS_lat != lat || 
+           GPS_lon != lon ||
+           GPS_alt != alt ||
+           GPS_speed != speed
+           )
         )
         {
             GPS_lat = lat;
@@ -255,7 +257,7 @@ var positionUpdateHandle = function(position) {
             $('#cc_timestamp').text('just now');
 
             // update look angles once we get position
-            if(follow_vehicle != null) { update_lookangles(follow_vehicle); }
+            if(follow_vehicle !== null) { update_lookangles(follow_vehicle); }
 
             if(CHASE_enabled) {
                 ChaseCar.updatePosition(callsign, position);
@@ -292,12 +294,12 @@ var positionUpdateHandle = function(position) {
         $('#app_name b').html('mobile<br/>tracker');
     });
     */
-}
+};
 
 var twoZeroPad = function(n) {
     n = String(n);
     return (n.length<2) ? '0'+n : n;
-}
+};
 
 // updates timebox
 var updateTimebox = function(date) {
@@ -322,7 +324,7 @@ var updateTimebox = function(date) {
     z = date.getTimezoneOffset() / -60;
 
     elm.find(".local").text("Local: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC"+((z<0)?"-":"+")+z);
-}
+};
 
 var format_time_friendly = function(start, end) {
     var dt = Math.floor((end - start) / 1000);
@@ -337,7 +339,7 @@ var format_time_friendly = function(start, end) {
         dt = Math.floor(dt/3600);
         return Math.floor(dt/24)+'d '+(dt % 24)+'h';
     }
-}
+};
 
 // runs every second
 var updateTime = function(date) {
@@ -346,7 +348,7 @@ var updateTime = function(date) {
     if(elm.length > 0) updateTimebox(date);
 
     // update friendly delta time fields
-    var elm = $(".friendly-dtime");
+    elm = $(".friendly-dtime");
     if(elm.length > 0) {
         var now = new Date().getTime();
 
@@ -357,7 +359,7 @@ var updateTime = function(date) {
             if(str) e.text(str + ' ago');
         });
     }
-}
+};
 
 
 $(window).ready(function() {
@@ -373,10 +375,10 @@ $(window).ready(function() {
     listScroll = new iScroll('main', { hScrollbar: false, hScroll: false, snap: false, scrollbarClass: 'scrollStyle' });
 
     $('#telemetry_graph').on('click', '.graph_label', function() {
-        var e = $(this);
+        var e = $(this), h;
         if(e.hasClass('active')) {
             e.removeClass('active');
-            var h = $('#map').height() + $('#telemetry_graph').height();
+            h = $('#map').height() + $('#telemetry_graph').height();
 
             plot_open = false;
 
@@ -384,7 +386,7 @@ $(window).ready(function() {
             if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI', 'Collapse', 'Telemetry Graph']);
         } else {
             e.addClass('active');
-            var h = $('#map').height() - $('#telemetry_graph').height();
+            h = $('#map').height() - $('#telemetry_graph').height();
 
             plot_open = true;
 
@@ -394,7 +396,7 @@ $(window).ready(function() {
         $('#map').stop(null,null).animate({'height': h}, function() {
             if(map) google.maps.event.trigger(map, 'resize');
 
-            if(plot_open && follow_vehicle != null && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, true);
+            if(plot_open && follow_vehicle !== null && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, true);
         });
     });
 
@@ -430,7 +432,7 @@ $(window).ready(function() {
     // hand cursor for dragging the vehicle list
     $("#main").on("mousedown", ".row", function () {
         $("#main").addClass("drag");
-    })
+    });
     $("body").on("mouseup", function () {
         $("#main").removeClass("drag");
     });
@@ -463,7 +465,7 @@ $(window).ready(function() {
             listScroll.refresh();
 
             // disable following only we are collapsing the followed vehicle
-            if(follow_vehicle != null && follow_vehicle == e.attr('data-vcallsign')) {
+            if(follow_vehicle !== null && follow_vehicle == e.attr('data-vcallsign')) {
                 stopFollow();
             }
         } else {
@@ -506,7 +508,7 @@ $(window).ready(function() {
             if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'UI Menubar', 'Open Page', pretty_name]);
         }
         checkSize();
-    })
+    });
 
     // toggle functionality for switch button
     $("#sw_chasecar").click(function() {
@@ -670,7 +672,7 @@ $(window).ready(function() {
 
             try {
                 applicationCache.update();
-            } catch (e) {
+            } catch (v) {
                 force_check_cache = false;
                 alert("There is no applicationCache available");
             }
@@ -762,13 +764,13 @@ $(window).ready(function() {
             var id = switches[i][0];
             var name = switches[i][1];
 
-            var html = '<div class="row option">'
-                     + '<span><b>'+name+'</b></span>'
-                     + '<div class="switch off" id="sw_weather_'+id+'">'
-                     + '<span class="thumb"></span>'
-                     + '<input type="checkbox" id="opt_weather_'+id+'">'
-                     + '</div>'
-                     + '</div>';
+            var html = '<div class="row option">' +
+                     '<span><b>'+name+'</b></span>' +
+                     '<div class="switch off" id="sw_weather_'+id+'">' +
+                     '<span class="thumb"></span>' +
+                     '<input type="checkbox" id="opt_weather_'+id+'">' +
+                     '</div>' +
+                     '</div>';
 
             elm.append(html);
         }

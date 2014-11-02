@@ -22,7 +22,7 @@ ChaseCar.getUUIDS = function(callback) {
         ChaseCar.uused = 0;            // reset counter
         if(callback) callback();
     });
-}
+};
 // handles request and uuid management
 // @doc JSONobject
 ChaseCar.request = function(doc) {
@@ -40,7 +40,8 @@ ChaseCar.request = function(doc) {
         } else {
             ChaseCar.uused++;
             // get one uuid and one doc from the queue and push to habitat
-            var uuid = ChaseCar._uuids.shift(), doc = ChaseCar.queue.shift();
+            var uuid = ChaseCar._uuids.shift();
+            doc = ChaseCar.queue.shift();
 
             // update doc with uuids and time of upload
             doc._id = uuid;
@@ -56,7 +57,7 @@ ChaseCar.request = function(doc) {
             });
         }
     }
-}
+};
 // run once at start,
 // @callsign string
 ChaseCar.putListenerInfo = function(callsign) {
@@ -67,7 +68,7 @@ ChaseCar.putListenerInfo = function(callsign) {
             'time_created': (new Date()).toISOString(),
             'data': { 'callsign': callsign }
         });
-}
+};
 // run every time the location has changed
 // @callsign string
 // @position object (geolocation position object)
@@ -91,4 +92,4 @@ ChaseCar.updatePosition = function(callsign, position) {
                 }
             }
         });
-}
+};

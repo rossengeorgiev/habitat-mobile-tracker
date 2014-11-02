@@ -36,20 +36,20 @@ function updateLegend() {
         }
 
         var y;
-        if(series.noInterpolate > 0) { y = series.data[((j==0)?j:j-1)][1]; }
+        if(series.noInterpolate > 0) { y = series.data[((j===0)?j:j-1)][1]; }
         else {
-            var p1 = (j==0) ? null : series.data[j-1];
+            var p1 = (j===0) ? null : series.data[j-1];
                 p2 = series.data[j];
 
-            if (p1 == null) {
+            if (p1 === null) {
                 y = p2[1];
-            } else if (p2 == null) {
+            } else if (p2 === null) {
                 y = p1[1];
             } else {
                 y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
             }
 
-            y = ((p1 && p1[1] == null) || (p2 && p2[1] == null)) ? null : y.toFixed(2);
+            y = ((p1 && p1[1] === null) || (p2 && p2[1] === null)) ? null : y.toFixed(2);
         }
         legend.eq(i).text(series.label.replace(/=.*/, "= " + y));
     }
@@ -72,16 +72,16 @@ function updateLegend() {
         }
     }
 
-    if(follow_vehicle != null && vehicles[follow_vehicle].positions.length) {
+    if(follow_vehicle !== null && vehicles[follow_vehicle].positions.length) {
         // adjust index for null data points
         var null_count = 0;
         var data_ref = vehicles[follow_vehicle].graph_data[0];
 
         if(j > data_ref.data.length / 2) {
-            for(var i = data_ref.data.length - 1; i > j; i--) null_count += (data_ref.data[i][1] == null) ? 1 : 0;
+            for(i = data_ref.data.length - 1; i > j; i--) null_count += (data_ref.data[i][1] === null) ? 1 : 0;
             null_count = data_ref.nulls - null_count * 2;
         } else {
-            for(var i = 0; i < j; i++) null_count += (data_ref.data[i][1] == null) ? 1 : 0;
+            for(i = 0; i < j; i++) null_count += (data_ref.data[i][1] === null) ? 1 : 0;
             null_count *= 2;
         }
 
@@ -89,8 +89,9 @@ function updateLegend() {
         polyMarker.setPosition(vehicles[follow_vehicle].positions[j - null_count]);
 
         // adjust nite overlay
+        var date;
         try {
-            var date = new Date(data_ref.data[j][0])
+            date = new Date(data_ref.data[j][0]);
         } catch(e) {
             return;
         }
