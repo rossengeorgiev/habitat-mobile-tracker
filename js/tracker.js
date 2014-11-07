@@ -1954,6 +1954,10 @@ function updatePredictions(r) {
     var i = 0, ii = r.length;
     for(; i < ii; i++) {
         if(r[i].vehicle == "XX") continue;
+        if(r[i].vehicle in hysplit && r[i].vehicle in vehicles) {
+            removePrediction(vcallsign);
+            continue;
+        }
 
         var vcallsign = r[i].vehicle;
 
