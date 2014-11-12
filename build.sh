@@ -20,6 +20,7 @@ cat jquery* iscroll.js >> mobile.js
 VERSION="`git rev-parse --short HEAD`"
 
 # compile the rest
+java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimizations --nomunge gmaps_extentions.js >> mobile.js
 java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimizations --nomunge chasecar.lib.js | sed "s/{VER}/$VERSION/" >> mobile.js
 java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimizations --nomunge nite-overlay.js >> mobile.js
 java -jar "../tools/yuicompressor-2.4.8pre.jar" --type=js --disable-optimizations --nomunge tracker.js >> mobile.js

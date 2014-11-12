@@ -354,7 +354,7 @@ function load() {
     overlay.draw = function() {};
     overlay.setMap(map);
 
-    google.maps.event.addListener(map, 'idle', function() {
+    google.maps.event.addListener(map, 'zoom_changed', function() {
         updateZoom();
     });
 
@@ -530,9 +530,13 @@ function habitat_data(jsondata) {
 function updateAltitude(vcallsign) {
   var pixel_altitude = 0;
   var zoom = map.getZoom();
-  var position = vehicles[vcallsign].curr_position;
+  var vehicle = vehicles[vcallsign];
+  var position = vehicle.curr_position;
 
-  if(vehicles[vcallsign].marker.mode == 'landed') return;
+  if(vehicle.marker.mode == 'landed') {
+      vehicle.marker.setPosition(vehicle.marker.getPosition());
+      return;
+  }
 
   if(zoom > 18) zoom = 18;
   if(position.gps_alt > 0) {
@@ -543,15 +547,22 @@ function updateAltitude(vcallsign) {
   } else if(position.gps_alt > 55000) {
     position.gps_alt = 55000;
   }
-  vehicles[vcallsign].marker.setAltitude(pixel_altitude);
+  vehicle.marker.setAltitude(pixel_altitude);
 }
 
 function updateZoom() {
-  for(var vcallsign in vehicles) {
-    if(vehicles[vcallsign].vehicle_type == "balloon") {
-      updateAltitude(vcallsign);
+    for(var vcallsign in vehicles) {
+        var vehicle = vehicles[vcallsign];
+
+        if(vehicle.vehicle_type == "balloon") {
+          updateAltitude(vcallsign);
+        } else {
+            vehicle.marker.setPosition(vehicle.marker.getPosition());
+        }
+
+        if(vehicle.marker_shadow)
+            vehicle.marker_shadow.setPosition(vehicle.marker_shadow.getPosition());
     }
-  }
 }
 
 function focusVehicle(vcallsign, ignoreOpt) {
@@ -1189,13 +1200,13 @@ function addPosition(position) {
                         };
                 }
                 this.setIcon(img);
+                this.setPosition(this.getPosition());
             };
             marker.setAltitude = function(alt) {
                 var pos = overlay.getProjection().fromLatLngToDivPixel(this.shadow.getPosition());
                 pos.y -= alt;
                 this.setPosition(overlay.getProjection().fromDivPixelToLatLng(pos));
             };
-            marker.setAltitude(0);
 
             horizon_circle = new google.maps.Circle({
                 map: map,
@@ -1210,6 +1221,35 @@ function addPosition(position) {
                 editable: false
             });
             horizon_circle.bindTo('center', marker_shadow, 'position');
+
+            // label
+            var label = new google.maps.Label({ map: map, strokeColor: horizon_circle.get('strokeColor') });
+            //label.bindTo('visible', horizon_circle, 'visible');
+            label.bindTo('opacity', horizon_circle, 'strokeOpacity');
+            label.bindTo('zIndex', horizon_circle, 'zIndex');
+            label.bindTo('strokeColor', horizon_circle, 'strokeColor');
+
+            var refresh_func = function() {
+                if(marker.mode == "landed") return;
+
+                var north = google.maps.geometry.spherical.computeOffset(horizon_circle.getCenter(), horizon_circle.getRadius(), 0);
+                var south = google.maps.geometry.spherical.computeOffset(horizon_circle.getCenter(), horizon_circle.getRadius(), 180);
+
+                var projection = label.getProjection();
+                var dist = projection.fromLatLngToDivPixel(south).y -
+                           projection.fromLatLngToDivPixel(north).y;
+
+                var val = horizon_circle.getRadius() / 1000;
+                val = offline.get('opt_imperial') ? Math.round(val * 0.621371192) + "mi" : Math.round(val) + "km";
+
+                label.set('visible', (75 < dist));
+                label.set('position', google.maps.geometry.spherical.computeOffset(horizon_circle.getCenter(), horizon_circle.getRadius(), 180));
+                label.set('text', val);
+            };
+
+            google.maps.event.addListener(horizon_circle, 'center_changed', refresh_func);
+            google.maps.event.addListener(horizon_circle, 'radius_changed', refresh_func);
+
             subhorizon_circle = new google.maps.Circle({
                 map: map,
                 radius: 1,
@@ -1223,7 +1263,48 @@ function addPosition(position) {
                 editable: false
             });
             subhorizon_circle.bindTo('center', marker_shadow, 'position');
+
+            var label2 = new google.maps.Label({ map: map, strokeColor: subhorizon_circle.get('strokeColor') });
+            //label2.bindTo('visible', subhorizon_circle, 'visible');
+            label2.bindTo('opacity', subhorizon_circle, 'strokeOpacity');
+            label2.bindTo('zIndex', subhorizon_circle, 'zIndex');
+            label2.bindTo('strokeColor', subhorizon_circle, 'strokeColor');
+
+            refresh_func = function() {
+                if(marker.mode == "landed") return;
+
+                var north = google.maps.geometry.spherical.computeOffset(subhorizon_circle.getCenter(), subhorizon_circle.getRadius(), 0);
+                var south = google.maps.geometry.spherical.computeOffset(subhorizon_circle.getCenter(), subhorizon_circle.getRadius(), 180);
+
+                var projection = label2.getProjection();
+                var dist = projection.fromLatLngToDivPixel(south).y -
+                           projection.fromLatLngToDivPixel(north).y;
+
+                var val = subhorizon_circle.getRadius() / 1000;
+                val = offline.get('opt_imperial') ? Math.round(val * 0.621371192) + "mi" : Math.round(val) + "km";
+
+                label2.set('visible', (75 < dist));
+                label2.set('position', google.maps.geometry.spherical.computeOffset(subhorizon_circle.getCenter(), subhorizon_circle.getRadius(), 180));
+                label2.set('text', val);
+            };
+            google.maps.event.addListener(subhorizon_circle, 'center_changed', refresh_func);
+            google.maps.event.addListener(subhorizon_circle, 'radius_changed', refresh_func);
+
+            marker.setAltitude(0);
         }
+
+        // add label above every marker
+        var mlabel = new google.maps.Label({map: map, textOnly: true, position: marker.getPosition() });
+        mlabel.bindTo('text', marker, 'title');
+        mlabel.bindTo('zIndex', marker, 'zIndex');
+        google.maps.event.addListener(marker, 'position_changed', function() {
+            var pos = mlabel.getProjection().fromLatLngToDivPixel(marker.getPosition());
+            pos.y -= marker.icon.size.height + 10;
+            mlabel.set('position',mlabel.getProjection().fromDivPixelToLatLng(pos));
+        });
+        marker._label = mlabel;
+        marker.setPosition(marker.getPosition()); // activates the logic above to reposition the label
+
         var vehicle_info = {
                             uuid: elm_uuid++,
                             vehicle_type: vehicle_type,

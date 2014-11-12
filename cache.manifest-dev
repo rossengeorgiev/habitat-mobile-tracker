@@ -2,20 +2,7 @@ CACHE MANIFEST
 # version {VERSION}
 
 # gogole maps files
-http://maps.gstatic.com/cat_js/maps-api-v3/api/js/16/15/%7Bmain,weather%7D.js
-http://maps.gstatic.com/maps-api-v3/api/js/16/15/common.js
-http://maps.gstatic.com/maps-api-v3/api/js/16/15/map.js
-http://maps.gstatic.com/maps-api-v3/api/js/16/15/util.js
-http://maps.gstatic.com/maps-api-v3/api/js/16/15/onion.js
-http://maps.gstatic.com/maps-api-v3/api/js/16/15/kml.js
-http://maps.gstatic.com/maps-api-v3/api/js/16/15/marker.js
-http://maps.gstatic.com/maps-api-v3/api/js/16/15/stats.js
-http://maps.gstatic.com/maps-api-v3/api/js/16/15/geometry.js
-http://maps.gstatic.com/maps-api-v3/api/js/16/15/poly.js
-http://maps.gstatic.com/maps-api-v3/api/js/16/15/overlay.js
-http://maps.gstatic.com/maps-api-v3/api/js/16/15/weather_impl.js
-http://maps.gstatic.com/maps-api-v3/api/js/16/15/controls.js
-http://maps.gstatic.com/maps-api-v3/api/js/16/15/infowindow.js
+http://maps.gstatic.com/cat_js/maps-api-v3/api/js/16/16/%7Bmain,common,controls,ga,geometry,infowindow,kml,map,marker,onion,overlay,poly,stats,util,weather,weather_impl%7D.js
 http://fonts.googleapis.com/css?family=Roboto:300,400,500,700
 http://maps.gstatic.com/mapfiles/undo_poly.png
 http://maps.gstatic.com/mapfiles/mv/imgs8.png
