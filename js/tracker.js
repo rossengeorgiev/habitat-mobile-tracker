@@ -1445,8 +1445,8 @@ function addPosition(position) {
             // add the new position
             if(wvar.latestonly) {
                 vehicle.num_positions= 1;
-                vehicle.positions.push(new_latlng);
-                vehicle.positions_ts.push(new_ts);
+                vehicle.positions[0] = new_latlng;
+                vehicle.positions_ts[0] = new_ts;
             } else {
                 vehicle.positions.push(new_latlng);
                 vehicle.positions_ts.push(new_ts);
