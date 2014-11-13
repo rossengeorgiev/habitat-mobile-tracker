@@ -2034,16 +2034,17 @@ function updatePredictions(r) {
 
     var i = 0, ii = r.length;
     for(; i < ii; i++) {
-        if(r[i].vehicle == "XX") continue;
-        if(r[i].vehicle in hysplit && r[i].vehicle in vehicles) {
-            removePrediction(vcallsign);
-            continue;
-        }
-
         var vcallsign = r[i].vehicle;
+
+        if(vcallsign == "XX") continue;
 
 		if(vehicles.hasOwnProperty(vcallsign)) {
             var vehicle = vehicles[vcallsign];
+
+            if(vcallsign in hysplit || vehicle.marker.mode == "landed") {
+                removePrediction(vcallsign);
+                continue;
+            }
 
 			if(vehicle.prediction && vehicle.prediction.time == r[i].time) {
 				continue;
