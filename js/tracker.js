@@ -577,9 +577,9 @@ function focusVehicle(vcallsign, ignoreOpt) {
         var vehicle = vehicles[i], j;
 
         if(i == vcallsign) {
-            if(vehicle.horizon_circle) vehicle.horizon_circle.setOptions({zIndex:2,strokeOpacity:opacityFocused * 0.6});
-            if(vehicle.subhorizon_circle) vehicle.subhorizon_circle.setOptions({zIndex:2,strokeOpacity:opacityFocused * 0.8});
-            for(j in vehicle.polyline) vehicle.polyline[j].setOptions({zIndex:2,strokeOpacity:opacityFocused});
+            if(vehicle.horizon_circle) vehicle.horizon_circle.setOptions({zIndex:Z_RANGE,strokeOpacity:opacityFocused * 0.6});
+            if(vehicle.subhorizon_circle) vehicle.subhorizon_circle.setOptions({zIndex:Z_RANGE,strokeOpacity:opacityFocused * 0.8});
+            for(j in vehicle.polyline) vehicle.polyline[j].setOptions({zIndex:Z_PATH-j,strokeOpacity:opacityFocused});
         }
         else {
             if(vehicle.horizon_circle) vehicle.horizon_circle.setOptions({zIndex:1,strokeOpacity:opacityOther * 0.6});
@@ -1323,19 +1323,19 @@ function addPosition(position) {
                                 new google.maps.Polyline({
                                 map: map,
                                 zIndex: Z_PATH,
-                                strokeColor: (['cyan','yellow'].indexOf(balloon_colors_name[c]) > -1 ? '#888888' : "#ffffff"),
+                                strokeColor: balloon_colors[c],
                                 strokeOpacity: 1,
-                                strokeWeight: 5,
+                                strokeWeight: 3,
                                 clickable: true,
                                 draggable: false,
                                 geodesic: true
                                 }),
                                 new google.maps.Polyline({
                                 map: map,
-                                zIndex: Z_PATH,
-                                strokeColor: balloon_colors[c],
+                                zIndex: Z_PATH - 1,
+                                strokeColor: (['cyan','yellow'].indexOf(balloon_colors_name[c]) > -1 ? '#888888' : "#ffffff"),
                                 strokeOpacity: 1,
-                                strokeWeight: 3,
+                                strokeWeight: 5,
                                 clickable: true,
                                 draggable: false,
                                 geodesic: true
