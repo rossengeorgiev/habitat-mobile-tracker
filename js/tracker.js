@@ -571,12 +571,10 @@ function focusVehicle(vcallsign, ignoreOpt) {
     var opacityFocused = 1;
     var opacityOther = 0.1;
 
-    if(vcallsign === null) opacityOther = opacityFocused;
-
     for(var i in vehicles) {
         var vehicle = vehicles[i], j;
 
-        if(i == vcallsign) {
+        if(i == vcallsign || vcallsign === null) {
             if(vehicle.horizon_circle) vehicle.horizon_circle.setOptions({zIndex:Z_RANGE,strokeOpacity:opacityFocused * 0.6});
             if(vehicle.subhorizon_circle) vehicle.subhorizon_circle.setOptions({zIndex:Z_RANGE,strokeOpacity:opacityFocused * 0.8});
             for(j in vehicle.polyline) vehicle.polyline[j].setOptions({zIndex:Z_PATH-j,strokeOpacity:opacityFocused});
