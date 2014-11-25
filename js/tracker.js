@@ -34,6 +34,19 @@ var layer_clouds = null;
 
 var notamOverlay = null;
 
+var modeList = [
+    "Position",
+    "1 hour",
+    "3 hours",
+    "6 hours",
+    "1 day",
+    "2 days",
+    "3 days",
+    "All",
+];
+var modeDefault = "1 day";
+var modeDefaultMobile = "Position";
+
 // order of map elements
 var Z_RANGE = 1;
 var Z_STATION = 2;
@@ -304,6 +317,8 @@ function throttle_events(event) {
     }
 }
 
+var tmpC;
+
 function load() {
     //initialize map object
     map = new google.maps.Map(document.getElementById('map'), {
@@ -340,6 +355,46 @@ function load() {
             tileSize: new google.maps.Size(256, 256),
         }));
     }
+
+    // initialize period menu
+    tmpC = new google.maps.DropDownControl({
+        map: map,
+        title: "Show activity for given period",
+        //position: google.maps.ControlPosition.TOP_RIGHT,
+        position: google.maps.ControlPosition.RIGHT_TOP,
+        headerPrefix: "Last: ",
+        list: modeList,
+        listDefault: modeList.indexOf(wvar.mode),
+        callback: function(text) {
+            if(text == wvar.mode) return false;
+            if(ajax_inprogress) return false;
+
+            stopAjax();
+            wvar.mode = text;
+
+            position_id = 0;
+
+            // clear vehicles
+            var callsign;
+            for(callsign in vehicles) {
+                removePrediction(callsign);
+                vehicles[callsign].kill();
+            }
+
+            // clear hysplit
+            for(callsign in hysplit) {
+                hysplit[callsign].setMap(null);
+            }
+
+            car_index = 0;
+            balloon_index = 0;
+            stopFollow();
+
+            refresh();
+
+            return true;
+        }
+    });
 
     // update current position if we geolocation is available
     if(currentPosition) updateCurrentPosition(currentPosition.lat, currentPosition.lon);
@@ -419,8 +474,9 @@ function panTo(vcallsign) {
     update_lookangles(vcallsign);
 
     // pan map
-    if(vehicles[vcallsign].marker_shadow) map.panTo(vehicles[vcallsign].marker_shadow.getPosition());
-    else map.panTo(vehicles[vcallsign].marker.getPosition());
+    //if(vehicles[vcallsign].marker_shadow) map.panTo(vehicles[vcallsign].marker_shadow.getPosition());
+    //else map.panTo(vehicles[vcallsign].marker.getPosition());
+    map.panTo(vehicles[vcallsign].marker.getPosition());
 }
 
 function title_case(s) {
@@ -594,7 +650,7 @@ function stopFollow() {
         // remove target mark
         $("#main .row.follow").removeClass("follow");
 
-        vehicles[follow_vehicle].follow = false;
+        if(follow_vehicle in vehicles) vehicles[follow_vehicle].follow = false;
         follow_vehicle = null;
 
         // reset nite overlay
@@ -810,7 +866,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
   $('.landscape .vehicle'+vehicle.uuid).html(a + l + b);
 
   // redraw canvas
-  if(!wvar.latestonly && vehicle.graph_data.length) {
+  if(wvar.mode != "Position" && vehicle.graph_data.length) {
       var can = $('.vehicle'+vehicle.uuid+' .graph');
       drawAltitudeProfile(can.get(0), can.get(1), vehicle.graph_data[0], vehicle.max_alt);
   }
@@ -1103,6 +1159,7 @@ function addPosition(position) {
         var image_src = "";
         var color_index = 0;
         var c;
+        var gmaps_elements = [];
         if(vcallsign.search(/(chase)/i) != -1) {
             vehicle_type = "car";
             color_index = car_index++;
@@ -1122,6 +1179,8 @@ function addPosition(position) {
                 optimized: false,
                 title: vcallsign
             });
+
+            gmaps_elements.push(marker);
         }
         else if(vcallsign == "XX") {
             vehicle_type = "xmark";
@@ -1140,6 +1199,7 @@ function addPosition(position) {
                 optimized: false,
                 title: vcallsign
             });
+            gmaps_elements.push(marker);
         } else {
             vehicle_type = "balloon";
             color_index = balloon_index++;
@@ -1159,6 +1219,7 @@ function addPosition(position) {
                 },
                 clickable: false
             });
+            gmaps_elements.push(marker_shadow);
             marker = new google.maps.Marker({
                 map: map,
                 optimized: false,
@@ -1171,6 +1232,7 @@ function addPosition(position) {
                 },
                 title: vcallsign,
             });
+            gmaps_elements.push(marker);
             marker.shadow = marker_shadow;
             marker.balloonColor = (vcallsign == "PIE") ? "rpi" : balloon_colors_name[c];
             marker.mode = 'balloon';
@@ -1218,10 +1280,12 @@ function addPosition(position) {
                 clickable: false,
                 editable: false
             });
+            gmaps_elements.push(horizon_circle);
             horizon_circle.bindTo('center', marker_shadow, 'position');
 
             // label
             var label = new google.maps.Label({ map: map, strokeColor: horizon_circle.get('strokeColor') });
+            gmaps_elements.push(label);
             //label.bindTo('visible', horizon_circle, 'visible');
             label.bindTo('opacity', horizon_circle, 'strokeOpacity');
             label.bindTo('zIndex', horizon_circle, 'zIndex');
@@ -1261,8 +1325,10 @@ function addPosition(position) {
                 editable: false
             });
             subhorizon_circle.bindTo('center', marker_shadow, 'position');
+            gmaps_elements.push(subhorizon_circle);
 
             var label2 = new google.maps.Label({ map: map, strokeColor: subhorizon_circle.get('strokeColor') });
+            gmaps_elements.push(label2);
             //label2.bindTo('visible', subhorizon_circle, 'visible');
             label2.bindTo('opacity', subhorizon_circle, 'strokeOpacity');
             label2.bindTo('zIndex', subhorizon_circle, 'zIndex');
@@ -1293,6 +1359,7 @@ function addPosition(position) {
 
         // add label above every marker
         var mlabel = new google.maps.Label({map: map, textOnly: true, position: marker.getPosition() });
+        gmaps_elements.push(mlabel);
         mlabel.bindTo('text', marker, 'title');
         mlabel.bindTo('zIndex', marker, 'zIndex');
         google.maps.event.addListener(marker, 'position_changed', function() {
@@ -1304,6 +1371,7 @@ function addPosition(position) {
         marker.setPosition(marker.getPosition()); // activates the logic above to reposition the label
 
         var vehicle_info = {
+                            callsign: vcallsign,
                             uuid: elm_uuid++,
                             vehicle_type: vehicle_type,
                             marker: marker,
@@ -1400,7 +1468,12 @@ function addPosition(position) {
             }
         }
 
-        // hook infobox
+        vehicle_info.gmaps_elements = gmaps_elements.concat(vehicle_info.polyline);
+        vehicle_info.kill = function() {
+            $(".vehicle"+vehicle_info.uuid).remove();
+            vehicle_info.gmaps_elements.forEach(function(elm) { elm.setMap(null); });
+            delete vehicles[vehicle_info.callsign];
+        };
 
         // polyline
         for(var pkey in vehicle_info.polyline) {
@@ -1441,7 +1514,7 @@ function addPosition(position) {
              }
 
             // add the new position
-            if(wvar.latestonly) {
+            if(wvar.mode == "Position") {
                 vehicle.num_positions= 1;
                 vehicle.positions[0] = new_latlng;
                 vehicle.positions_ts[0] = new_ts;
@@ -1712,21 +1785,30 @@ function graphAddPosition(vcallsign, new_data) {
     }
 }
 
+var ajax_positions = null;
+var ajax_inprogress = false;
+
 function refresh() {
+  if(ajax_inprogress) {
+        periodical = setTimeout(refresh, 2000);
+  }
   //status = '<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing ...';
   //$('#status_bar').html(status);
 
   //if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'ajax', 'refresh', 'Vehicles']);
   //
-  var data_str = "type=positions&format=json&max_positions=" + max_positions + "&position_id=" + position_id + "&vehicles=" + encodeURIComponent(vfilter);
-  if(wvar.latestonly) data_str = "mode=latest&" + data_str;
+  var mode = wvar.mode.toLowerCase();
+  mode = (mode == "position") ? "latest" : mode.replace(/ /g,"");
 
-  $.ajax({
+  var data_str = "mode="+mode+"&type=positions&format=json&max_positions=" + max_positions + "&position_id=" + position_id + "&vehicles=" + encodeURIComponent(vfilter);
+
+  ajax_positions = $.ajax({
     type: "GET",
     url: data_url,
     data: data_str,
     dataType: "json",
     success: function(response, textStatus) {
+        ajax_inprogress = true;
         update(response);
     },
     error: function() {
@@ -1914,6 +1996,7 @@ function startAjax() {
 function stopAjax() {
     // stop our timed ajax
     clearTimeout(periodical);
+    if(ajax_positions) ajax_positions.abort();
 }
 
 var currentPosition = null;
@@ -2075,6 +2158,7 @@ function update(response) {
         !response.positions ||
         !response.positions.position ||
         !response.positions.position.length) {
+        ajax_inprogress = false;
         return;
     }
 
@@ -2147,6 +2231,8 @@ function update(response) {
           if (got_positions && !zoomed_in && Object.keys(vehicles).length) {
               zoom_on_payload();
           }
+
+          ajax_inprogress = false;
         }
     };
 

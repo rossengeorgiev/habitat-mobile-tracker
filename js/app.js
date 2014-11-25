@@ -20,9 +20,9 @@ var wvar = {
     vlist: true,
     graph: true,
     graph_exapnded: false,
-    latestonly: is_mobile,
     focus: "",
-    docid: ""
+    docid: "",
+    mode: (is_mobile) ? modeDefaultMobile : modeDefault,
 };
 
 var params = window.location.search.substring(1).split('&');
@@ -38,13 +38,10 @@ for(var idx in params) {
         case "expandgraph": if(line[1] == "1") wvar.graph_expanded = true; break;
         case "filter": vfilter = decodeURIComponent(line[1]); break;
         case "nyan": nyan_mode = true; break;
-        case "latestonly": wvar.latestonly = (parseInt(line[1]) == 1) ? true : false; break;
         case "focus": wvar.focus = decodeURIComponent(line[1]); break;
         case "docid": wvar.docid = line[1]; break;
     }
 }
-
-if(wvar.latestonly) $("#latestonly").show();
 
 if(wvar.enabled) {
     //analytics
