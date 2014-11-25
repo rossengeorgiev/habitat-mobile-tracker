@@ -47,8 +47,8 @@ google.maps.Label.prototype.onAdd = function() {
     google.maps.event.addListener(this, 'text_changed', callback),
     google.maps.event.addListener(this, 'zindex_changed', callback),
     google.maps.event.addDomListener(this.div_, 'click', function() {
-      if (me.get('clickable')) {
-        google.maps.event.trigger(me, 'click');
+      if (ctx.get('clickable')) {
+        google.maps.event.trigger(ctx, 'click');
       }
     })
   ];
