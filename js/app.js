@@ -421,6 +421,7 @@ $(window).ready(function() {
     $("#telemetry_graph").on('mouseout','.holder', function() {
         nite.setDate(null);
         nite.refresh();
+        if(polyMarker) polyMarker.setMap(null);
 
         $("#timebox").removeClass('past').addClass('present');
         updateTimebox(new Date());

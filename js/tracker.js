@@ -653,6 +653,9 @@ function stopFollow() {
         if(follow_vehicle in vehicles) vehicles[follow_vehicle].follow = false;
         follow_vehicle = null;
 
+        // clear graph
+        plot = $.plot(plot_holder, {}, plot_options);
+
         // reset nite overlay
         nite.setDate(null);
         nite.refresh();
@@ -1595,8 +1598,25 @@ function updateGraph(vcallsign, reset_selection) {
         nite.refresh();
     }
 
+    var series = vehicles[vcallsign].graph_data;
+
+    // if we are drawing the plot for the fisrt time
+    // and the dataset is too large, we set an initial selection of the last 7 days
+    if(!plot_options.hasOwnProperty('xaxis')) {
+        if(series.length && series[0].data.length > 4001) {
+            var end = series[0].data.length - 1;
+
+            plot_options.xaxis = {
+                superzoom: 1,
+                min: series[0].data[end-4000][0],
+                max: series[0].data[end][0],
+            };
+
+        }
+    }
+
     // replot graph, with this vehicle data, and this vehicles yaxes config
-    plot = $.plot(plot_holder, vehicles[vcallsign].graph_data, $.extend(false, plot_options, {yaxes:vehicles[vcallsign].graph_yaxes}));
+    plot = $.plot(plot_holder, series, $.extend(false, plot_options, {yaxes:vehicles[vcallsign].graph_yaxes}));
 
     vehicles[vcallsign].graph_data_updated = false;
 }
