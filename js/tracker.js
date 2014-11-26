@@ -736,6 +736,8 @@ function updateVehicleInfo(vcallsign, newPosition) {
   vehicle.marker.setPosition(latlng);
   vehicle.marker.setZIndex(((vehicle.vehicle_type=="car")? Z_CAR : Z_PAYLOAD) + zIndex);
 
+  if(!!vehicle.marker.setCourse) vehicle.marker.setCourse(('gps_heading' in vehicle.curr_position) ? parseInt(vehicle.curr_position.gps_heading) : 90);
+
   // update horizon circles and icon
   if(vehicle.vehicle_type == "balloon") {
     updateAltitude(vcallsign);
@@ -1148,6 +1150,9 @@ var mapInfoBox_handle_horizons = function(event, obj,  title) {
 var mapInfoBox_handle_truehorizon = function(event) { mapInfoBox_handle_horizons(event, this, "True Horizon"); };
 var mapInfoBox_handle_horizon = function(event) { mapInfoBox_handle_horizons(event, this, "5° Horizon"); };
 
+var car_img_cache = {};
+var car_canvas = document.createElement('canvas');
+
 function addPosition(position) {
     var vcallsign = position.vehicle;
 
@@ -1170,19 +1175,65 @@ function addPosition(position) {
             image_src = host_url + markers_url + "car-" + car_colors[c] + ".png";
 
             marker = new google.maps.Marker({
-                icon: {
-                    url: image_src,
-                    size: new google.maps.Size(55,25),
-                    scaledSize: new google.maps.Size(55,25),
-                    anchor: new google.maps.Point(27,22)
-                },
                 zIndex: Z_CAR,
                 position: point,
                 map: map,
+                clickable: false,
                 optimized: false,
                 title: vcallsign
             });
 
+            if(!!!window.HTMLCanvasElement) {
+                marker.setIcon({
+                    url: image_src,
+                    size: new google.maps.Size(55,25),
+                    scaledSize: new google.maps.Size(55,25),
+                    anchor: new google.maps.Point(27,22)
+                });
+                marker.setCourse = function(deg) {};
+            } else {
+                marker.setCourse = function(deg) {
+                    deg -= 90;
+                    deg += (deg < 0) ? 360 : 0;
+
+                    var radii = deg * DEG_TO_RAD;
+                    var img = this.iconImg;
+                    var len = Math.max(img.height, img.width)*1.2;
+                    var canvas = document.createElement('canvas');
+                    canvas.height = canvas.width = len;
+                    var ctx = canvas.getContext('2d');
+
+                    ctx.save();
+                    ctx.translate(len * 0.5, len * 0.5);
+                    ctx.rotate(radii);
+                    if(deg >= 90 && deg <= 270) ctx.scale(1,-1);
+                    ctx.drawImage(img, -img.width/2, -img.height*0.95);
+                    ctx.restore();
+
+                    var size = new google.maps.Size(canvas.width*0.5, canvas.height*0.5);
+                    marker.setIcon({
+                        url: canvas.toDataURL(),
+                        scaledSize: size,
+                        size: size,
+                            anchor: new google.maps.Point(canvas.width*0.25, canvas.height*0.25)
+                    });
+                };
+
+                if(image_src in car_img_cache) {
+                    marker.iconImg = car_img_cache[image_src];
+                    marker.setCourse(90);
+                    marker.setPosition(marker.getPosition());
+                }
+                else {
+                    marker.iconImg = new Image();
+                    car_img_cache[image_src] = marker.iconImg;
+                    marker.iconImg.onload = function() {
+                        marker.setCourse(90);
+                        marker.setPosition(marker.getPosition());
+                    };
+                    marker.iconImg.src = image_src;
+                }
+            }
             gmaps_elements.push(marker);
         }
         else if(vcallsign == "XX") {
@@ -1366,8 +1417,16 @@ function addPosition(position) {
         mlabel.bindTo('text', marker, 'title');
         mlabel.bindTo('zIndex', marker, 'zIndex');
         google.maps.event.addListener(marker, 'position_changed', function() {
+            if(!!!marker.icon) return;
+
             var pos = mlabel.getProjection().fromLatLngToDivPixel(marker.getPosition());
-            pos.y -= marker.icon.size.height + 10;
+
+            if(!!marker.iconImg) {
+                pos.y -= marker.icon.size.height * 0.5 + 5;
+            } else {
+                pos.y -= marker.icon.size.height + 10;
+            }
+
             mlabel.set('position',mlabel.getProjection().fromDivPixelToLatLng(pos));
         });
         marker._label = mlabel;
@@ -1567,8 +1626,15 @@ function addPosition(position) {
 
         vehicle.updated = true;
     } else { // if car
-        vehicle.updated = true;
+        // if car doesn't report heading, we calculate it from the last position
+        if(!('gps_heading' in position)) {
+            var latlng = new google.maps.LatLng(position.gps_lat, position.gps_lon);
+            var old_latlng = new google.maps.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon);
+            position.gps_heading = google.maps.geometry.spherical.computeHeading(old_latlng, latlng);
+        }
+
         vehicle.curr_position = position;
+        vehicle.updated = true;
     }
 
     // record the start of flight
