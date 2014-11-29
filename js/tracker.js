@@ -1594,6 +1594,9 @@ function addPosition(position) {
             graphAddPosition(vcallsign, position);
 
         }
+        else if(wvar.mode == "Position") { // we don't splice old postions in latest position mode
+            return;
+        }
         else if(vehicle.positions_ts.indexOf(new_ts) == -1) { // backlog packets, need to splice them into the array
             // find out the index at which we should insert the new point
             var xref = vehicle.positions_ts;
