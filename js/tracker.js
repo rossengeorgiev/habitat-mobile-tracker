@@ -374,6 +374,8 @@ function load() {
 
             position_id = 0;
 
+            mapInfoBox.close();
+
             // clear vehicles
             var callsign;
             for(callsign in vehicles) {
@@ -489,7 +491,7 @@ function guess_name(key) {
   return title_case(key.replace(/_/g, " "));
 }
 
-function habitat_data(jsondata) {
+function habitat_data(jsondata, alternative) {
   var keys = {
     "ascentrate": "Ascent Rate",
     "battery_percent": "Battery",
@@ -570,7 +572,11 @@ function habitat_data(jsondata) {
       if (suffixes[k] !== undefined)
         suffix = suffixes[k];
 
-      output += "<dt>" + v + suffix + "</dt><dd>" + name + "</dd>";
+      if(typeof alternative == 'boolean' && alternative) {
+          output += "<div><b>" + name + ":&nbsp;</b>" + v + suffix + "</div>";
+      } else {
+          output += "<dt>" + v + suffix + "</dt><dd>" + name + "</dd>";
+      }
     }
     return output;
   }
@@ -714,9 +720,9 @@ function formatDate(date,utc) {
 
     if(typeof utc != "undefined") {
         z = date.getTimezoneOffset() / -60;
-        return a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC"+((z<0)?"-":"+")+z;
+        return a+'-'+b+'-'+c+'&nbsp;'+e+':'+f+':'+g+"&nbsp;UTC"+((z<0)?"-":"+")+z;
     } else {
-        return a+'-'+b+'-'+c+' '+e+':'+f+':'+g;
+        return a+'-'+b+'-'+c+'&nbsp;'+e+':'+f+':'+g;
     }
 }
 
@@ -934,7 +940,7 @@ function redrawPrediction(vcallsign) {
             clickable: true,
             draggable: false,
         });
-        google.maps.event.addListener(vehicle.prediction_polyline, 'click', mapInfoBox_handle_path);
+        google.maps.event.addListener(vehicle.prediction_polyline, 'click', mapInfoBox_handle_prediction_path);
     }
 
     vehicle.prediction_polyline.path_length = path_length;
@@ -1093,10 +1099,12 @@ function drawAltitudeProfile(c1, c2, series, alt_max) {
 }
 
 // infobox
-var mapInfoBox = new google.maps.InfoWindow();
+var mapInfoBox = new google.maps.InfoWindow({
+    maxWidth: 260
+});
 
-var mapInfoBox_handle_path = function(event) {
-    var value = ("path_length" in this) ? this.path_length : this.vehicle.path_length;
+var mapInfoBox_handle_prediction_path = function(event) {
+    var value = this.path_length;
 
     if(offline.get('opt_imperial')) {
         value = Math.round(value*0.000621371192) + " miles";
@@ -1104,11 +1112,103 @@ var mapInfoBox_handle_path = function(event) {
         value = Math.round(value/10)/100 + " km";
     }
 
-    var duration = ("vehicle" in this) ? "\n<b>Duration:</b> " + format_time_friendly(this.vehicle.start_time, convert_time(this.vehicle.curr_position.gps_time)) : '';
-
-    mapInfoBox.setContent("<pre><b>Length:</b> " + value + duration + "</pre>");
+    mapInfoBox.setContent("<pre><b>Length:</b> " + value  + "</pre>");
     mapInfoBox.setPosition(event.latLng);
     mapInfoBox.open(map);
+};
+
+var mapInfoBox_handle_path = function(event) {
+    var vehicle = this.vehicle;
+    var target = event.latLng;
+    var p = vehicle.positions;
+
+    var p1_dist = 0;
+    var p2_dist = google.maps.geometry.spherical.computeDistanceBetween(p[0], target);
+
+    var mindiff = Number.MAX_VALUE;
+    var minidx = 0;
+    var dist, diff;
+
+    // find the closest existing point to snap to
+    for(var i = 1, ii = p.length; i < ii; i++ ) {
+        p1_dist = p2_dist;
+        p2_dist = google.maps.geometry.spherical.computeDistanceBetween(p[i], target);
+        dist = google.maps.geometry.spherical.computeDistanceBetween(p[i], p[i-1]);
+        diff = Math.abs(dist - (p1_dist + p2_dist));
+
+        if(diff >= 0 && mindiff > diff) {
+            mindiff = diff;
+            minidx = i;
+        }
+    }
+
+    p1_dist = google.maps.geometry.spherical.computeDistanceBetween(p[minidx-1], target);
+    p2_dist = google.maps.geometry.spherical.computeDistanceBetween(p[minidx], target);
+
+    var point = (p1_dist < p2_dist) ? p[minidx-1] : p[minidx];
+    var id = (p1_dist < p2_dist) ? vehicle.positions_ids[minidx-1] : vehicle.positions_ids[minidx];
+
+    mapInfoBox.setContent("<img style='width:18px;height:18px' src='img/hab-spinner.gif' />");
+    mapInfoBox.setPosition(point);
+    mapInfoBox.setMap(map);
+    mapInfoBox.open(map);
+
+    mapInfoBox_handle_path_fetch(id, vehicle);
+};
+
+var mapInfoBox_handle_path_fetch = function(id,vehicle) {
+    $.getJSON("http://spacenear.us/tracker/datanew.php?mode=single&format=json&position_id=" + id, function(data) {
+        data = data.positions.position[0];
+
+        if(data.length === 0) {
+            box.setContent("unable to find data");
+            return;
+        }
+
+        div = document.createElement('div');
+
+        html = "<div style='white-space: nowrap'>";
+        html += "<img style='position:absolute;top:-46px;left:-35px;width:46px;height:84px' src='"+vehicle.image_src+"' />";
+        html += "<div>"+data.vehicle+"<span style='float:right'>("+data.position_id+")</span></div><hr style='margin:0'>";
+        html += "<div><b><i class='icon-location'></i>&nbsp;</b>"+roundNumber(data.gps_lat, 6) + ',&nbsp;' + roundNumber(data.gps_lon, 6)+"</div>";
+
+        var imp = offline.get('opt_imperial');
+        var text_alt      = Number((imp) ? Math.floor(3.2808399 * parseInt(data.gps_alt)) : parseInt(data.gps_alt)).toLocaleString("us");
+        text_alt     += "&nbsp;" + ((imp) ? 'ft':'m');
+
+        html += "<div><b>Altitude:&nbsp;</b>"+text_alt+"</div>";
+        html += "<div><b>Time:&nbsp;</b>"+formatDate(stringToDateUTC(data.gps_time))+"</div>";
+
+        var value = vehicle.path_length;
+
+        html += "<div><b>Distance:&nbsp;</b>";
+
+        if(offline.get('opt_imperial')) {
+            html += Math.round(value*0.000621371192) + "mi";
+        } else {
+            html += Math.round(value/10)/100 + "&nbsp;km";
+        }
+
+        html += "</div>";
+        html += "<div><b>Duration:&nbsp;</b>" + format_time_friendly(vehicle.start_time, convert_time(vehicle.curr_position.gps_time)) + "</div>";
+
+        if(Object.keys(JSON.parse(data.data)).length) {
+            html += "<hr style='margin:0'>";
+            html += habitat_data(data.data, true);
+        }
+
+        html += "<hr style='margin:0'>";
+        html += "<div style='font-size:11px;'><b>Callsign(s):&nbsp;</b>"+data.callsign.replace(/,/g,', ')+"</div>";
+
+        div.innerHTML = html;
+
+        mapInfoBox.setContent(div);
+
+        setTimeout(function() {
+            div.parentElement.style.overflow = "";
+            div.parentElement.style.overflowWrap = "break-word";
+        }, 16);
+    });
 };
 
 var mapInfoBox_handle_prediction = function(event) {
@@ -1444,6 +1544,7 @@ function addPosition(position) {
                             num_positions: 0,
                             positions: [],
                             positions_ts: [],
+                            positions_ids: [],
                             path_length: 0,
                             curr_position: position,
                             line: [],
@@ -1583,6 +1684,7 @@ function addPosition(position) {
             } else {
                 vehicle.positions.push(new_latlng);
                 vehicle.positions_ts.push(new_ts);
+                vehicle.positions_ids.push(position.position_id);
                 vehicle.num_positions++;
             }
 
@@ -1622,6 +1724,7 @@ function addPosition(position) {
             // insert the new position into our arrays
             vehicle.positions.splice(idx, 0, new_latlng);
             vehicle.positions_ts.splice(idx, 0, new_ts);
+            vehicle.positions_ids.splice(idx, 0, position.position_id);
             vehicle.num_positions++;
 
             graphAddPosition(vcallsign, position);
