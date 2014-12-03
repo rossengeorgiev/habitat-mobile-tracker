@@ -1171,7 +1171,7 @@ var mapInfoBox_handle_path_fetch = function(id,vehicle) {
 
         div = document.createElement('div');
 
-        html = "<div style='white-space: nowrap;line-height:16px'>";
+        html = "<div style='line-height:16px'>";
         html += "<img style='position:absolute;top:-46px;left:-35px;width:46px;height:84px' src='"+vehicle.image_src+"' />";
         html += "<div>"+data.vehicle+"<span style='position:absolute;right:0px;'>("+data.position_id+")</span></div>";
         html += "<hr style='margin:5px 0px'>";
