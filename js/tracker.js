@@ -1167,10 +1167,11 @@ var mapInfoBox_handle_path_fetch = function(id,vehicle) {
 
         div = document.createElement('div');
 
-        html = "<div style='white-space: nowrap'>";
+        html = "<div style='white-space: nowrap;line-height:16px'>";
         html += "<img style='position:absolute;top:-46px;left:-35px;width:46px;height:84px' src='"+vehicle.image_src+"' />";
-        html += "<div>"+data.vehicle+"<span style='float:right'>("+data.position_id+")</span></div><hr style='margin:0'>";
-        html += "<div><b><i class='icon-location'></i>&nbsp;</b>"+roundNumber(data.gps_lat, 6) + ',&nbsp;' + roundNumber(data.gps_lon, 6)+"</div>";
+        html += "<div>"+data.vehicle+"<span style='position:absolute;right:0px;'>("+data.position_id+")</span></div>";
+        html += "<hr style='margin:5px 0px'>";
+        html += "<div style='margin-bottom:5px;'><b><i class='icon-location'></i>&nbsp;</b>"+roundNumber(data.gps_lat, 6) + ',&nbsp;' + roundNumber(data.gps_lon, 6)+"</div>";
 
         var imp = offline.get('opt_imperial');
         var text_alt      = Number((imp) ? Math.floor(3.2808399 * parseInt(data.gps_alt)) : parseInt(data.gps_alt)).toLocaleString("us");
@@ -1193,16 +1194,17 @@ var mapInfoBox_handle_path_fetch = function(id,vehicle) {
         html += "<div><b>Duration:&nbsp;</b>" + format_time_friendly(vehicle.start_time, convert_time(vehicle.curr_position.gps_time)) + "</div>";
 
         if(Object.keys(JSON.parse(data.data)).length) {
-            html += "<hr style='margin:0'>";
+            html += "<hr style='margin:5px 0px'>";
             html += habitat_data(data.data, true);
         }
 
-        html += "<hr style='margin:0'>";
-        html += "<div style='font-size:11px;'><b>Callsign(s):&nbsp;</b>"+data.callsign.replace(/,/g,', ')+"</div>";
+        html += "<hr style='margin:0px;margin-top:5px'>";
+        html += "<div style='font-size:11px;'><b>Received by:&nbsp;</b>"+data.callsign.replace(/,/g,', ')+"</div>";
 
         div.innerHTML = html;
 
         mapInfoBox.setContent(div);
+        mapInfoBox.open(map);
 
         setTimeout(function() {
             div.parentElement.style.overflow = "";
