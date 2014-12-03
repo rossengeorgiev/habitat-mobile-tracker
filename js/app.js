@@ -149,6 +149,15 @@ function checkSize() {
     //h = (h < 300) ? 300 :  h; // absolute minimum 320px minus 20px for the iphone bar
     hh = $('header').height();
 
+    ph = 0;
+
+    if(w > 900 && $('.flatpage:visible').length) {
+        $('.flatpage').addClass('topanel');
+        ph = $('.flatpage:visible').width()+30;
+    } else {
+        $('.flatpage.topanel').removeClass('topanel');
+    }
+
     $("#mapscreen,.flatpage").height(h-hh-5);
 
     sw = (wvar.vlist) ? 199 : 0;
@@ -163,7 +172,7 @@ function checkSize() {
             $('#map').height(h-hh-5);
         }
         $('body,#loading').height(h);
-        $('#mapscreen,#map,#telemetry_graph,#telemetry_graph .holder').width(w-sw);
+        $('#mapscreen,#map,#telemetry_graph,#telemetry_graph .holder').width(w-sw-ph);
         $('#main').width(sw);
     } else { // portrait mode
         //if(h < 420) h = 420;
@@ -489,15 +498,18 @@ $(window).ready(function() {
     .on('click', 'li', function() {
         var e = $(this);
         var name = e.attr('class').replace(" last","");
+
+        // makes the menu buttons act like a switch
+        if($("#"+name+"box").is(':visible')) name = 'home';
+
         var box = $("#"+name+"box");
 
         if(box.is(':hidden')) {
             $('.flatpage').hide();
             box.show().scrollTop(0);
 
-            if(name == 'about') {
-                if(box.hasClass('inited')) return;
-                box.addClass('inited');
+            if(name == 'about' && !$('#motd').hasClass('inited')) {
+                $('#motd').addClass('inited');
 
                 $.getJSON("http://spacenear.us/tracker/datanew.php?type=info", function(data) {
                     if('html' in data) $('#motd').html(data.html.replace(/\\/g,''));

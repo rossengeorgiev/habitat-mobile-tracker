@@ -446,8 +446,20 @@ header > div {
     overflow: auto;
     position: absolute;
     width: 100%;
-    z-index: 50;
+    z-index: 100;
     background: #fff;
+}
+
+.topanel {
+    float: right;
+    position: relative;
+    width: initial;
+    padding: 0;
+    padding-left: 10px;
+    padding-right: 20px;
+    box-shadow: 2px 0px 8px 0px #555;
+    overflow-x: hidden;
+    z-index: 3;
 }
 
 .flatpage p {
@@ -596,6 +608,7 @@ header > div {
         width: 280px;
         background: #fff;
         position: relative;
+        z-index: 2;
     }
     #telemetry_graph .holder {
         border-left: 1px solid #ddd;
@@ -625,6 +638,7 @@ header > div {
         width: 199px;
         overflow: hidden;
         margin-top: 55px;
+        box-shadow: -2px 0px 6px 0px #555;
     }
     #main .data {
         height: 100%;

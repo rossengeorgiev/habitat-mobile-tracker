@@ -455,6 +455,10 @@ function load() {
               $("#lookanglesbox .nofollow").fadeIn(500, "easeOut");
           }
         });
+
+        // if we there is enough screen space open aboutbox on startup
+        if(!is_mobile && $(window).width() > 900) $('.nav li.about').click();
+
     }, 500);
 
     // initialize clouds layer
