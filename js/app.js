@@ -495,6 +495,19 @@ $(window).ready(function() {
             $('.flatpage').hide();
             box.show().scrollTop(0);
 
+            if(name == 'about') {
+                if(box.hasClass('inited')) return;
+                box.addClass('inited');
+
+                $.getJSON("http://spacenear.us/tracker/datanew.php?type=info", function(data) {
+                    if('html' in data) $('#motd').html(data.html.replace(/\\/g,''));
+                });
+
+                var iframe = box.find('iframe');
+                var src = iframe.attr('data-src');
+                iframe.attr('src', src);
+            }
+
             // analytics
             var pretty_name;
             switch(name) {
