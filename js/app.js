@@ -626,7 +626,8 @@ $(window).ready(function() {
         "#sw_daylight",
         "#sw_hide_receivers",
         "#sw_hide_timebox",
-        "#sw_hilight_vehicle"
+        "#sw_hilight_vehicle",
+        "#sw_nowelcome",
     ];
 
     // applies functionality when switches are toggled
