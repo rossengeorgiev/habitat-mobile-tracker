@@ -392,6 +392,13 @@ function load() {
             balloon_index = 0;
             stopFollow();
 
+            // add loading spinner in the vehicle list
+            $('#main .empty').parent().remove();
+            $("#main .portrait,#main .landscape").append(
+                '<div class="row vehicle'+elm_uuid+'"><div class="header empty">' +
+                '<img style="width:24px;height:24px" src="img/hab-spinner.gif"/></div></div>'
+            );
+
             refresh();
 
             return true;
@@ -2391,7 +2398,12 @@ function update(response) {
         !response.positions ||
         !response.positions.position ||
         !response.positions.position.length) {
+
+        // if no vehicles are found, this will remove the spinner and put a friendly message
+        $("#main .empty").html("<span>No vehicles :(</span>");
+
         ajax_inprogress = false;
+
         return;
     }
 
@@ -2455,6 +2467,7 @@ function update(response) {
             setTimeout(function() { ctx.draw(ctx); }, 16);
         },
         end: function(ctx) {
+
           // update graph is current vehicles is followed
           if(follow_vehicle !== null && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, false);
 
