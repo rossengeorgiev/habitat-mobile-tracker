@@ -753,7 +753,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
   vehicle.marker.setPosition(latlng);
   vehicle.marker.setZIndex(((vehicle.vehicle_type=="car")? Z_CAR : Z_PAYLOAD) + zIndex);
 
-  if(!!vehicle.marker.setCourse) vehicle.marker.setCourse(('gps_heading' in vehicle.curr_position) ? parseInt(vehicle.curr_position.gps_heading) : 90);
+  if(!!vehicle.marker.setCourse) vehicle.marker.setCourse((vehicle.curr_position.gps_heading !== "") ? parseInt(vehicle.curr_position.gps_heading) : 90);
 
   // update horizon circles and icon
   if(vehicle.vehicle_type == "balloon") {
@@ -787,9 +787,9 @@ function updateVehicleInfo(vcallsign, newPosition) {
       vehicle.marker.setMode("landed");
       vehicle.marker.shadow.setVisible(false);
       vehicle.horizon_circle.setVisible(false);
-      vehicle.horizon_circle.label.setVisible(false);
+      vehicle.horizon_circle.label.set('visible', false);
       vehicle.subhorizon_circle.setVisible(false);
-      vehicle.subhorizon_circle.label.setVisible(false);
+      vehicle.subhorizon_circle.label.set('visible', false);
 
     } else if(vehicle.ascent_rate > -3.0 ||
               vcallsign == "wb8elk2") {
@@ -1281,6 +1281,7 @@ var mapInfoBox_handle_horizon = function(event) { mapInfoBox_handle_horizons(eve
 
 var icon_cache = {};
 var marker_rotate_func = function(deg) {
+    this.rotated = true;
     deg -= 90;
     deg += (deg < 0) ? 360 : 0;
 
@@ -1309,6 +1310,7 @@ var marker_rotate_func = function(deg) {
 
 var marker_rotate_setup = function(marker, image_src) {
     marker.setCourse = marker_rotate_func;
+    marker.rotated = false;
     if(image_src in icon_cache) {
         marker.iconImg = icon_cache[image_src];
         marker.setCourse(90);
@@ -1318,7 +1320,7 @@ var marker_rotate_setup = function(marker, image_src) {
         marker.iconImg = new Image();
         icon_cache[image_src] = marker.iconImg;
         marker.iconImg.onload = function() {
-            marker.setCourse(90);
+            if(!marker.rotated) marker.setCourse(90);
             marker.setPosition(marker.getPosition());
         };
         marker.iconImg.src = image_src;
