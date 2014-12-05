@@ -370,7 +370,7 @@ header > div {
     position: relative;
     z-index: 4;
 }
-#main .row .data .hysplit {
+#main .row .data .vbutton {
     position: absolute;
     background-color: #fff;
     right: 5px;
@@ -384,17 +384,17 @@ header > div {
     z-index: 5;
 }
 
-#main .row .data .hysplit.active {
+#main .row .data .vbutton.active {
     background-color: #33b5e5;
     border: 1px solid #33b5e5;
     color: #fff;
 }
 
-#main .row .data .hysplit:hover {
+#main .row .data .vbutton:hover {
     border: 1px solid #5E5E5E;
 }
 
-#main .portrait .row .data .hysplit {
+#main .portrait .row .data .vbutton {
     display: none;
 }
 

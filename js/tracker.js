@@ -841,7 +841,10 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '<i class="arrow"></i></div>' +
            '<div class="data">' +
            '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />' +
-           ((vcallsign in hysplit) ? '<span class="hysplit '+((hysplit[vcallsign].getMap()) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'">HYSPLIT</span>' : '') +
+           '<span class="vbutton path '+((vehicle.polyline_visible) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'"' +
+               ' style="top:'+(vehicle.image_src_size.height+55)+'px">Path</span>' +
+           ((vcallsign in hysplit) ? '<span class="vbutton hysplit '+((hysplit[vcallsign].getMap()) ? 'active' : '')+'"' +
+                ' data-vcallsign="'+vcallsign+'" style="top:'+(vehicle.image_src_size.height+55+21+10)+'px">HYSPLIT</span>' : '') +
            '<div class="left">' +
            '<dl>';
   // end
@@ -890,6 +893,15 @@ function updateVehicleInfo(vcallsign, newPosition) {
   vehicle.updated = false;
 
   return true;
+}
+
+function set_polyline_visibility(vcallsign, val) {
+    var vehicle = vehicles[vcallsign];
+    vehicle.polyline_visible = val;
+
+    for(var k in vehicle.polyline) vehicle.polyline[k].setVisible(val);
+
+    mapInfoBox.close();
 }
 
 function removePrediction(vcallsign) {
@@ -1172,7 +1184,9 @@ var mapInfoBox_handle_path_fetch = function(id,vehicle) {
         div = document.createElement('div');
 
         html = "<div style='line-height:16px'>";
-        html += "<img style='position:absolute;top:-46px;left:-35px;width:46px;height:84px' src='"+vehicle.image_src+"' />";
+        html += "<img style='position:absolute;top:"+vehicle.image_src_offset.y+"px;left:"+vehicle.image_src_offset.x+"px;" +
+                "width:"+vehicle.image_src_size.width+"px;height:"+vehicle.image_src_size.height+"px'" +
+                " src='"+vehicle.image_src+"' />";
         html += "<div>"+data.vehicle+"<span style='position:absolute;right:0px;'>("+data.position_id+")</span></div>";
         html += "<hr style='margin:5px 0px'>";
         html += "<div style='margin-bottom:5px;'><b><i class='icon-location'></i>&nbsp;</b>"+roundNumber(data.gps_lat, 6) + ',&nbsp;' + roundNumber(data.gps_lon, 6)+"</div>";
@@ -1256,8 +1270,52 @@ var mapInfoBox_handle_horizons = function(event, obj,  title) {
 var mapInfoBox_handle_truehorizon = function(event) { mapInfoBox_handle_horizons(event, this, "True Horizon"); };
 var mapInfoBox_handle_horizon = function(event) { mapInfoBox_handle_horizons(event, this, "5° Horizon"); };
 
-var car_img_cache = {};
-var car_canvas = document.createElement('canvas');
+var icon_cache = {};
+var marker_rotate_func = function(deg) {
+    deg -= 90;
+    deg += (deg < 0) ? 360 : 0;
+
+    var radii = deg * DEG_TO_RAD;
+    var img = this.iconImg;
+    var len = Math.max(img.height, img.width)*1.2;
+    var canvas = document.createElement('canvas');
+    canvas.height = canvas.width = len;
+    var ctx = canvas.getContext('2d');
+
+    ctx.save();
+    ctx.translate(len * 0.5, len * 0.5);
+    ctx.rotate(radii);
+    if(deg >= 90 && deg <= 270) ctx.scale(1,-1);
+    ctx.drawImage(img, -img.width/2, -img.height*0.95);
+    ctx.restore();
+
+    var size = new google.maps.Size(canvas.width*0.5, canvas.height*0.5);
+    this.setIcon({
+        url: canvas.toDataURL(),
+        size: size,
+        scaledSize: size,
+        anchor: new google.maps.Point(canvas.width*0.25, canvas.height*0.25)
+    });
+};
+
+var marker_rotate_setup = function(marker, image_src) {
+    marker.setCourse = marker_rotate_func;
+    if(image_src in icon_cache) {
+        marker.iconImg = icon_cache[image_src];
+        marker.setCourse(90);
+        marker.setPosition(marker.getPosition());
+    }
+    else {
+        marker.iconImg = new Image();
+        icon_cache[image_src] = marker.iconImg;
+        marker.iconImg.onload = function() {
+            marker.setCourse(90);
+            marker.setPosition(marker.getPosition());
+        };
+        marker.iconImg.src = image_src;
+    }
+};
+
 
 function addPosition(position) {
     var vcallsign = position.vehicle;
@@ -1270,15 +1328,17 @@ function addPosition(position) {
         var horizon_circle = null;
         var subhorizon_circle = null;
         var point = new google.maps.LatLng(position.gps_lat, position.gps_lon);
-        var image_src = "";
+        var image_src = "", image_src_size, image_src_offset;
         var color_index = 0;
-        var c;
         var gmaps_elements = [];
+        var polyline = null;
+        var polyline_visible = false;
         if(vcallsign.search(/(chase)/i) != -1) {
             vehicle_type = "car";
-            color_index = car_index++;
-            c = color_index % car_colors.length;
-            image_src = host_url + markers_url + "car-" + car_colors[c] + ".png";
+            color_index = car_index++ % car_colors.length;
+            image_src = host_url + markers_url + "car-" + car_colors[color_index] + ".png";
+            image_src_size = new google.maps.Size(55,25);
+            image_src_offset = new google.maps.Point(0,-25);
 
             marker = new google.maps.Marker({
                 zIndex: Z_CAR,
@@ -1292,65 +1352,39 @@ function addPosition(position) {
             if(!!!window.HTMLCanvasElement) {
                 marker.setIcon({
                     url: image_src,
-                    size: new google.maps.Size(55,25),
-                    scaledSize: new google.maps.Size(55,25),
+                    size: image_src_size,
+                    scaledSize: image_src_size,
                     anchor: new google.maps.Point(27,22)
                 });
-                marker.setCourse = function(deg) {};
             } else {
-                marker.setCourse = function(deg) {
-                    deg -= 90;
-                    deg += (deg < 0) ? 360 : 0;
-
-                    var radii = deg * DEG_TO_RAD;
-                    var img = this.iconImg;
-                    var len = Math.max(img.height, img.width)*1.2;
-                    var canvas = document.createElement('canvas');
-                    canvas.height = canvas.width = len;
-                    var ctx = canvas.getContext('2d');
-
-                    ctx.save();
-                    ctx.translate(len * 0.5, len * 0.5);
-                    ctx.rotate(radii);
-                    if(deg >= 90 && deg <= 270) ctx.scale(1,-1);
-                    ctx.drawImage(img, -img.width/2, -img.height*0.95);
-                    ctx.restore();
-
-                    var size = new google.maps.Size(canvas.width*0.5, canvas.height*0.5);
-                    marker.setIcon({
-                        url: canvas.toDataURL(),
-                        scaledSize: size,
-                        size: size,
-                            anchor: new google.maps.Point(canvas.width*0.25, canvas.height*0.25)
-                    });
-                };
-
-                if(image_src in car_img_cache) {
-                    marker.iconImg = car_img_cache[image_src];
-                    marker.setCourse(90);
-                    marker.setPosition(marker.getPosition());
-                }
-                else {
-                    marker.iconImg = new Image();
-                    car_img_cache[image_src] = marker.iconImg;
-                    marker.iconImg.onload = function() {
-                        marker.setCourse(90);
-                        marker.setPosition(marker.getPosition());
-                    };
-                    marker.iconImg.src = image_src;
-                }
+                marker_rotate_setup(marker, image_src);
             }
             gmaps_elements.push(marker);
+            polyline = [
+                new google.maps.Polyline({
+                map: map,
+                zIndex: Z_PATH,
+                strokeColor: car_colors[color_index],
+                strokeOpacity: 1,
+                strokeWeight: 3,
+                clickable: true,
+                draggable: false,
+                visible: polyline_visible,
+                geodesic: true
+                }),
+            ];
         }
         else if(vcallsign == "XX") {
             vehicle_type = "xmark";
             image_src = host_url + markers_url + "balloon-xmark.png";
+            image_src_size = new google.maps.Size(48,38);
+            image_src_offset = new google.maps.Point(0,-38);
 
             marker = new google.maps.Marker({
                 icon: {
                     url: image_src,
-                    size: new google.maps.Size(48,38),
-                    scaledSize: new google.maps.Size(48,38),
+                    size: image_src_size,
+                    scaledSize: image_src_size,
                     anchor: new google.maps.Point(24,18)
                 },
                 zIndex: Z_CAR,
@@ -1362,10 +1396,13 @@ function addPosition(position) {
             gmaps_elements.push(marker);
         } else {
             vehicle_type = "balloon";
-            color_index = balloon_index++;
-            c = color_index % balloon_colors.length;
+            color_index = balloon_index++ % balloon_colors.length;
 
-            image_src = host_url + markers_url + "balloon-" + ((vcallsign == "PIE") ? "rpi" : balloon_colors_name[c]) + ".png";
+            image_src = host_url + markers_url + "balloon-" +
+                        ((vcallsign == "PIE") ? "rpi" : balloon_colors_name[color_index]) + ".png";
+            image_src_size = new google.maps.Size(46,84);
+            image_src_offset = new google.maps.Point(-35,-46);
+
             marker_shadow = new google.maps.Marker({
                 map: map,
                 zIndex: Z_SHADOW,
@@ -1386,15 +1423,15 @@ function addPosition(position) {
                 zIndex: Z_PAYLOAD,
                 position: point,
                 icon: {
-                            url: image_src,
-                            size: new google.maps.Size(46,84),
-                            scaledSize: new google.maps.Size(46,84)
+                    url: image_src,
+                    size: image_src_size,
+                    scaledSize: image_src_size,
                 },
                 title: vcallsign,
             });
             gmaps_elements.push(marker);
             marker.shadow = marker_shadow;
-            marker.balloonColor = (vcallsign == "PIE") ? "rpi" : balloon_colors_name[c];
+            marker.balloonColor = (vcallsign == "PIE") ? "rpi" : balloon_colors_name[color_index];
             marker.mode = 'balloon';
             marker.setMode = function(mode) {
                 this.mode = mode;
@@ -1444,29 +1481,31 @@ function addPosition(position) {
             horizon_circle.bindTo('center', marker_shadow, 'position');
 
             // label
-            var label = new google.maps.Label({ map: map, strokeColor: horizon_circle.get('strokeColor') });
-            gmaps_elements.push(label);
-            //label.bindTo('visible', horizon_circle, 'visible');
-            label.bindTo('opacity', horizon_circle, 'strokeOpacity');
-            label.bindTo('zIndex', horizon_circle, 'zIndex');
-            label.bindTo('strokeColor', horizon_circle, 'strokeColor');
+            horizon_circle.label = new google.maps.Label({ map: map, strokeColor: horizon_circle.get('strokeColor') });
+            gmaps_elements.push(horizon_circle.label);
+            horizon_circle.label.bindTo('opacity', horizon_circle, 'strokeOpacity');
+            horizon_circle.label.bindTo('zIndex', horizon_circle, 'zIndex');
+            horizon_circle.label.bindTo('strokeColor', horizon_circle, 'strokeColor');
 
             var refresh_func = function() {
-                if(marker.mode == "landed") return;
+                if(!this.getVisible()) {
+                    this.label.set('visible', false);
+                    return;
+                }
 
-                var north = google.maps.geometry.spherical.computeOffset(horizon_circle.getCenter(), horizon_circle.getRadius(), 0);
-                var south = google.maps.geometry.spherical.computeOffset(horizon_circle.getCenter(), horizon_circle.getRadius(), 180);
+                var north = google.maps.geometry.spherical.computeOffset(this.getCenter(), this.getRadius(), 0);
+                var south = google.maps.geometry.spherical.computeOffset(this.getCenter(), this.getRadius(), 180);
 
-                var projection = label.getProjection();
+                var projection = this.label.getProjection();
                 var dist = projection.fromLatLngToDivPixel(south).y -
                            projection.fromLatLngToDivPixel(north).y;
 
-                var val = horizon_circle.getRadius() / 1000;
+                var val = this.getRadius() / 1000;
                 val = offline.get('opt_imperial') ? Math.round(val * 0.621371192) + "mi" : Math.round(val) + "km";
 
-                label.set('visible', (75 < dist));
-                label.set('position', google.maps.geometry.spherical.computeOffset(horizon_circle.getCenter(), horizon_circle.getRadius(), 180));
-                label.set('text', val);
+                this.label.set('visible', (75 < dist));
+                this.label.set('position', google.maps.geometry.spherical.computeOffset(this.getCenter(), this.getRadius(), 180));
+                this.label.set('text', val);
             };
 
             google.maps.event.addListener(horizon_circle, 'center_changed', refresh_func);
@@ -1487,34 +1526,41 @@ function addPosition(position) {
             subhorizon_circle.bindTo('center', marker_shadow, 'position');
             gmaps_elements.push(subhorizon_circle);
 
-            var label2 = new google.maps.Label({ map: map, strokeColor: subhorizon_circle.get('strokeColor') });
-            gmaps_elements.push(label2);
-            //label2.bindTo('visible', subhorizon_circle, 'visible');
-            label2.bindTo('opacity', subhorizon_circle, 'strokeOpacity');
-            label2.bindTo('zIndex', subhorizon_circle, 'zIndex');
-            label2.bindTo('strokeColor', subhorizon_circle, 'strokeColor');
+            subhorizon_circle.label = new google.maps.Label({ map: map, strokeColor: subhorizon_circle.get('strokeColor') });
+            gmaps_elements.push(subhorizon_circle.label);
+            subhorizon_circle.label.bindTo('opacity', subhorizon_circle, 'strokeOpacity');
+            subhorizon_circle.label.bindTo('zIndex', subhorizon_circle, 'zIndex');
+            subhorizon_circle.label.bindTo('strokeColor', subhorizon_circle, 'strokeColor');
 
-            refresh_func = function() {
-                if(marker.mode == "landed") return;
-
-                var north = google.maps.geometry.spherical.computeOffset(subhorizon_circle.getCenter(), subhorizon_circle.getRadius(), 0);
-                var south = google.maps.geometry.spherical.computeOffset(subhorizon_circle.getCenter(), subhorizon_circle.getRadius(), 180);
-
-                var projection = label2.getProjection();
-                var dist = projection.fromLatLngToDivPixel(south).y -
-                           projection.fromLatLngToDivPixel(north).y;
-
-                var val = subhorizon_circle.getRadius() / 1000;
-                val = offline.get('opt_imperial') ? Math.round(val * 0.621371192) + "mi" : Math.round(val) + "km";
-
-                label2.set('visible', (75 < dist));
-                label2.set('position', google.maps.geometry.spherical.computeOffset(subhorizon_circle.getCenter(), subhorizon_circle.getRadius(), 180));
-                label2.set('text', val);
-            };
             google.maps.event.addListener(subhorizon_circle, 'center_changed', refresh_func);
             google.maps.event.addListener(subhorizon_circle, 'radius_changed', refresh_func);
 
             marker.setAltitude(0);
+            polyline_visible = true;
+            polyline = [
+                new google.maps.Polyline({
+                map: map,
+                zIndex: Z_PATH,
+                strokeColor: balloon_colors[color_index],
+                strokeOpacity: 1,
+                strokeWeight: 3,
+                clickable: true,
+                draggable: false,
+                visible: polyline_visible,
+                geodesic: true
+                }),
+                new google.maps.Polyline({
+                map: map,
+                zIndex: Z_PATH - 1,
+                strokeColor: (['cyan','yellow'].indexOf(balloon_colors_name[color_index]) > -1 ? '#888888' : "#ffffff"),
+                strokeOpacity: 1,
+                strokeWeight: 5,
+                clickable: true,
+                draggable: false,
+                visible: polyline_visible,
+                geodesic: true
+                }),
+            ];
         }
 
         // add label above every marker
@@ -1545,6 +1591,8 @@ function addPosition(position) {
                             marker: marker,
                             marker_shadow: marker_shadow,
                             image_src: image_src,
+                            image_src_size: image_src_size,
+                            image_src_offset: image_src_offset,
                             horizon_circle: horizon_circle,
                             subhorizon_circle: subhorizon_circle,
                             num_positions: 0,
@@ -1554,25 +1602,17 @@ function addPosition(position) {
                             path_length: 0,
                             curr_position: position,
                             line: [],
-                            polyline: [
+                            polyline_visible: polyline_visible,
+                            polyline: polyline !== null ? polyline : [
                                 new google.maps.Polyline({
                                 map: map,
                                 zIndex: Z_PATH,
-                                strokeColor: balloon_colors[c],
+                                strokeColor: "#ffffff",
                                 strokeOpacity: 1,
                                 strokeWeight: 3,
                                 clickable: true,
                                 draggable: false,
-                                geodesic: true
-                                }),
-                                new google.maps.Polyline({
-                                map: map,
-                                zIndex: Z_PATH - 1,
-                                strokeColor: (['cyan','yellow'].indexOf(balloon_colors_name[c]) > -1 ? '#888888' : "#ffffff"),
-                                strokeOpacity: 1,
-                                strokeWeight: 5,
-                                clickable: true,
-                                draggable: false,
+                                visible: polyline_visible,
                                 geodesic: true
                                 }),
                             ],
@@ -1581,7 +1621,7 @@ function addPosition(position) {
                             horizontal_rate: 0.0,
                             max_alt: parseFloat(position.gps_alt),
                             follow: false,
-                            color_index: c,
+                            color_index: color_index,
                             prediction_traget: null,
                             prediction_burst: null,
                             graph_data_updated: false,
@@ -1597,33 +1637,33 @@ function addPosition(position) {
 
         // nyan mod
         if(nyan_mode && vehicle_info.vehicle_type == "balloon") {
-           // form a nyancat
-           vehicle_info.marker.setMap(null);
-           vehicle_info.marker.setMode = function(derp) {};
-           vehicle_info.marker_shadow = new google.maps.Marker({
-                map: map,
-                zIndex: Z_SHADOW,
-                optimized: false,
-                position: point,
-                icon: {
-                    url: host_url + markers_url + "nyan.gif",
-                    size: new google.maps.Size(55,39),
-                    scaledSize: new google.maps.Size(55,39),
-                    anchor: new google.maps.Point(26,20)
-                },
-                clickable: false
-            });
-            // rebind horizon circles to follow nyan
-            horizon_circle.bindTo('center', vehicle_info.marker_shadow, 'position');
-            subhorizon_circle.bindTo('center', vehicle_info.marker_shadow, 'position');
+            // form a nyancat
+            vehicle_info.marker.setMode = function(mode) { this.mode = mode; this.setPosition(this.getPosition()); };
+            vehicle_info.marker.setAltitude = function(derp) { this.setPosition(this.getPosition()); };
+
+            vehicle_info.marker.setIcon({
+                 url: host_url + markers_url + "nyan.gif",
+                 size: new google.maps.Size(55,39),
+                 scaledSize: new google.maps.Size(55,39),
+                 anchor: new google.maps.Point(26,20)
+             });
+            vehicle_info.marker.iconImg = 1;
 
             vehicle_info.image_src = host_url + markers_url + "hab_nyan.gif";
+            vehicle_info.image_src_offset = new google.maps.Point(-34,-70);
 
             // whats nyan only purpose? Make people happy, of course. And how?
             var rainbow = ["#ff0000", "#fc9a00", "#f6ff00", "#38ff01", "#009aff","#0000ff"];
+
+            // remove all polylines
+            var k;
+            for(k in vehicle_info.polyline) {
+                vehicle_info.polyline[k].setMap(null);
+            }
+
             vehicle_info.polyline = [];
 
-            for(var k in rainbow) {
+            for(k in rainbow) {
                 vehicle_info.polyline.push(new google.maps.Polyline({
                                 map: map,
                                 zIndex: (Z_PATH - (k * 1)),
@@ -1660,94 +1700,89 @@ function addPosition(position) {
 
     var vehicle = vehicles[vcallsign];
 
-    if(vehicle.vehicle_type == "balloon") {
-        var new_latlng = new google.maps.LatLng(position.gps_lat, position.gps_lon);
-        var new_ts = convert_time(position.gps_time);
-        var curr_ts = convert_time(vehicle.curr_position.gps_time);
-        var dt = (new_ts - curr_ts) / 1000; // convert to seconds
+    var new_latlng = new google.maps.LatLng(position.gps_lat, position.gps_lon);
+    var new_ts = convert_time(position.gps_time);
+    var curr_ts = convert_time(vehicle.curr_position.gps_time);
+    var dt = (new_ts - curr_ts) / 1000; // convert to seconds
 
-        if(dt === 0 && vehicle.num_positions) {
-            if (("," + vehicle.curr_position.callsign + ",").indexOf("," + position.callsign + ",") === -1) {
-              vehicle.curr_position.callsign += "," + position.callsign;
-            }
+    if(dt === 0 && vehicle.num_positions) {
+        if (("," + vehicle.curr_position.callsign + ",").indexOf("," + position.callsign + ",") === -1) {
+          vehicle.curr_position.callsign += "," + position.callsign;
         }
-        else if(dt >= 0) {
-            if(vehicle.num_positions > 0) {
-                // calculate vertical rate
-                var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
-                vehicle.ascent_rate = 0.7 * rate + 0.3 * vehicle.ascent_rate;
+    }
+    else if(dt >= 0) {
+        if(vehicle.num_positions > 0) {
+            // calculate vertical rate
+            var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
+            vehicle.ascent_rate = 0.7 * rate + 0.3 * vehicle.ascent_rate;
 
-                // calculate horizontal rate
-                vehicle.horizontal_rate = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(position.gps_lat, position.gps_lon),
-                                                                                                new google.maps.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon)) / dt;
-             }
+            // calculate horizontal rate
+            vehicle.horizontal_rate = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(position.gps_lat, position.gps_lon),
+                                                                                            new google.maps.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon)) / dt;
+         }
 
-            // add the new position
-            if(wvar.mode == "Position") {
-                vehicle.num_positions= 1;
-                vehicle.positions[0] = new_latlng;
-                vehicle.positions_ts[0] = new_ts;
-            } else {
-                vehicle.positions.push(new_latlng);
-                vehicle.positions_ts.push(new_ts);
-                vehicle.positions_ids.push(position.position_id);
-                vehicle.num_positions++;
-            }
-
-            // increment length
-            var poslen = vehicle.num_positions;
-            if(poslen > 1) vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[poslen-2], vehicle.positions[poslen-1]);
-
-            vehicle.curr_position = position;
-            graphAddPosition(vcallsign, position);
-
-        }
-        else if(wvar.mode == "Position") { // we don't splice old postions in latest position mode
-            return;
-        }
-        else if(vehicle.positions_ts.indexOf(new_ts) == -1) { // backlog packets, need to splice them into the array
-            // find out the index at which we should insert the new point
-            var xref = vehicle.positions_ts;
-            var idx = -1, len = xref.length;
-            while(++idx < len) {
-                if(xref[idx] > new_ts) {
-                    break;
-                }
-            }
-
-            // recalculate the distance in the section where we insert
-            if(idx === 0) {
-                vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[0], new_latlng);
-            } else {
-                // subtracked the distance between the two points where we gonna insert the new one
-                vehicle.path_length -= google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[idx-1], vehicle.positions[idx]);
-
-                // calculate the distance with the new point in place
-                vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[idx-1], new_latlng);
-                vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[idx], new_latlng);
-            }
-
-            // insert the new position into our arrays
-            vehicle.positions.splice(idx, 0, new_latlng);
-            vehicle.positions_ts.splice(idx, 0, new_ts);
-            vehicle.positions_ids.splice(idx, 0, position.position_id);
+        // add the new position
+        if(wvar.mode == "Position") {
+            vehicle.num_positions= 1;
+            vehicle.positions[0] = new_latlng;
+            vehicle.positions_ts[0] = new_ts;
+        } else {
+            vehicle.positions.push(new_latlng);
+            vehicle.positions_ts.push(new_ts);
+            vehicle.positions_ids.push(position.position_id);
             vehicle.num_positions++;
-
-            graphAddPosition(vcallsign, position);
         }
 
-        vehicle.updated = true;
-    } else { // if car
+        // increment length
+        var poslen = vehicle.num_positions;
+        if(poslen > 1) vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[poslen-2], vehicle.positions[poslen-1]);
+
         // if car doesn't report heading, we calculate it from the last position
-        if(!('gps_heading' in position)) {
+        if(vehicle.num_positions > 1 && vehicle.vehicle_type == 'car' && 'gps_heading' in position && position.gps_heading === "") {
             var latlng = new google.maps.LatLng(position.gps_lat, position.gps_lon);
             var old_latlng = new google.maps.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon);
             position.gps_heading = google.maps.geometry.spherical.computeHeading(old_latlng, latlng);
         }
 
         vehicle.curr_position = position;
-        vehicle.updated = true;
+        graphAddPosition(vcallsign, position);
+
     }
+    else if(wvar.mode == "Position") { // we don't splice old postions in latest position mode
+        return;
+    }
+    else if(vehicle.positions_ts.indexOf(new_ts) == -1) { // backlog packets, need to splice them into the array
+        // find out the index at which we should insert the new point
+        var xref = vehicle.positions_ts;
+        var idx = -1, len = xref.length;
+        while(++idx < len) {
+            if(xref[idx] > new_ts) {
+                break;
+            }
+        }
+
+        // recalculate the distance in the section where we insert
+        if(idx === 0) {
+            vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[0], new_latlng);
+        } else {
+            // subtracked the distance between the two points where we gonna insert the new one
+            vehicle.path_length -= google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[idx-1], vehicle.positions[idx]);
+
+            // calculate the distance with the new point in place
+            vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[idx-1], new_latlng);
+            vehicle.path_length += google.maps.geometry.spherical.computeDistanceBetween(vehicle.positions[idx], new_latlng);
+        }
+
+        // insert the new position into our arrays
+        vehicle.positions.splice(idx, 0, new_latlng);
+        vehicle.positions_ts.splice(idx, 0, new_ts);
+        vehicle.positions_ids.splice(idx, 0, position.position_id);
+        vehicle.num_positions++;
+
+        graphAddPosition(vcallsign, position);
+    }
+
+    vehicle.updated = true;
 
     // record the start of flight
     var newts = convert_time(vehicle.curr_position.gps_time);

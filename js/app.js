@@ -410,7 +410,7 @@ $(window).ready(function() {
     if(wvar.graph_expanded) $('#telemetry_graph .graph_label').click();
 
     // hysplit button
-    $("#main").on('click','.row .data .hysplit', function(event) {
+    $("#main").on('click','.row .data .vbutton.hysplit', function(event) {
         event.stopPropagation();
 
         var elm = $(this);
@@ -423,6 +423,22 @@ $(window).ready(function() {
         else {
             elm.addClass('active');
             hysplit[name].setMap(map);
+        }
+    });
+
+    $("#main").on('click','.row .data .vbutton.path', function(event) {
+        event.stopPropagation();
+
+        var elm = $(this);
+        var name = elm.attr('data-vcallsign');
+
+        if(elm.hasClass("active")) {
+            elm.removeClass('active');
+            set_polyline_visibility(name, false);
+        }
+        else {
+            elm.addClass('active');
+            set_polyline_visibility(name, true);
         }
     });
 
