@@ -787,7 +787,9 @@ function updateVehicleInfo(vcallsign, newPosition) {
       vehicle.marker.setMode("landed");
       vehicle.marker.shadow.setVisible(false);
       vehicle.horizon_circle.setVisible(false);
+      vehicle.horizon_circle.label.setVisible(false);
       vehicle.subhorizon_circle.setVisible(false);
+      vehicle.subhorizon_circle.label.setVisible(false);
 
     } else if(vehicle.ascent_rate > -3.0 ||
               vcallsign == "wb8elk2") {
@@ -1488,7 +1490,11 @@ function addPosition(position) {
             horizon_circle.bindTo('center', marker_shadow, 'position');
 
             // label
-            horizon_circle.label = new google.maps.Label({ map: map, strokeColor: horizon_circle.get('strokeColor') });
+            horizon_circle.label = new google.maps.Label({
+                map: map,
+                strokeColor: horizon_circle.get('strokeColor'),
+                visible: false
+            });
             gmaps_elements.push(horizon_circle.label);
             horizon_circle.label.bindTo('opacity', horizon_circle, 'strokeOpacity');
             horizon_circle.label.bindTo('zIndex', horizon_circle, 'zIndex');
@@ -1533,7 +1539,11 @@ function addPosition(position) {
             subhorizon_circle.bindTo('center', marker_shadow, 'position');
             gmaps_elements.push(subhorizon_circle);
 
-            subhorizon_circle.label = new google.maps.Label({ map: map, strokeColor: subhorizon_circle.get('strokeColor') });
+            subhorizon_circle.label = new google.maps.Label({
+                map: map,
+                strokeColor: subhorizon_circle.get('strokeColor'),
+                visible: false
+            });
             gmaps_elements.push(subhorizon_circle.label);
             subhorizon_circle.label.bindTo('opacity', subhorizon_circle, 'strokeOpacity');
             subhorizon_circle.label.bindTo('zIndex', subhorizon_circle, 'zIndex');
