@@ -32,7 +32,12 @@ for(var idx in params) {
     if(line.length < 2) continue;
 
     switch(line[0]) {
-        case "wvar": if(line[1] == "1") wvar.enabled = true; break;
+        case "embed":
+            if(line[1] == "1") {
+                wvar.enabled = true;
+                if(!is_mobile) wvar.mode = 'All';
+            }
+            break;
         case "hidelist": if(line[1] == "1") wvar.vlist = false; break;
         case "hidegraph": if(line[1] == "1") wvar.graph = false; break;
         case "expandgraph": if(line[1] == "1") wvar.graph_expanded = true; break;
