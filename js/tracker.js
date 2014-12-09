@@ -396,7 +396,7 @@ function load() {
             $('#main .empty').parent().remove();
             $("#main .portrait,#main .landscape").append(
                 '<div class="row vehicle'+elm_uuid+'"><div class="header empty">' +
-                '<img style="width:24px;height:24px" src="img/hab-spinner.gif"/></div></div>'
+                '<img style="width:90px;height:30px" src="img/hab-spinner.gif"/></div></div>'
             );
 
             refresh();
@@ -1173,7 +1173,7 @@ var mapInfoBox_handle_path = function(event) {
     var point = (p1_dist < p2_dist) ? p[minidx-1] : p[minidx];
     var id = (p1_dist < p2_dist) ? vehicle.positions_ids[minidx-1] : vehicle.positions_ids[minidx];
 
-    mapInfoBox.setContent("<img style='width:18px;height:18px' src='img/hab-spinner.gif' />");
+    mapInfoBox.setContent("<img style='width:60px;height:20px' src='img/hab-spinner.gif' />");
     mapInfoBox.setPosition(point);
     mapInfoBox.setMap(map);
     mapInfoBox.open(map);
