@@ -20,6 +20,7 @@ var got_positions = false;
 var zoomed_in = false;
 var max_positions = 0; // maximum number of positions that ajax request should return (0 means no maximum)
 var follow_vehicle = null;
+var graph_vehicle = null;
 var manual_pan = false;
 
 var car_index = 0;
@@ -398,6 +399,7 @@ function load() {
                 '<div class="row vehicle'+elm_uuid+'"><div class="header empty">' +
                 '<img style="width:90px;height:30px" src="img/hab-spinner.gif"/></div></div>'
             );
+            listScroll.refresh();
 
             refresh();
 
@@ -669,13 +671,11 @@ function stopFollow() {
 
         if(follow_vehicle in vehicles) vehicles[follow_vehicle].follow = false;
         follow_vehicle = null;
+        graph_vehicle = null;
 
         // clear graph
-        plot = $.plot(plot_holder, {}, plot_options);
-
-        // reset nite overlay
-        nite.setDate(null);
-        nite.refresh();
+        if(plot) plot = $.plot(plot_holder, {}, plot_options);
+        updateGraph(null, true);
 
         // update lookangles box
         if(GPS_ts !== null) $("#lookanglesbox span").hide().parent().find(".nofollow").show();
@@ -1143,7 +1143,7 @@ var mapInfoBox_handle_prediction_path = function(event) {
 };
 
 var mapInfoBox_handle_path = function(event) {
-    var vehicle = this.vehicle;
+    var vehicle = this.vehicle || vehicles[follow_vehicle];
     var target = event.latLng;
     var p = vehicle.positions;
 
@@ -1820,15 +1820,22 @@ function addPosition(position) {
 function updateGraph(vcallsign, reset_selection) {
     if(!plot || !plot_open) return;
 
-    if(polyMarker) polyMarker.setPosition(null);
 
     if(reset_selection) {
         delete plot_options.xaxis;
 
+        if(polyMarker) polyMarker.setPosition(null);
+        plot_crosshair_locked = false;
+
         // reset nite overlay
         nite.setDate(null);
         nite.refresh();
+
+        $("#timebox").removeClass('past').addClass('present');
+        updateTimebox(new Date());
     }
+
+    if(vcallsign === null) return;
 
     var series = vehicles[vcallsign].graph_data;
 
@@ -1849,6 +1856,7 @@ function updateGraph(vcallsign, reset_selection) {
 
     // replot graph, with this vehicle data, and this vehicles yaxes config
     plot = $.plot(plot_holder, series, $.extend(false, plot_options, {yaxes:vehicles[vcallsign].graph_yaxes}));
+    graph_vehicle = follow_vehicle;
 
     vehicles[vcallsign].graph_data_updated = false;
 }

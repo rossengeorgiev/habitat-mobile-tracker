@@ -55,12 +55,13 @@ function updateLegend(pos) {
 
     if(!polyMarker) {
         polyMarker = new google.maps.Marker({
-            clickable: false,
+            clickable: true,
             flat: true,
             map: map,
             visible: true,
             icon: null
         });
+        google.maps.event.addListener(polyMarker, 'click', function() { mapInfoBox_handle_path({latLng: this.getPosition()}); });
     }
 
     // this loop finds an existing data point, so we can get coordinates
@@ -98,11 +99,22 @@ function updateLegend(pos) {
     }
 }
 
+var plot_crosshair_locked = false;
+
+$(plot_holder).bind("click",  function (event) {
+    if(plot_crosshair_locked) {
+        plot_crosshair_locked = false;
+    } else if(event.ctrlKey) {
+        plot_crosshair_locked = true;
+    }
+});
 // update legend values on mouse hover
 $(plot_holder).bind("plothover",  function (event, pos, item) {
-    plot.lockCrosshair();
-    plot.setCrosshair(pos);
+    if(plot_crosshair_locked) return;
+
     if (!updateLegendTimeout) {
+        plot.lockCrosshair();
+        plot.setCrosshair(pos);
         updateLegend(pos);
         updateLegendTimeout = setTimeout(function() { updateLegendTimeout = null; }, 40);
     }

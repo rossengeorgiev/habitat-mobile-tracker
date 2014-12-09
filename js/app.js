@@ -407,7 +407,9 @@ $(window).ready(function() {
         $('#map').stop(null,null).animate({'height': h}, function() {
             if(map) google.maps.event.trigger(map, 'resize');
 
-            if(plot_open && follow_vehicle !== null && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, true);
+            if(plot_open &&
+               follow_vehicle !== null &&
+               (follow_vehicle != graph_vehicle || vehicles[follow_vehicle].graph_data_updated)) updateGraph(follow_vehicle, true);
         });
     });
 
@@ -449,12 +451,9 @@ $(window).ready(function() {
 
     // reset nite-overlay and timebox when mouse goes out of the graph box
     $("#telemetry_graph").on('mouseout','.holder', function() {
-        nite.setDate(null);
-        nite.refresh();
-        if(polyMarker) polyMarker.setMap(null);
+        if(plot_crosshair_locked) return;
 
-        $("#timebox").removeClass('past').addClass('present');
-        updateTimebox(new Date());
+        updateGraph(null, true);
     });
 
     // hand cursor for dragging the vehicle list
