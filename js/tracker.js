@@ -784,18 +784,11 @@ function updateVehicleInfo(vcallsign, newPosition) {
                  );
 
     if(landed) {
-      vehicle.marker.setMode("landed");
-      vehicle.marker.shadow.setVisible(false);
-      vehicle.horizon_circle.setVisible(false);
-      vehicle.horizon_circle.label.set('visible', false);
-      vehicle.subhorizon_circle.setVisible(false);
-      vehicle.subhorizon_circle.label.set('visible', false);
-
-    } else if(vehicle.ascent_rate > -3.0 ||
-              vcallsign == "wb8elk2") {
-    	vehicle.marker.setMode("balloon");
+        vehicle.marker.setMode("landed");
+    } else if(vehicle.ascent_rate > -3.0) {
+        vehicle.marker.setMode("balloon");
     } else {
-    	vehicle.marker.setMode("parachute");
+        vehicle.marker.setMode("parachute");
     }
   }
 
@@ -1445,27 +1438,43 @@ function addPosition(position) {
             marker.balloonColor = (vcallsign == "PIE") ? "rpi" : balloon_colors_name[color_index];
             marker.mode = 'balloon';
             marker.setMode = function(mode) {
+                if(this.mode == mode) return;
+
                 this.mode = mode;
                 var img;
                 if(mode == "landed") {
+                    vehicle.marker.shadow.setVisible(false);
+                    vehicle.horizon_circle.setVisible(false);
+                    vehicle.horizon_circle.label.set('visible', false);
+                    vehicle.subhorizon_circle.setVisible(false);
+                    vehicle.subhorizon_circle.label.set('visible', false);
+
                     img = {
-                            url: host_url + markers_url + "payload-" + this.balloonColor + ".png",
-                            size: new google.maps.Size(17,18),
-                            scaledSize: new google.maps.Size(17,18),
-                            anchor: new google.maps.Point(8,14)
-                        };
-                } else if(mode == "parachute") {
-                    img = {
+                        url: host_url + markers_url + "payload-" + this.balloonColor + ".png",
+                        size: new google.maps.Size(17,18),
+                        scaledSize: new google.maps.Size(17,18),
+                        anchor: new google.maps.Point(8,14)
+                    };
+                } else {
+                    vehicle.marker.shadow.setVisible(true);
+                    vehicle.horizon_circle.setVisible(true);
+                    vehicle.horizon_circle.label.set('visible', true);
+                    vehicle.subhorizon_circle.setVisible(true);
+                    vehicle.subhorizon_circle.label.set('visible', true);
+
+                    if(mode == "parachute") {
+                        img = {
                             url: host_url + markers_url + "parachute-" + this.balloonColor + ".png",
                             size: new google.maps.Size(46,84),
                             scaledSize: new google.maps.Size(46,84)
                         };
-                } else {
-                    img = {
+                    } else {
+                        img = {
                             url: host_url + markers_url + "balloon-" + this.balloonColor + ".png",
                             size: new google.maps.Size(46,84),
                             scaledSize: new google.maps.Size(46,84)
                         };
+                    }
                 }
                 this.setIcon(img);
                 this.setPosition(this.getPosition());
