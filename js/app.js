@@ -103,6 +103,7 @@ var refresh_hysplit = function() {
 function trackerInit() {
     $('#loading,#settingsbox,#aboutbox,#chasebox').hide(); // welcome screen
     $('header,#main').show(); // interface elements
+    checkSize();
 
     if(map) return;
 
@@ -118,7 +119,6 @@ function trackerInit() {
 
         return;
     }
-    checkSize();
     if(!map) load();
 }
 
