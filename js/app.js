@@ -45,6 +45,7 @@ for(var idx in params) {
         case "nyan": nyan_mode = true; break;
         case "focus": wvar.focus = decodeURIComponent(line[1]); break;
         case "docid": wvar.docid = line[1]; break;
+        case "mode": wvar.mode = decodeURIComponent(line[1]); break;
     }
 }
 
