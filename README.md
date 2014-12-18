@@ -1,12 +1,9 @@
-# Habitat Mobile Tracker
+# Habhub tracker
 
-![mobile tracker screenshot](resources/mobiletracker-screencap.jpg "mobile tracker screenshot")
+![mobile tracker screenshot](resources/mobiletracker-screencap.png "mobile tracker screenshot")
 
-A tracker webapp specifically crafted for use on mobile devices.
-But, works on any other device - desktops, laptops or netbooks.
-The aim is to provide all key features in a compact package useful
-on a mobile device. And yet, not feel stripped down on a desktop PC.
-The mobile tracker is a continuation of [spacenear.us/tracker](http://spacenear.us/tracker).
+A webapp for tracking high altitude balloons. Works an desktop and mobile devices.
+The habhub tracker is a continuation of [spacenear.us/tracker](http://spacenear.us/tracker).
 
 Checkout the [Live version](http://habhub.org/mt/)
 
