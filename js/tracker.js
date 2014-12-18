@@ -555,12 +555,13 @@ function habitat_data(jsondata, alternative) {
 
   try
   {
-    if (jsondata === undefined || jsondata === "")
-      return "";
+    if (jsondata === undefined || jsondata === null) return "";
 
-    var data = $.parseJSON(jsondata);
+    var data = (typeof jsondata === "string") ? $.parseJSON(jsondata) : jsondata;
     var array = [];
     var output = "";
+
+    if(Object.keys(data).length === 0) return "";
 
     for(var key in data) {
         array.push([key, data[key]]);
@@ -1982,7 +1983,7 @@ function graphAddPosition(vcallsign, new_data) {
     if(plot && new_data.data !== "") {
 
         // the rest of the series is from the data field
-        var json = $.parseJSON(new_data.data);
+        var json = (typeof new_data.data === "string") ? $.parseJSON(new_data.data) : new_data.data;
 
         // init empty data matrix
         var data_matrix = [];
