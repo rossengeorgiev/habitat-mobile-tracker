@@ -1320,6 +1320,12 @@ var marker_rotate_setup = function(marker, image_src) {
     }
 };
 
+var array_unique = function(inarr) {
+    var seen = {};
+    return inarr.filter(function(v) {
+        return seen.hasOwnProperty(v) ? false : (seen[v] = true);
+    });
+};
 
 function addPosition(position) {
     var vcallsign = position.vehicle;
@@ -1734,9 +1740,10 @@ function addPosition(position) {
     var dt = (new_ts - curr_ts) / 1000; // convert to seconds
 
     if(dt === 0 && vehicle.num_positions) {
-        if (("," + vehicle.curr_position.callsign + ",").indexOf("," + position.callsign + ",") === -1) {
-          vehicle.curr_position.callsign += "," + position.callsign;
-        }
+        var callsigns = vehicle.curr_position.callsign.split(', ');
+        var newcalls = callsigns.concat(position.callsign.split(', '));
+
+        vehicle.curr_position.callsign = array_unique(callsigns).join(', ');
     }
     else if(dt >= 0) {
         if(vehicle.num_positions > 0) {
