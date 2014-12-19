@@ -1214,7 +1214,7 @@ var mapInfoBox_handle_path_fetch = function(id,vehicle) {
         html += "</div>";
         html += "<div><b>Duration:&nbsp;</b>" + format_time_friendly(vehicle.start_time, convert_time(vehicle.curr_position.gps_time)) + "</div>";
 
-        if(Object.keys(JSON.parse(data.data)).length) {
+        if(Object.keys((typeof data.data === "string")?JSON.parse(data.data):data.data).length) {
             html += "<hr style='margin:5px 0px'>";
             html += habitat_data(data.data, true);
         }
