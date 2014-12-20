@@ -1,17 +1,10 @@
-<?php
-header('Content-Type: application/vnd.google-earth.kml+xml');
-
-parse_str($_SERVER['QUERY_STRING'], $tmp);
-$qstr = htmlspecialchars(http_build_query($tmp));
-
-?>
 <kml xmlns="http://earth.google.com/kml/2.0" >
   <Document>
     <NetworkLink>
       <name>habhub tracker (GE)</name>
       <description>Live tracking of high altitude balloons via Google Earth</description>
       <Url>
-      <href>http://spacenear.us/tracker/datanew.php?format=kml&amp;<?=$qstr?></href>
+      <href>http://spacenear.us/tracker/datanew.php?format=kml</href>
         <refreshMode>onInterval</refreshMode>
         <refreshInterval>20</refreshInterval>
       </Url>
