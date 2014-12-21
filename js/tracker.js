@@ -257,35 +257,35 @@ var maptypes = {
         'Bing.com & Ordnance Survey',
          10,
          17,
-         function(xy,z) { return 'http://ecn.t'+(Math.round(Math.random()*3)+1)+'.tiles.virtualearth.net/tiles/r'+makeQuad(xy.x, xy.y, z)+'?g=2689&lbl=l1&productSet=mmOS'; }
+         function(xy,z) { return 'http://ecn.t'+((Math.abs(xy.x+xy.y)%3)+1)+'.tiles.virtualearth.net/tiles/r'+makeQuad(xy.x, xy.y, z)+'?g=2689&lbl=l1&productSet=mmOS'; }
     ],
     osm: [
         'OSM',
         'OpenStreetMaps.org',
          1,
          19,
-         function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c'][Math.round(Math.random()*2)]+'.tile.openstreetmap.org/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
+         function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c'][Math.abs(xy.x+xy.y)%3]+'.tile.openstreetmap.org/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
     ],
-    osm_bw: [
-        'OSM B&W',
-        'OSM Black & White',
+    dark_matter: [
+        'Dark Matter',
+        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
          1,
-         16,
-         function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c','d','e'][Math.round(Math.random()*2)]+'.www.toolserver.org/tiles/bw-mapnik/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
+         19,
+         function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c'][Math.abs(xy.x+xy.y)%3]+'.basemaps.cartocdn.com/dark_all/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
     ],
     osm_toner: [
         'OSM Toner',
         'Stamen.org Toner',
          1,
          18,
-         function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c','d'][Math.round(Math.random()*2)]+'.tile.stamen.com/toner/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
+         function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c','d'][Math.abs(xy.x+xy.y)%4]+'.tile.stamen.com/toner/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
     ],
     osm_watercolor: [
         'OSM Watercolor',
         'Stamen.org Watercolor',
          1,
          18,
-         function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c','d'][Math.round(Math.random()*2)]+'.tile.stamen.com/watercolor/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
+         function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c','d'][Math.abs(xy.x+xy.y)%4]+'.tile.stamen.com/watercolor/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
     ]
 };
 
