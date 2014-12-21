@@ -46,7 +46,7 @@ var modeList = [
     "All",
 ];
 var modeDefault = "1 day";
-var modeDefaultMobile = "Position";
+var modeDefaultMobile = "1 hour";
 
 // order of map elements
 var Z_RANGE = 1;
