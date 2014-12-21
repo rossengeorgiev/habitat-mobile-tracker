@@ -254,7 +254,7 @@ var positionUpdateHandle = function(position) {
         // save position and update only if different is available
         if(CHASE_timer < (new Date()).getTime() &&
            (
-           GPS_lat != lat || 
+           GPS_lat != lat ||
            GPS_lon != lon ||
            GPS_alt != alt ||
            GPS_speed != speed
@@ -384,7 +384,16 @@ $(window).ready(function() {
     checkSize();
 
     // add inline scroll to vehicle list
-    listScroll = new iScroll('main', { hScrollbar: false, hScroll: false, snap: false, scrollbarClass: 'scrollStyle' });
+    listScroll = new IScroll('#main', {
+        hScrollbar: false,
+        hScroll: false,
+        snap: false,
+        mouseWheel: true,
+        scrollbars: true,
+        scrollbarClass: 'scrollStyle',
+        shrinkScrollbars: 'scale',
+        tap: true,
+    });
 
     $('#telemetry_graph').on('click', '.graph_label', function() {
         var e = $(this), h;
@@ -476,14 +485,14 @@ $(window).ready(function() {
     });
 
     // follow vehicle by clicking on data
-    $('#main').on('click', '.row .data', function() {
+    $('#main').on('tap', '.row .data', function() {
         var e = $(this).parent();
 
         followVehicle(e.attr('data-vcallsign'));
     });
 
     // expand/collapse data when header is clicked
-    $('#main').on('click', '.row .header', function() {
+    $('#main').on('tap', '.row .header', function() {
         var e = $(this).parent();
         if(e.hasClass('active')) {
             // collapse data for selected vehicle

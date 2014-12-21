@@ -27,7 +27,7 @@ body {
     float: left;
 }
 
-.scrollStyleV {
+.iScrollVerticalScrollbar {
     z-index: 49;
     width: 5px;
     bottom: 6px;
@@ -36,7 +36,7 @@ body {
     position: absolute;
 }
 
-.scrollStyleV > div {
+.iScrollVerticalScrollbar > div {
     position: absolute;
     background: none repeat scroll 0 0 padding-box rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.9);
@@ -207,6 +207,7 @@ header > div {
 }
 #main {
     float: left;
+    overflow: hidden;
 }
 
 .nav {
@@ -636,7 +637,6 @@ header > div {
         float: left;
         height: 245px;
         width: 199px;
-        overflow: hidden;
         margin-top: 55px;
         box-shadow: -2px 0px 6px 0px #555;
     }
