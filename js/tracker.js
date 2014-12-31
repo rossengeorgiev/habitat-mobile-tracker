@@ -2135,11 +2135,10 @@ function refreshPredictions() {
         data: "",
         dataType: "json",
         success: function(response, textStatus) {
-            offline.set('predictions', response);
+            offline.set('predictions', "");
             updatePredictions(response);
         },
         error: function() {
-            if(!ls_pred && offline.get('opt_offline')) updatePredictions(offline.get('predictions'));
         },
         complete: function(request, textStatus) {
             periodical_predictions = setTimeout(refreshPredictions, 60 * 1000);
