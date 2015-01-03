@@ -1224,8 +1224,10 @@ var mapInfoBox_handle_path_fetch = function(id,vehicle) {
             html += habitat_data(data.data, true);
         }
 
-        html += "<hr style='margin:0px;margin-top:5px'>";
-        html += "<div style='font-size:11px;'><b>Received by:&nbsp;</b>"+data.callsign.replace(/,/g,', ')+"</div>";
+        if(data.vehicle.search(/(chase)/i) == -1) {
+            html += "<hr style='margin:0px;margin-top:5px'>";
+            html += "<div style='font-size:11px;'><b>Received by:&nbsp;</b>"+data.callsign.replace(/,/g,', ')+"</div>";
+        }
 
         div.innerHTML = html;
 
