@@ -362,6 +362,17 @@ function load() {
         }));
     }
 
+    var customTileAttr = new google.maps.StatusTextControl({
+        text: '',
+        map: map,
+        position: google.maps.ControlPosition.BOTTOM_RIGHT,
+    });
+
+    google.maps.event.addListener(map, 'maptypeid_changed', function() {
+        var id = this.getMapTypeId();
+        customTileAttr.setText((id in maptypes) ? maptypes[id][1] : '');
+    });
+
     // initialize period menu
     tmpC = new google.maps.DropDownControl({
         map: map,

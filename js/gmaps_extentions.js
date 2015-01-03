@@ -169,3 +169,43 @@ google.maps.DropDownControl = function(options) {
         clearTimeout(ctx.hideTimeout);
     });
 };
+
+// simple status control
+
+google.maps.StatusTextControl = function(options) {
+    this.options = options || {
+        text: "",
+        map: null,
+        position: 0,
+        fontSize: "10px",
+    };
+
+    this.div_ = document.createElement('div');
+    this.div_.style.cssText = "display: none";
+    this.div_.innerHTML = "<div style='opacity: 0.7; width: 100%; height: 100%; position: absolute;'>" +
+        "<div style='width: 1px;'></div>" +
+        "<div style='width: auto; height: 100%; margin-left: 1px; background-color: rgb(245, 245, 245);'></div></div>";
+
+    var div = document.createElement('div');
+    div.style.cssText = 'position: relative; padding-right: 6px; padding-left: 6px;' +
+      ' font-family: Roboto, Arial, sans-serif; color: rgb(68, 68, 68);' +
+      ' white-space: nowrap; direction: ltr; text-align: right;' +
+      ' font-size: ' + this.options.fontSize;
+
+    this.span_ = document.createElement('span');
+    div.appendChild(this.span_);
+    this.div_.appendChild(div);
+
+    // update text
+    this.setText(this.options.text);
+
+    // add control
+    if(this.options.map)
+        this.options.map.controls[options.position].push(this.div_);
+};
+
+google.maps.StatusTextControl.prototype.setText = function(text) {
+    this.options.text = text;
+    this.span_.innerHTML = text;
+    this.div_.style.display = (text === "") ? "none" : "block";
+};
