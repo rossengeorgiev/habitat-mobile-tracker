@@ -1182,12 +1182,13 @@ var mapInfoBox_handle_path = function(event) {
 
 var mapInfoBox_handle_path_fetch = function(id,vehicle) {
     $.getJSON("http://spacenear.us/tracker/datanew.php?mode=single&format=json&position_id=" + id, function(data) {
-        data = data.positions.position[0];
-
-        if(data.length === 0) {
-            box.setContent("unable to find data");
+        if('positions' in data && data.positions.position.length === 0) {
+            mapInfoBox.setContent("not&nbsp;found");
+            mapInfoBox.open(map);
             return;
         }
+
+        data = data.positions.position[0];
 
         div = document.createElement('div');
 
