@@ -430,7 +430,7 @@ function load() {
     });
 
     google.maps.event.addListener(map, 'dragstart', function() {
-        manual_pan = true;
+        if(!wvar.enabled) manual_pan = true;
     });
 
     // only start population the map, once its completely loaded
