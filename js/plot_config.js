@@ -136,7 +136,7 @@ $(plot_holder).bind("dblclick", function () {
         }
     }
 
-    updateGraph(follow_vehicle);
+    updateGraph(follow_vehicle, false);
 });
 
 // limit range after selection
@@ -152,5 +152,5 @@ $(plot_holder).bind("plotselected", function (event, ranges) {
         }
     });
 
-    updateGraph(follow_vehicle);
+    updateGraph(follow_vehicle, false);
 });

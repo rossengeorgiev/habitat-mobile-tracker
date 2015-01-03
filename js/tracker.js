@@ -1676,7 +1676,7 @@ function addPosition(position) {
                             };
 
         // deep copy yaxes config for graph
-        $.each($.extend(false, plot_options.yaxes, {}), function(k,v) { vehicle_info.graph_yaxes.push(v); });
+        $.each($.extend(plot_options.yaxes, {}), function(k,v) { vehicle_info.graph_yaxes.push(v); });
 
         // nyan mod
         if(nyan_mode && vehicle_info.vehicle_type == "balloon") {
@@ -1845,9 +1845,8 @@ function addPosition(position) {
 function updateGraph(vcallsign, reset_selection) {
     if(!plot || !plot_open) return;
 
-
     if(reset_selection) {
-        delete plot_options.xaxis;
+        if(vcallsign !== null) delete plot_options.xaxis;
 
         if(polyMarker) polyMarker.setPosition(null);
         plot_crosshair_locked = false;
@@ -1880,7 +1879,7 @@ function updateGraph(vcallsign, reset_selection) {
     }
 
     // replot graph, with this vehicle data, and this vehicles yaxes config
-    plot = $.plot(plot_holder, series, $.extend(false, plot_options, {yaxes:vehicles[vcallsign].graph_yaxes}));
+    plot = $.plot(plot_holder, series, $.extend(plot_options, {yaxes:vehicles[vcallsign].graph_yaxes}));
     graph_vehicle = follow_vehicle;
 
     vehicles[vcallsign].graph_data_updated = false;
