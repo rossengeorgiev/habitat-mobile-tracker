@@ -2089,7 +2089,8 @@ var ajax_inprogress = false;
 
 function refresh() {
   if(ajax_inprogress) {
-        periodical = setTimeout(refresh, 2000);
+    clearTimeout(periodical);
+    periodical = setTimeout(refresh, 2000);
   }
 
   $("#stText").text("checking |");
@@ -2123,6 +2124,7 @@ function refresh() {
         }
     },
     complete: function(request, textStatus) {
+        clearTimeout(periodical);
         periodical = setTimeout(refresh, timer_seconds * 1000);
     }
   });
