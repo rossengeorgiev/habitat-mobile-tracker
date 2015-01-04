@@ -366,6 +366,7 @@ var updateTime = function(date) {
 
         elm.each(function(k,v) {
             var e = $(v);
+            if(e.attr('data-timestamp') === undefined) return;
             var ts = e.attr('data-timestamp');
             var str = format_time_friendly(ts, now);
             if(str) e.text(str + ' ago');

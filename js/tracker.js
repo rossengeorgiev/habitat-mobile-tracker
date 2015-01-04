@@ -436,6 +436,14 @@ function load() {
     overlay.draw = function() {};
     overlay.setMap(map);
 
+    // status message boxes
+    var statusElm = new google.maps.StatusTextControl({
+        map: map,
+        position: google.maps.ControlPosition.RIGHT_BOTTOM,
+        text: "<span id='stText'></span><span> Updated: </span><i class='friendly-dtime' id='stTimer'>never</i>"
+    });
+
+
     google.maps.event.addListener(map, 'zoom_changed', function() {
         updateZoom();
     });
@@ -492,10 +500,6 @@ function load() {
 
     // load if aprs layer, if selected
     if(offline.get('opt_layers_aprs')) map.overlayMapTypes.setAt("1", overlayAPRS);
-}
-
-function unload() {
-  google.maps.Unload();
 }
 
 function panTo(vcallsign) {
@@ -2087,11 +2091,9 @@ function refresh() {
   if(ajax_inprogress) {
         periodical = setTimeout(refresh, 2000);
   }
-  //status = '<img src="spinner.gif" width="16" height="16" alt="" /> Refreshing ...';
-  //$('#status_bar').html(status);
 
-  //if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'ajax', 'refresh', 'Vehicles']);
-  //
+  $("#stText").text("checking |");
+
   var mode = wvar.mode.toLowerCase();
   mode = (mode == "position") ? "latest" : mode.replace(/ /g,"");
 
@@ -2104,10 +2106,21 @@ function refresh() {
     dataType: "json",
     success: function(response, textStatus) {
         ajax_inprogress = true;
+        $("#stText").text("loading |");
+        response.fetch_timestamp = Date.now();
         update(response);
+        $("#stText").text("");
+        $("#stTimer").attr("data-timestamp", response.fetch_timestamp);
     },
     error: function() {
-        if(!zoomed_in && offline.get('opt_offline')) update(offline.get('positions'));
+        $("#stText").text("error |");
+
+        if(!zoomed_in && offline.get('opt_offline')) {
+            var data = offline.get('positions');
+            update(data);
+            $("#stText").text("no connection |");
+            $("#stTimer").attr("data-timestamp", data.fetch_timestamp);
+        }
     },
     complete: function(request, textStatus) {
         periodical = setTimeout(refresh, timer_seconds * 1000);
