@@ -323,6 +323,50 @@ function throttle_events(event) {
     }
 }
 
+
+function clean_refresh(text, force) {
+    force = !!force;
+
+    if(text == wvar.mode && !force) return false;
+    if(ajax_inprogress) return false;
+
+    stopAjax();
+    wvar.mode = text;
+
+    position_id = 0;
+
+    mapInfoBox.close();
+
+    // clear vehicles
+    var callsign;
+    for(callsign in vehicles) {
+        removePrediction(callsign);
+        vehicles[callsign].kill();
+    }
+
+    // clear hysplit
+    for(callsign in hysplit) {
+        hysplit[callsign].setMap(null);
+    }
+
+    car_index = 0;
+    balloon_index = 0;
+    stopFollow();
+
+    // add loading spinner in the vehicle list
+    $('#main .empty').parent().remove();
+    $("#main .portrait,#main .landscape").append(
+        '<div class="row vehicle'+elm_uuid+'"><div class="header empty">' +
+        '<img style="width:90px;height:30px" src="img/hab-spinner.gif"/></div></div>'
+    );
+    listScroll.refresh();
+
+    lhash_update();
+    refresh();
+
+    return true;
+}
+
 var tmpC;
 
 function load() {
@@ -373,56 +417,6 @@ function load() {
         customTileAttr.setText((id in maptypes) ? maptypes[id][1] : '');
     });
 
-    // initialize period menu
-    tmpC = new google.maps.DropDownControl({
-        map: map,
-        title: "Show activity for given period",
-        //position: google.maps.ControlPosition.TOP_RIGHT,
-        position: google.maps.ControlPosition.RIGHT_TOP,
-        headerPrefix: "Last: ",
-        list: modeList,
-        listDefault: modeList.indexOf(wvar.mode),
-        callback: function(text) {
-            if(text == wvar.mode) return false;
-            if(ajax_inprogress) return false;
-
-            stopAjax();
-            wvar.mode = text;
-
-            position_id = 0;
-
-            mapInfoBox.close();
-
-            // clear vehicles
-            var callsign;
-            for(callsign in vehicles) {
-                removePrediction(callsign);
-                vehicles[callsign].kill();
-            }
-
-            // clear hysplit
-            for(callsign in hysplit) {
-                hysplit[callsign].setMap(null);
-            }
-
-            car_index = 0;
-            balloon_index = 0;
-            stopFollow();
-
-            // add loading spinner in the vehicle list
-            $('#main .empty').parent().remove();
-            $("#main .portrait,#main .landscape").append(
-                '<div class="row vehicle'+elm_uuid+'"><div class="header empty">' +
-                '<img style="width:90px;height:30px" src="img/hab-spinner.gif"/></div></div>'
-            );
-            listScroll.refresh();
-
-            refresh();
-
-            return true;
-        }
-    });
-
     // update current position if we geolocation is available
     if(currentPosition) updateCurrentPosition(currentPosition.lat, currentPosition.lon);
 
@@ -449,11 +443,32 @@ function load() {
     });
 
     google.maps.event.addListener(map, 'dragstart', function() {
-        if(!wvar.enabled) manual_pan = true;
+        if(!wvar.embeded) manual_pan = true;
     });
 
     // only start population the map, once its completely loaded
     google.maps.event.addListenerOnce(map, 'idle', function(){
+        load_hash(null);
+
+        // initialize period menu
+        tmpC = new google.maps.DropDownControl({
+            map: map,
+            title: "Show activity for given period",
+            //position: google.maps.ControlPosition.TOP_RIGHT,
+            position: google.maps.ControlPosition.RIGHT_TOP,
+            headerPrefix: "Last: ",
+            list: modeList,
+            listDefault: modeList.indexOf(wvar.mode),
+            callback: clean_refresh,
+        });
+
+        google.maps.event.addListener(map, 'idle', function() {
+            lhash_update();
+        });
+        google.maps.event.addListener(map, 'maptypeid_changed', function() {
+            lhash_update();
+        });
+
         startAjax();
     });
 
@@ -693,6 +708,7 @@ function stopFollow() {
         if(follow_vehicle in vehicles) vehicles[follow_vehicle].follow = false;
         follow_vehicle = null;
         graph_vehicle = null;
+        wvar.focus = "";
 
         // clear graph
         if(plot) plot = $.plot(plot_holder, {}, plot_options);
@@ -700,15 +716,26 @@ function stopFollow() {
 
         // update lookangles box
         if(GPS_ts !== null) $("#lookanglesbox span").hide().parent().find(".nofollow").show();
+
+        lhash_update();
     }
 }
 
-function followVehicle(vcallsign) {
+function followVehicle(vcallsign, noPan, force) {
+    var should_pan = !noPan;
+    force = !!force;
+
     if(vcallsign === null) { stopFollow(); return; }
 
-	if(vehicles.hasOwnProperty(follow_vehicle)) vehicles[follow_vehicle].follow = false;
+	if(vehicles.hasOwnProperty(follow_vehicle)) {
+        vehicles[follow_vehicle].follow = false;
+    }
 
-    if(follow_vehicle != vcallsign) {
+	if(!vehicles.hasOwnProperty(vcallsign)) {
+        return;
+    }
+
+    if(follow_vehicle != vcallsign || force) {
         focusVehicle(vcallsign);
 
 		follow_vehicle = vcallsign;
@@ -721,8 +748,12 @@ function followVehicle(vcallsign) {
         updateGraph(vcallsign, true);
 	}
 
-    manual_pan = false;
-    panTo(vcallsign);
+    if(should_pan) {
+        manual_pan = false;
+        panTo(vcallsign);
+    }
+
+    lhash_update();
 }
 
 function roundNumber(number, digits) {
@@ -1694,7 +1725,7 @@ function addPosition(position) {
         $.each($.extend(plot_options.yaxes, {}), function(k,v) { vehicle_info.graph_yaxes.push(v); });
 
         // nyan mod
-        if(nyan_mode && vehicle_info.vehicle_type == "balloon") {
+        if(wvar.nyan && vehicle_info.vehicle_type == "balloon") {
             // form a nyancat
             vehicle_info.marker.setMode = function(mode) { this.mode = mode; this.setPosition(this.getPosition()); };
             vehicle_info.marker.setAltitude = function(derp) { this.setPosition(this.getPosition()); };
@@ -2095,10 +2126,18 @@ function refresh() {
 
   $("#stText").text("checking |");
 
+  if(/^[a-z0-9]{32}$/ig.exec(wvar.query)) {
+      tmpC.setVisible(false);
+      initHabitat();
+      return;
+  } else {
+      tmpC.setVisible(true);
+  }
+
   var mode = wvar.mode.toLowerCase();
   mode = (mode == "position") ? "latest" : mode.replace(/ /g,"");
 
-  var data_str = "mode="+mode+"&type=positions&format=json&max_positions=" + max_positions + "&position_id=" + position_id + "&vehicles=" + encodeURIComponent(vfilter);
+  var data_str = "mode="+mode+"&type=positions&format=json&max_positions=" + max_positions + "&position_id=" + position_id + "&vehicles=" + encodeURIComponent(wvar.query);
 
   ajax_positions = $.ajax({
     type: "GET",
@@ -2230,17 +2269,17 @@ function habitat_translation_layer(json_result, url, skip) {
     skip += habitat_max;
     var req_url = url + skip;
 
-    setTimeout(function() {
-        $.getJSON(req_url, function(response) {
+    periodical = setTimeout(function() {
+        ajax_positions = $.getJSON(req_url, function(response) {
                 habitat_translation_layer(response, url, skip);
         });
     }, 1000);
 }
 
 function initHabitat() {
-    $.ajax({
+    ajax_positions = $.ajax({
         type: "GET",
-        url: habitat_url + wvar.docid,
+        url: habitat_url + wvar.query,
         data: "",
         dataType: "json",
         success: function(response, textStatus) {
@@ -2264,11 +2303,13 @@ function initHabitat() {
                 });
             }
             else {
-                alert("docid is not a flight doc");
+                update(null);
+                $("#stText").text("docid is not a flight doc |");
             }
         },
         error: function() {
-            alert("Unable to load flight doc");
+            update(null);
+            $("#stText").text("Unable to load flight doc |");
         },
         complete: function(request, textStatus) {
         }
@@ -2285,21 +2326,14 @@ function startAjax() {
     clearTimeout(periodical_receivers);
     clearTimeout(periodical_predictions);
 
-    // the periodical starts here, the * 1000 is because milliseconds required
+    //periodical = setInterval(refresh, timer_seconds * 1000);
+    refresh();
 
-    if(wvar.docid !== "") {
-        initHabitat();
-    }
-    else {
-        //periodical = setInterval(refresh, timer_seconds * 1000);
-        refresh();
+    //periodical_listeners = setInterval(refreshReceivers, 60 * 1000);
+    refreshReceivers();
 
-        //periodical_listeners = setInterval(refreshReceivers, 60 * 1000);
-        refreshReceivers();
-
-        //periodical_predictions = setInterval(refreshPredictions, 2 * timer_seconds * 1000);
-        refreshPredictions();
-    }
+    //periodical_predictions = setInterval(refreshPredictions, 2 * timer_seconds * 1000);
+    refreshPredictions();
 }
 
 function stopAjax() {
@@ -2541,7 +2575,7 @@ function update(response) {
           if(follow_vehicle !== null && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, false);
 
           // store in localStorage
-          if(wvar.docid === "") offline.set('positions', ctx.lastPositions);
+          offline.set('positions', ctx.lastPositions);
 
           if (got_positions && !zoomed_in && Object.keys(vehicles).length) {
               zoom_on_payload();
@@ -2557,12 +2591,13 @@ function update(response) {
 function zoom_on_payload() {
 
     // find a the first balloon
-    var target = null, vcallsign = null;
+    var target = null, vcallsign = null, fallback = false;
 
     if(wvar.focus !== "" && vehicles.hasOwnProperty(wvar.focus)) {
         target = vehicles[wvar.focus];
         vcallsign = wvar.focus;
-    } else {
+    } else if(wvar.focus === "" && wvar.zoom) {
+        fallback = true;
         for(var k in vehicles) {
             if(vehicles[k].vehicle_type == "balloon") {
                 vcallsign = k;
@@ -2570,36 +2605,41 @@ function zoom_on_payload() {
                 break;
             }
         }
+    } else {
+        zoomed_in = true;
+        return;
     }
 
-    if(target) {
-        // find the bounds of the ballons first and last positions
-        var bounds = new google.maps.LatLngBounds();
-        bounds.extend(target.positions[0]);
-        bounds.extend(target.positions[target.positions.length - 1]);
+    if(fallback) {
+        if(target) {
+            // find the bounds of the ballons first and last positions
+            var bounds = new google.maps.LatLngBounds();
+            bounds.extend(target.positions[0]);
+            bounds.extend(target.positions[target.positions.length - 1]);
 
-        // fit the map to those bounds
-        map.fitBounds(bounds);
+            // fit the map to those bounds
+            map.fitBounds(bounds);
 
-        // limit the zoom level to 11
-        if(map.getZoom() > 11) map.setZoom(11);
-    }
+            // limit the zoom level to 11
+            if(map.getZoom() > 11) map.setZoom(11);
+        }
 
-    // this condition is true, when we there is no focus vehicle specified, or balloon in list
-    // we then fallback to zooming in onto the first vehicle, if there is one
-    if(target === null) {
-        var list = Object.keys(vehicles);
+        // this condition is true, when we there is no focus vehicle specified, or balloon in list
+        // we then fallback to zooming in onto the first vehicle, if there is one
+        if(target === null) {
+            var list = Object.keys(vehicles);
 
-        // if there are no vehicles, return, else zoom in on the first one
-        if(list.length === 0) return;
-        else {
-            vcallsign = list[0];
-            target = vehicles[vcallsign];
+            // if there are no vehicles, return, else zoom in on the first one
+            if(list.length === 0) return;
+            else {
+                vcallsign = list[0];
+                target = vehicles[vcallsign];
+            }
         }
     }
 
     // pan and follow the vehicle
-    followVehicle(vcallsign);
+    followVehicle(vcallsign, !wvar.zoom, true);
 
     // expand list element
     $('.vehicle'+target.uuid).addClass('active');

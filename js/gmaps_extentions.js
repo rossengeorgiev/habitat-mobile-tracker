@@ -170,6 +170,11 @@ google.maps.DropDownControl = function(options) {
     });
 };
 
+google.maps.DropDownControl.prototype.setVisible = function(isVisible) {
+    isVisible = !!isVisible;
+    this.div_.style.display = (isVisible) ? 'block' : 'none';
+};
+
 // simple status control
 
 google.maps.StatusTextControl = function(options) {
