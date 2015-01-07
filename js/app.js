@@ -29,7 +29,9 @@ function lhash_update(history_step) {
     }
 
     if(follow_vehicle === null || manual_pan) {
-        hash += "&mc=" + map.getCenter().toString().replace(/[ )(]/g,'');
+        var latlng = map.getCenter();
+        hash += "&mc=" + roundNumber(latlng.lat(), 5) +
+                "," + roundNumber(latlng.lng(), 5);
     }
 
     if(follow_vehicle !== null) {
