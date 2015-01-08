@@ -125,6 +125,7 @@ function load_hash(no_refresh) {
                 break;
             case "q":
                 def.query = v;
+                $("header .search input[type='text']").val(v);
                 break;
             case "nyan":
                 def[k] = !!parseInt(v);
@@ -1002,5 +1003,20 @@ $(window).ready(function() {
             weatherOverlayId = id;
             map.overlayMapTypes.setAt("0", weatherOverlay);
         }
+   });
+
+   $("header .search form").on('submit', function(e) {
+       e.preventDefault();
+
+       var text = $("header .search input[type='text']").val();
+
+       if(text === wvar.query) return;
+
+       wvar.query = text;
+       stopFollow();
+       zoomed_in = false;
+       wvar.zoom = true;
+
+       clean_refresh(wvar.mode, true);
    });
 });

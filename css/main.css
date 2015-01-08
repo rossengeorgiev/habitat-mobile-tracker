@@ -180,9 +180,9 @@ header {
     line-height: normal;
     margin-top: 6px;
     position: absolute;
-    left: 30px;
+    left: 225px;
     height: 40px;
-    text-align: right;
+    text-align: left;
     cursor: pointer;
 }
 header > div {
@@ -210,6 +210,29 @@ header > div {
     overflow: hidden;
 }
 
+header .search {
+    float: left;
+    width: 190px;
+    margin-top: 10px;
+}
+
+header .search form {
+    position: relative;
+}
+header .search form input {
+    position: absolute;
+    border-radius: 100px;
+}
+header .search form input[type='text'] {
+    left: 0;
+    padding-left: 10px;
+    padding-right: 35px;
+    width: 143px;
+}
+header .search form input[type='submit'] {
+    right: 0;
+}
+
 .nav {
     list-style: none outside none;
     margin: 0;
@@ -224,7 +247,7 @@ header > div {
 
 #locate-me {
     position: absolute;
-    left: 0px;
+    left: 195px;
     top: 12px;
     font-size: 25px;
     height: 25px;
@@ -599,6 +622,33 @@ header > div {
     display: none;
 }
 
+@media only screen and (max-width: 600px) {
+    #app_name {
+        left: 150px;
+    }
+    #locate-me {
+        left: 120px;
+    }
+    header .search {
+        width: 110px;
+    }
+    header .search form input[type='text'] {
+        width: 63px;
+    }
+}
+
+@media only screen and (max-width: 500px) {
+    #app_name {
+        left: 30px;
+    }
+    #locate-me {
+        left: 0px;
+    }
+    header .search {
+        display: none;
+    }
+}
+
 @media only screen and (min-width: 361px) {
     .portrait { display: none; }
     .landscape { display: block; }
@@ -693,7 +743,7 @@ header > div {
     }
     #main .data dl > dt {
         color: #000;
-        line-height: 11px;
+        l120ne-height: 11px;
         margin-top: 15px;
         font-weight: bold;
         font-size: 14px;
