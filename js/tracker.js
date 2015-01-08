@@ -4,7 +4,7 @@ var data_url = "http://spacenear.us/tracker/datanew.php";
 var receivers_url = "http://spacenear.us/tracker/receivers.php";
 var predictions_url = "http://spacenear.us/tracker/get_predictions.php";
 
-var habitat_max = 200;
+var habitat_max = 400;
 var habitat_url = "http://habitat.habhub.org/habitat/";
 var habitat_url_payload_telemetry = habitat_url + "_design/payload_telemetry/_view/payload_time?startkey=[%22{ID}%22,{START}]&endkey=[%22{ID}%22,{END}]&include_docs=true&limit=" + habitat_max + "&skip=";
 
@@ -2213,12 +2213,18 @@ function refreshPredictions() {
     });
 }
 
-function habitat_translation_layer(json_result, url, skip) {
-    if(json_result.rows === 0) return;
+function habitat_translation_layer(json_result) {
+    if(json_result.rows.length === 0) {
+        habitat_step(true);
+        return;
+    }
 
     json_result = json_result.rows;
 
     var result = {positions: { position: [] }};
+    result.fetch_timestamp = Date.now();
+    $("#stTimer").attr("data-timestamp", result.fetch_timestamp);
+
     var blacklist = {
         altitude: 1,
         date: 1,
@@ -2266,17 +2272,43 @@ function habitat_translation_layer(json_result, url, skip) {
 
     if(result.positions.position.length) update(result);
 
-    skip += habitat_max;
-    var req_url = url + skip;
-
+    // next step
     periodical = setTimeout(function() {
-        ajax_positions = $.getJSON(req_url, function(response) {
-                habitat_translation_layer(response, url, skip);
-        });
-    }, 1000);
+        habitat_step();
+    }, 500);
+}
+
+var habitat_step_data;
+
+function habitat_step(remove_current) {
+    remove_current = !!remove_current;
+
+    if(remove_current) {
+        habitat_step_data.payloads.splice(habitat_step_data.idx, 1);
+    }
+
+    if(habitat_step_data.payloads.length === 0) {
+        $("#stText").text("");
+        return;
+    }
+
+    habitat_step_data.idx += 1;
+    habitat_step_data.idx = habitat_step_data.idx % habitat_step_data.payloads.length;
+
+    var url = habitat_step_data.payloads[habitat_step_data.idx].url;
+    url += habitat_step_data.payloads[habitat_step_data.idx].skip;
+    habitat_step_data.payloads[habitat_step_data.idx].skip += habitat_max;
+
+    console.log(url);
+
+    ajax_positions = $.getJSON(url, function(response) {
+            habitat_translation_layer(response);
+    });
 }
 
 function initHabitat() {
+    $("#stText").text("loading |");
+
     ajax_positions = $.ajax({
         type: "GET",
         url: habitat_url + wvar.query,
@@ -2285,22 +2317,30 @@ function initHabitat() {
         success: function(response, textStatus) {
             if(response.type == "flight") {
                 if(response.payloads.length === 0) {
-                    alert("no payloads for that flight doc");
+                    update(null);
+                    $("#stText").text("no payloads in doc |");
                     return;
                 }
 
                 ts_start = convert_time(response.start) / 1000;
                 ts_end = convert_time(response.end) / 1000;
 
-                response.payloads.forEach( function(payload_id) {
+                habitat_step_data = {
+                    idx: 0,
+                    payloads: [],
+                };
 
+                response.payloads.forEach( function(payload_id) {
                     var url = habitat_url_payload_telemetry.replace(/\{ID\}/g, payload_id);
                     url = url.replace("{START}", ts_start).replace("{END}", ts_end);
 
-                    $.getJSON(url+0, function(response) {
-                            habitat_translation_layer(response, url, 0);
+                    habitat_step_data.payloads.push({
+                        url: url,
+                        skip: 0,
                     });
                 });
+
+                habitat_step();
             }
             else {
                 update(null);
@@ -2554,6 +2594,8 @@ function update(response) {
             // pop a callsign from the top
             var vcallsign = ctx.list.shift();
             var vehicle = vehicles[vcallsign];
+
+            if(vehicle === undefined) return;
 
             if(vehicle.updated) {
                 updatePolyline(vcallsign);
