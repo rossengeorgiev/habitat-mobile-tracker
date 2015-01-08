@@ -25,7 +25,7 @@ function lhash_update(history_step) {
     hash += "&mz=" + map.getZoom();
 
     if(!/^[a-z0-9]{32}$/ig.exec(wvar.query)) {
-        hash += "&qm=" + wvar.mode;
+        hash += "&qm=" + wvar.mode.replace(/ /g, '_');
     }
 
     if(follow_vehicle === null || manual_pan) {
@@ -123,7 +123,7 @@ function load_hash(no_refresh) {
                 def.focus = v;
                 break;
             case "qm":
-                def.mode = v;
+                def.mode = v.replace(/_/g, ' ');
                 break;
             case "q":
                 def.query = v;
