@@ -455,7 +455,7 @@ var updateTimebox = function(date) {
     f = twoZeroPad(date.getUTCMinutes());
     g = twoZeroPad(date.getUTCSeconds());
 
-    elm.find(".current").text("Current: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC");
+    elm.find(".current").text("UTC: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g);
 
     a = date.getFullYear();
     b = twoZeroPad(date.getMonth()+1); // months 0-11
@@ -465,7 +465,7 @@ var updateTimebox = function(date) {
     g = twoZeroPad(date.getSeconds());
     z = date.getTimezoneOffset() / -60;
 
-    elm.find(".local").text("Local: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC"+((z<0)?"-":"+")+z);
+    elm.find(".local").text("Local: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" "+((z<0)?"-":"+")+z);
 };
 
 var format_time_friendly = function(start, end) {

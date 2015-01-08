@@ -51,7 +51,7 @@ body {
     background-color: #fff;
     position: absolute;
     height: 28px;
-    width: 225px;
+    width: 195px;
     border-radius: 20px;
     box-shadow: 0 0 5px #888;
     font-size: 11px;
@@ -69,7 +69,7 @@ body {
 .slickbox div {
     font-size: 14px;
     margin-top: 3px;
-    width: 180px;
+    width: 150px;
     text-align: center;
 }
 
@@ -96,27 +96,27 @@ body {
     fill: #c00;
 }
 #timebox .current {
-    margin-left: 5px;
+    margin-left: 11px;
 }
 #timebox .local {
-    margin-left: 15px;
+    margin-left: 5px;
 }
 
 .slickbox .azimuth {
     margin-left: 9px;
-    width: 100;
+    width: 91px;
 }
 .slickbox .bearing {
     margin-right: 5px;
-    width: 70px;
+    width: 60px;
 }
 .slickbox .elevation {
     margin-left: 5px;
-    width: 100px;
+    width: 95px;
 }
 .slickbox .range {
     margin-right: 5px;
-    width: 70px;
+    width: 60px;
 }
 
 #mapscreen {

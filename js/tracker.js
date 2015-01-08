@@ -218,9 +218,9 @@ function update_lookangles(vcallsign) {
 
     var look = calculate_lookangles(a,b);
 
-    $("#lookanglesbox .azimuth").text("Azimuth: " + Math.round(look.azimuth * 10000)/10000 + "°");
+    $("#lookanglesbox .azimuth").text("Azimuth: " + roundNumber(look.azimuth, 2) + "°");
     $("#lookanglesbox .bearing").text(look.bearing);
-    $("#lookanglesbox .elevation").text("Elevation: " + Math.round(look.elevation * 10000)/10000 + "°");
+    $("#lookanglesbox .elevation").text("Elevation: " + roundNumber(look.elevation, 2) + "°");
 
     var range_string = "";
     if(offline.get('opt_imperial')) {
