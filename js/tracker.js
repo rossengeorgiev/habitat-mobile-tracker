@@ -871,14 +871,14 @@ function updateVehicleInfo(vcallsign, newPosition) {
   // determine how to link the vehicle coordinates to a native app, if on a mobile device
   if(ua.indexOf('iphone') > -1) {
       coords_text = '<a id="launch_mapapp" href="maps://?q='+newPosition.gps_lat+','+newPosition.gps_lon+'">' +
-                    roundNumber(newPosition.gps_lat, 6) + ', ' + roundNumber(newPosition.gps_lon, 6) +'</a>' +
+                    roundNumber(newPosition.gps_lat, 5) + ', ' + roundNumber(newPosition.gps_lon, 5) +'</a>' +
                     ' <i class="icon-location"></i>';
   } else if(ua.indexOf('android') > -1) {
       coords_text = '<a id="launch_mapapp" href="geo:'+newPosition.gps_lat+','+newPosition.gps_lon+'?q='+newPosition.gps_lat+','+newPosition.gps_lon+'('+vcallsign+')">' +
-                    roundNumber(newPosition.gps_lat, 6) + ', ' + roundNumber(newPosition.gps_lon, 6) +'</a>' +
+                    roundNumber(newPosition.gps_lat, 5) + ', ' + roundNumber(newPosition.gps_lon, 5) +'</a>' +
                     ' <i class="icon-location"></i>';
   } else {
-      coords_text = roundNumber(newPosition.gps_lat, 6) + ', ' + roundNumber(newPosition.gps_lon, 6);
+      coords_text = roundNumber(newPosition.gps_lat, 5) + ', ' + roundNumber(newPosition.gps_lon, 5);
   }
 
   // format altitude strings
@@ -1244,7 +1244,7 @@ var mapInfoBox_handle_path_fetch = function(id,vehicle) {
                 " src='"+vehicle.image_src+"' />";
         html += "<div>"+data.vehicle+"<span style='position:absolute;right:0px;'>("+data.position_id+")</span></div>";
         html += "<hr style='margin:5px 0px'>";
-        html += "<div style='margin-bottom:5px;'><b><i class='icon-location'></i>&nbsp;</b>"+roundNumber(data.gps_lat, 6) + ',&nbsp;' + roundNumber(data.gps_lon, 6)+"</div>";
+        html += "<div style='margin-bottom:5px;'><b><i class='icon-location'></i>&nbsp;</b>"+roundNumber(data.gps_lat, 5) + ',&nbsp;' + roundNumber(data.gps_lon, 5)+"</div>";
 
         var imp = offline.get('opt_imperial');
         var text_alt      = Number((imp) ? Math.floor(3.2808399 * parseInt(data.gps_alt)) : parseInt(data.gps_alt)).toLocaleString("us");
