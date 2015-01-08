@@ -351,7 +351,7 @@ function clean_refresh(text, force) {
 
     car_index = 0;
     balloon_index = 0;
-    if(!force) stopFollow();
+    stopFollow(force);
 
     // add loading spinner in the vehicle list
     $('#main .empty').parent().remove();
@@ -698,17 +698,21 @@ function focusVehicle(vcallsign, ignoreOpt) {
     }
 }
 
-function stopFollow() {
+function stopFollow(no_data_reset) {
+    no_data_reset = !!no_data_reset;
+
 	if(follow_vehicle !== null) {
-        focusVehicle(null);
+        if(!no_data_reset) {
+            focusVehicle(null);
 
-        // remove target mark
-        $("#main .row.follow").removeClass("follow");
+            // remove target mark
+            $("#main .row.follow").removeClass("follow");
 
-        if(follow_vehicle in vehicles) vehicles[follow_vehicle].follow = false;
-        follow_vehicle = null;
-        graph_vehicle = null;
-        wvar.focus = "";
+            if(follow_vehicle in vehicles) vehicles[follow_vehicle].follow = false;
+            follow_vehicle = null;
+            graph_vehicle = null;
+            wvar.focus = "";
+        }
 
         // clear graph
         if(plot) plot = $.plot(plot_holder, {}, plot_options);
@@ -2298,8 +2302,6 @@ function habitat_step(remove_current) {
     var url = habitat_step_data.payloads[habitat_step_data.idx].url;
     url += habitat_step_data.payloads[habitat_step_data.idx].skip;
     habitat_step_data.payloads[habitat_step_data.idx].skip += habitat_max;
-
-    console.log(url);
 
     ajax_positions = $.getJSON(url, function(response) {
             habitat_translation_layer(response);

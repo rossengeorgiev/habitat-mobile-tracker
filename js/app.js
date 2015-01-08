@@ -58,8 +58,6 @@ function lhash_update(history_step) {
     } else {
         document.location.hash = "!" + hash;
     }
-
-    console.log("hash:", hash);
 }
 
 // wvar detection
@@ -402,7 +400,9 @@ var positionUpdateHandle = function(position) {
             $('#cc_timestamp').text('just now');
 
             // update look angles once we get position
-            if(follow_vehicle !== null) { update_lookangles(follow_vehicle); }
+            if(follow_vehicle !== null && vehicles[follow_vehicle] !== undefined) {
+                update_lookangles(follow_vehicle);
+            }
 
             if(CHASE_enabled) {
                 ChaseCar.updatePosition(callsign, position);
