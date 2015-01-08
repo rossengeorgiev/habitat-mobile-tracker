@@ -143,7 +143,10 @@ function load_hash(no_refresh) {
 
     // force refresh
     if(!no_refresh) {
-       if(refresh) clean_refresh(wvar.mode, true);
+       if(refresh) {
+           zoomed_in = false;
+           clean_refresh(wvar.mode, true);
+       }
        else if(refocus) {
            $(".row.active").removeClass('active');
            $(".vehicle"+vehicles[wvar.focus].uuid).addClass('active');

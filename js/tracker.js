@@ -351,7 +351,7 @@ function clean_refresh(text, force) {
 
     car_index = 0;
     balloon_index = 0;
-    stopFollow();
+    if(!force) stopFollow();
 
     // add loading spinner in the vehicle list
     $('#main .empty').parent().remove();
