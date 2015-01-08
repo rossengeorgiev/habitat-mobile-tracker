@@ -180,7 +180,7 @@ header {
     line-height: normal;
     margin-top: 6px;
     position: absolute;
-    right: 30px;
+    left: 30px;
     height: 40px;
     text-align: right;
     cursor: pointer;
@@ -218,13 +218,13 @@ header > div {
     display: block;
     min-width: 40px;
     width: auto;
-    float: left;
+    float: right;
     margin: 5px 0px;
 }
 
 #locate-me {
     position: absolute;
-    right: 0px;
+    left: 0px;
     top: 12px;
     font-size: 25px;
     height: 25px;
@@ -713,7 +713,7 @@ header > div {
         display: none;
     }
     #app_name {
-        right: 0px;
+        left: 0px;
     }
 }
 
