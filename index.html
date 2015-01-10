@@ -35,7 +35,13 @@
 
     <header style="display: none">
         <div class="container">
-            <ol class="nav">
+            <div class="search">
+                <form>
+                    <input type='text' value="" />
+                    <input type='submit' value="S" />
+                </form>
+            </div>
+            <ol class="nav noselect">
                 <li class="home"><i class="icon-habhub"></i></li>
                 <li class="chasecar" style="display: none"><i class="icon-car"></i></li>
                 <li class="settings"><i class="icon-settings"></i></li>
@@ -52,7 +58,7 @@
                 <li class="about last"><i class="icon-question"></i></li>
             </ol>
             <span id="locate-me" style="display: none"><i class="icon-target"></i></span>
-            <span id="app_name"><b>mobile<br/>tracker</b></span>
+            <span id="app_name"><b>no<br/>location</b></span>
         </div>
     </header>
 
@@ -262,7 +268,7 @@
             <svg width="40" height="40" viewbox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" version="1.1" version="1.1" class="lfloat">
                   <path d="M99.812,43.188c-2.77,0-5,2.032-5,4.562v40.875c-4.315,1.97-7.312,6.321-7.312,11.375,0,6.9,5.596,12.5,12.5,12.5,1.05,0,2.06-0.16,3.03-0.41l23.35,23.35c2.23,2.24,5.93,2.13,8.28-0.22s2.42-6.04,0.18-8.28l-23-23c0.42-1.24,0.66-2.56,0.66-3.94,0-5.202-3.17-9.68-7.69-11.562v-40.688c0-2.53-2.23-4.562-4.998-4.562zm-5.906-23c0.031-0.003,0.063,0.002,0.094,0v14.374c0,0.236,0.202,0.438,0.438,0.438h11.122c0.24,0,0.44-0.202,0.44-0.438v-14.343c39.4,2.921,70.86,34.381,73.78,73.781h-14.34c-0.24,0-0.44,0.171-0.44,0.406v11.154c0,0.24,0.2,0.44,0.44,0.44h14.34c-2.92,39.4-34.38,70.86-73.78,73.78v-14.37c0-0.24-0.2-0.41-0.44-0.41h-11.122c-0.236,0-0.438,0.17-0.438,0.41v14.37c-39.4-2.92-70.86-34.38-73.781-73.78h14.343c0.236,0,0.438-0.2,0.438-0.44v-11.154c0-0.235-0.202-0.406-0.438-0.406h-14.343c2.918-39.372,34.33-70.848,73.687-73.812zm6.094-10.188c-49.706,0-90,40.294-90,90,0,49.71,40.294,90,90,90,49.71,0,90-40.29,90-90,0-49.706-40.29-90-90-90zm0-10c55.23,0,100,44.772,100,100,0,55.23-44.77,100-100,100-55.228,0-100-44.77-100-100,0-55.228,44.772-100,100-100z"></path>
             </svg>
-            <span class="current lfloat">Current: ???</span>
+            <span class="current lfloat">UTC: ???</span>
             <span class="local lfloat">Local: ???</span>
         </div>
 

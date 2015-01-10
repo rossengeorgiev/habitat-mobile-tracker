@@ -20,6 +20,15 @@ body {
     font-family: "Roboto", Ariel, sans-serif;
 }
 
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 .rfloat {
     float: right;
 }
@@ -51,7 +60,7 @@ body {
     background-color: #fff;
     position: absolute;
     height: 28px;
-    width: 225px;
+    width: 195px;
     border-radius: 20px;
     box-shadow: 0 0 5px #888;
     font-size: 11px;
@@ -69,7 +78,7 @@ body {
 .slickbox div {
     font-size: 14px;
     margin-top: 3px;
-    width: 180px;
+    width: 150px;
     text-align: center;
 }
 
@@ -96,27 +105,27 @@ body {
     fill: #c00;
 }
 #timebox .current {
-    margin-left: 5px;
+    margin-left: 11px;
 }
 #timebox .local {
-    margin-left: 15px;
+    margin-left: 5px;
 }
 
 .slickbox .azimuth {
     margin-left: 9px;
-    width: 100;
+    width: 91px;
 }
 .slickbox .bearing {
     margin-right: 5px;
-    width: 70px;
+    width: 60px;
 }
 .slickbox .elevation {
     margin-left: 5px;
-    width: 100px;
+    width: 95px;
 }
 .slickbox .range {
     margin-right: 5px;
-    width: 70px;
+    width: 60px;
 }
 
 #mapscreen {
@@ -180,9 +189,9 @@ header {
     line-height: normal;
     margin-top: 6px;
     position: absolute;
-    right: 30px;
+    left: 225px;
     height: 40px;
-    text-align: right;
+    text-align: left;
     cursor: pointer;
 }
 header > div {
@@ -210,6 +219,29 @@ header > div {
     overflow: hidden;
 }
 
+header .search {
+    float: left;
+    width: 190px;
+    margin-top: 10px;
+}
+
+header .search form {
+    position: relative;
+}
+header .search form input {
+    position: absolute;
+    border-radius: 100px;
+}
+header .search form input[type='text'] {
+    left: 0;
+    padding-left: 10px;
+    padding-right: 35px;
+    width: 143px;
+}
+header .search form input[type='submit'] {
+    right: 0;
+}
+
 .nav {
     list-style: none outside none;
     margin: 0;
@@ -218,13 +250,13 @@ header > div {
     display: block;
     min-width: 40px;
     width: auto;
-    float: left;
+    float: right;
     margin: 5px 0px;
 }
 
 #locate-me {
     position: absolute;
-    right: 0px;
+    left: 195px;
     top: 12px;
     font-size: 25px;
     height: 25px;
@@ -599,6 +631,39 @@ header > div {
     display: none;
 }
 
+@media only screen and (min-width: 900px) {
+    .nav .home {
+        display: none;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    #app_name {
+        left: 150px;
+    }
+    #locate-me {
+        left: 120px;
+    }
+    header .search {
+        width: 110px;
+    }
+    header .search form input[type='text'] {
+        width: 63px;
+    }
+}
+
+@media only screen and (max-width: 500px) {
+    #app_name {
+        left: 30px;
+    }
+    #locate-me {
+        left: 0px;
+    }
+    header .search {
+        display: none;
+    }
+}
+
 @media only screen and (min-width: 361px) {
     .portrait { display: none; }
     .landscape { display: block; }
@@ -693,7 +758,7 @@ header > div {
     }
     #main .data dl > dt {
         color: #000;
-        line-height: 11px;
+        l120ne-height: 11px;
         margin-top: 15px;
         font-weight: bold;
         font-size: 14px;
@@ -713,7 +778,7 @@ header > div {
         display: none;
     }
     #app_name {
-        right: 0px;
+        left: 0px;
     }
 }
 

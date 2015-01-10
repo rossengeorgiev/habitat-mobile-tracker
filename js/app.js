@@ -11,19 +11,150 @@ if(
  navigator.userAgent.match(/BlackBerry/i)
  ) is_mobile = true;
 
-// wvar detection
-var vfilter = "";
-var nyan_mode = false;
+// hash url
+var history_supported = (typeof history !== 'undefined');
 
+function lhash_update(history_step) {
+    history_step = !!history_step;
+
+    var url = document.location.href.split("#",1)[0];
+    var hash = "";
+
+    // generate hash
+    hash += "mt=" + map.getMapTypeId();
+    hash += "&mz=" + map.getZoom();
+
+    if(!/^[a-z0-9]{32}$/ig.exec(wvar.query)) {
+        hash += "&qm=" + wvar.mode.replace(/ /g, '_');
+    }
+
+    if(follow_vehicle === null || manual_pan) {
+        var latlng = map.getCenter();
+        hash += "&mc=" + roundNumber(latlng.lat(), 5) +
+                "," + roundNumber(latlng.lng(), 5);
+    }
+
+    if(follow_vehicle !== null) {
+        hash += "&f=" + follow_vehicle;
+    }
+
+    if(wvar.query !== "") {
+        hash += "&q=" + wvar.query;
+    }
+
+    // other vars
+    if(wvar.nyan) {
+        hash += "&nyan=1";
+    }
+
+    hash = encodeURI(hash);
+    // set state
+    if(history_supported) {
+        if(!history_step) {
+            history.replaceState(null, null, url + "#!" + hash);
+        } else {
+            history.pushState(null, null, url + "#!" + hash);
+        }
+    } else {
+        document.location.hash = "!" + hash;
+    }
+}
+
+// wvar detection
 var wvar = {
     enabled: false,
     vlist: true,
     graph: true,
     graph_exapnded: false,
     focus: "",
-    docid: "",
     mode: (is_mobile) ? modeDefaultMobile : modeDefault,
+    zoom: true,
+    query: "",
+    nyan: false,
 };
+
+
+function load_hash(no_refresh) {
+    no_refresh = (no_refresh === null);
+    var hash = window.location.hash.slice(2);
+
+    if(hash === "") return;
+
+    var parms = hash.split('&');
+    var refresh = false;
+    var refocus = false;
+
+    // defaults
+    manual_pan = false;
+
+    var def = {
+        mode: wvar.mode,
+        zoom: true,
+        focus: "",
+        query: "",
+        nyan: false,
+    };
+
+    parms.forEach(function(v) {
+        v = v.split('=');
+        k = v[0];
+        v = decodeURIComponent(v[1]);
+
+        switch(k) {
+            case "mt":
+                map.setMapTypeId(v);
+                break;
+            case "mz":
+                map.setZoom(parseInt(v));
+                break;
+            case "mc":
+                def.zoom = false;
+                manual_pan = true;
+                v = v.split(',');
+                var latlng = new google.maps.LatLng(v[0], v[1]);
+                map.setCenter(latlng);
+                break;
+            case "f":
+                refocus = (follow_vehicle != v);
+                follow_vehicle = v;
+                def.focus = v;
+                break;
+            case "qm":
+                def.mode = v.replace(/_/g, ' ');
+                break;
+            case "q":
+                def.query = v;
+                $("header .search input[type='text']").val(v);
+                break;
+            case "nyan":
+                def[k] = !!parseInt(v);
+                break;
+        }
+    });
+
+    // check if we should force refresh
+    ['mode','query','nyan'].forEach(function(k) {
+        if(wvar[k] != def[k]) refresh = true;
+    });
+
+    $.extend(true, wvar, def);
+
+    // force refresh
+    if(!no_refresh) {
+       if(refresh) {
+           zoomed_in = false;
+           clean_refresh(wvar.mode, true);
+       }
+       else if(refocus) {
+           $(".row.active").removeClass('active');
+           $(".vehicle"+vehicles[wvar.focus].uuid).addClass('active');
+           followVehicle(wvar.focus, manual_pan, true);
+       }
+    }
+
+    lhash_update();
+}
+window.onhashchange = load_hash;
 
 var params = window.location.search.substring(1).split('&');
 
@@ -41,8 +172,8 @@ for(var idx in params) {
         case "hidelist": if(line[1] == "1") wvar.vlist = false; break;
         case "hidegraph": if(line[1] == "1") wvar.graph = false; break;
         case "expandgraph": if(line[1] == "1") wvar.graph_expanded = true; break;
-        case "filter": vfilter = decodeURIComponent(line[1]); break;
-        case "nyan": nyan_mode = true; break;
+        case "filter": wvar.query = decodeURIComponent(line[1]); break;
+        case "nyan": wvar.nyan = true; break;
         case "focus": wvar.focus = decodeURIComponent(line[1]); break;
         case "docid": wvar.docid = line[1]; break;
         case "mode": wvar.mode = decodeURIComponent(line[1]); break;
@@ -269,7 +400,9 @@ var positionUpdateHandle = function(position) {
             $('#cc_timestamp').text('just now');
 
             // update look angles once we get position
-            if(follow_vehicle !== null) { update_lookangles(follow_vehicle); }
+            if(follow_vehicle !== null && vehicles[follow_vehicle] !== undefined) {
+                update_lookangles(follow_vehicle);
+            }
 
             if(CHASE_enabled) {
                 ChaseCar.updatePosition(callsign, position);
@@ -325,7 +458,7 @@ var updateTimebox = function(date) {
     f = twoZeroPad(date.getUTCMinutes());
     g = twoZeroPad(date.getUTCSeconds());
 
-    elm.find(".current").text("Current: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC");
+    elm.find(".current").text("UTC: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g);
 
     a = date.getFullYear();
     b = twoZeroPad(date.getMonth()+1); // months 0-11
@@ -335,7 +468,7 @@ var updateTimebox = function(date) {
     g = twoZeroPad(date.getSeconds());
     z = date.getTimezoneOffset() / -60;
 
-    elm.find(".local").text("Local: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" UTC"+((z<0)?"-":"+")+z);
+    elm.find(".local").text("Local: "+a+'-'+b+'-'+c+' '+e+':'+f+':'+g+" "+((z<0)?"-":"+")+z);
 };
 
 var format_time_friendly = function(start, end) {
@@ -869,5 +1002,20 @@ $(window).ready(function() {
             weatherOverlayId = id;
             map.overlayMapTypes.setAt("0", weatherOverlay);
         }
+   });
+
+   $("header .search form").on('submit', function(e) {
+       e.preventDefault();
+
+       var text = $("header .search input[type='text']").val();
+
+       if(text === wvar.query) return;
+
+       wvar.query = text;
+       stopFollow();
+       zoomed_in = false;
+       wvar.zoom = true;
+
+       clean_refresh(wvar.mode, true);
    });
 });
