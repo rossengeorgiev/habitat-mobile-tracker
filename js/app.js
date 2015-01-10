@@ -76,7 +76,6 @@ var wvar = {
 
 function load_hash(no_refresh) {
     no_refresh = (no_refresh === null);
-    console.log("hash load");
     var hash = window.location.hash.slice(2);
 
     if(hash === "") return;
