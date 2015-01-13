@@ -331,7 +331,12 @@ function clean_refresh(text, force) {
     if(ajax_inprogress) return false;
 
     stopAjax();
+
+    // reset mode if, invalid mode is specified
+    if(modeList.indexOf(text) == -1) text = (is_mobile) ? modeDefaultMobile : modeDefault;
+
     wvar.mode = text;
+    tmpC.select(text);
 
     position_id = 0;
 
@@ -1916,7 +1921,7 @@ function updateGraph(vcallsign, reset_selection) {
         updateTimebox(new Date());
     }
 
-    if(vcallsign === null) return;
+    if(vcallsign === null || !vehicles.hasOwnProperty(vcallsign)) return;
 
     var series = vehicles[vcallsign].graph_data;
 
@@ -1924,12 +1929,14 @@ function updateGraph(vcallsign, reset_selection) {
     // and the dataset is too large, we set an initial selection of the last 7 days
     if(!plot_options.hasOwnProperty('xaxis')) {
         if(series.length && series[0].data.length > 4001) {
-            var end = series[0].data.length - 1;
+            var last = series[0].data.length - 1;
+            var end_a = series[0].data[last][0];
+            var end_b = (series[1].data.length) ? series[1].data[series[1].data.length - 1][0] : 0;
 
             plot_options.xaxis = {
                 superzoom: 1,
-                min: series[0].data[end-4000][0],
-                max: series[0].data[end][0],
+                min: series[0].data[last-4000][0],
+                max: Math.max(end_a, end_b),
             };
 
         }
@@ -2638,7 +2645,9 @@ function update(response) {
         end: function(ctx) {
 
           // update graph is current vehicles is followed
-          if(follow_vehicle !== null && vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, false);
+          if(follow_vehicle !== null &&
+             vehicles.hasOwnProperty(follow_vehicle) &&
+             vehicles[follow_vehicle].graph_data_updated) updateGraph(follow_vehicle, false);
 
           // store in localStorage
           offline.set('positions', ctx.lastPositions);

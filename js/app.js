@@ -121,6 +121,7 @@ function load_hash(no_refresh) {
                 break;
             case "qm":
                 def.mode = v.replace(/_/g, ' ');
+                if(modeList.indexOf(def.mode) == -1) def.mode = (is_mobile) ? modeDefaultMobile : modeDefault;
                 break;
             case "q":
                 def.query = v;
@@ -1011,11 +1012,14 @@ $(window).ready(function() {
 
        if(text === wvar.query) return;
 
+       // when running an empty search, it's probably best to reset the query mode
+
        wvar.query = text;
        stopFollow();
        zoomed_in = false;
        wvar.zoom = true;
 
+       if(text === "") { wvar.mode = null; }
        clean_refresh(wvar.mode, true);
    });
 });
