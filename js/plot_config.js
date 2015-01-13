@@ -12,7 +12,8 @@ function updateLegend(pos) {
     });
 
 
-    var i, j, ij, dataset = plot.getData();
+    var i, j, ij, pij, dataset = plot.getData();
+    var outside = false;
     //var axes = plot.getAxes();
 
     if(dataset.length === 0) return;
@@ -22,33 +23,46 @@ function updateLegend(pos) {
     //
     // here we don't snap to existing data point
     for (i = 0; i < dataset.length; ++i) {
-
         var series = dataset[i];
+        var y;
+        y = null;
 
         // Find the nearest points, x-wise
 
-        for (j = 0; j < series.data.length; ++j) {
-            if (series.data[j][0] > pos.x) {
-                break;
-            }
+        if(series.data.length < 2 ||
+           (i===1 && series.data[0][0] > pos.x)) {
+            y = null;
         }
-        if(i === 0) ij = j;
-
-        var y;
-        if(series.noInterpolate > 0) { y = series.data[((j===0)?j:j-1)][1]; }
+        else if (i !== 1 && pos.x > series.data[series.data.length-1][0]) {
+            outside = true;
+        }
         else {
-            var p1 = (j===0) ? null : series.data[j-1];
-                p2 = series.data[j];
-
-            if (p1 === null) {
-                y = p2[1];
-            } else if (p2 === null) {
-                y = p1[1];
-            } else {
-                y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
+            for (j = 0; j < series.data.length; ++j) {
+                if (series.data[j][0] > pos.x) {
+                    break;
+                }
             }
 
-            y = ((p1 && p1[1] === null) || (p2 && p2[1] === null)) ? null : y.toFixed(2);
+            if(i === 0) ij = j;
+            if(i === 1) {
+                pij = (j >= series.data.length) ? j-1 : j;
+            }
+
+            if(series.noInterpolate === true) { y = series.data[((j===0)?j:j-1)][1]; }
+            else {
+                var p1 = (j===0) ? null : series.data[j-1];
+                    p2 = series.data[j];
+
+                if (p1 === null) {
+                    y = p2[1];
+                } else if (p2 === null || p2 === undefined) {
+                    y = p1[1];
+                } else {
+                    y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
+                }
+
+                y = ((p1 && p1[1] === null) || (p2 && p2[1] === null)) ? null : y.toFixed(2);
+            }
         }
         legend.eq(i).text(series.label.replace(/=.*/, "= " + y));
     }
@@ -72,21 +86,27 @@ function updateLegend(pos) {
     if(follow_vehicle !== null && vehicles[follow_vehicle].positions.length) {
         // adjust index for null data points
         var null_count = 0;
-        var data_ref = vehicles[follow_vehicle].graph_data[0];
 
-        if(ij > data_ref.data.length / 2) {
-            for(i = data_ref.data.length - 1; i > ij; i--) null_count += (data_ref.data[i][1] === null) ? 1 : 0;
-            null_count = data_ref.nulls - null_count * 2;
-        } else {
-            for(i = 0; i < ij; i++) null_count += (data_ref.data[i][1] === null) ? 1 : 0;
-            null_count *= 2;
+        if(outside && pij !== undefined) {
+            polyMarker.setPosition(vehicles[follow_vehicle].prediction_polyline.getPath().getArray()[pij]);
         }
+        else {
+            var data_ref = vehicles[follow_vehicle].graph_data[0];
 
-        // update position
-        ij -= null_count + ((null_count===0||null_count===data_ref.nulls) ? 0 : 1);
-        if(ij < 0) ij = 0;
+            if(ij > data_ref.data.length / 2) {
+                for(i = data_ref.data.length - 1; i > ij; i--) null_count += (data_ref.data[i][1] === null) ? 1 : 0;
+                null_count = data_ref.nulls - null_count * 2;
+            } else {
+                for(i = 0; i < ij; i++) null_count += (data_ref.data[i][1] === null) ? 1 : 0;
+                null_count *= 2;
+            }
 
-        polyMarker.setPosition(vehicles[follow_vehicle].positions[ij]);
+            // update position
+            ij -= null_count + ((null_count===0||null_count===data_ref.nulls) ? 0 : 1);
+            if(ij < 0) ij = 0;
+
+            polyMarker.setPosition(vehicles[follow_vehicle].positions[ij]);
+        }
 
         // adjust nite overlay
         var date = new Date(pos.x1);

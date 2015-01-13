@@ -983,6 +983,7 @@ function redrawPrediction(vcallsign) {
 	if(data.warnings || data.errors) return;
 
     var line = [];
+    var graph_data = [];
     var latlng = null;
     var max_alt = -99999;
     var latlng_burst = null;
@@ -992,6 +993,7 @@ function redrawPrediction(vcallsign) {
     for(var i = 0, ii = data.length; i < ii; i++) {
         latlng = new google.maps.LatLng(data[i].lat, data[i].lon);
         line.push(latlng);
+        graph_data.push([parseInt(data[i].time)*1000, parseInt(data[i].alt)]);
 
         if(parseFloat(data[i].alt) > max_alt) {
             max_alt = parseFloat(data[i].alt);
@@ -1001,7 +1003,11 @@ function redrawPrediction(vcallsign) {
         if(i > 1) path_length += google.maps.geometry.spherical.computeDistanceBetween(line[i-1], line[i]);
     }
 
-    if(typeof vehicle.prediction_polyline !== 'undefined') {
+    vehicle.graph_data[1].data = graph_data;
+    updateGraph(vcallsign, true);
+    vehicle.prediction_path = line;
+
+    if(vehicle.prediction_polyline !== null) {
         vehicle.prediction_polyline.setPath(line);
     } else {
         vehicle.prediction_polyline = new google.maps.Polyline({
@@ -1710,13 +1716,14 @@ function addPosition(position) {
                                 }),
                             ],
                             prediction: null,
+                            prediction_polyline: null,
+                            prediction_traget: null,
+                            prediction_burst: null,
                             ascent_rate: 0.0,
                             horizontal_rate: 0.0,
                             max_alt: parseFloat(position.gps_alt),
                             follow: false,
                             color_index: color_index,
-                            prediction_traget: null,
-                            prediction_burst: null,
                             graph_data_updated: false,
                             graph_data_map: {},
                             graph_data: [],
@@ -1990,6 +1997,8 @@ function graphAddPosition(vcallsign, new_data) {
                 else if (xref[i][1] !== null && xref[i][0] + gap_size < ts) {
                     // pad with previous datum
                     $.each(data, function(k,v) {
+                        if(k==1) return; // skip prediction series
+
                         v.data.splice(i+1, 0, [xref[i][0]+pad_size, v.data[i][1]], [xref[i][0]+pad_size+1, null]);
                         v.nulls += 2;
                     });
@@ -2009,6 +2018,8 @@ function graphAddPosition(vcallsign, new_data) {
             //insert gap when there are 3mins, or more, without telemetry
             if(ts_last + gap_size < ts) {
                 $.each(data, function(k,v) {
+                    if(k==1) return; // skip prediction series
+
                     v.data.push([ts_last+pad_size, v.data[ts_last_idx][1]]);
                     v.data.push([ts_last+pad_size+1, null]);
                     v.nulls += 2;
@@ -2027,6 +2038,17 @@ function graphAddPosition(vcallsign, new_data) {
                     color: '#33B5E5',
                     yaxis: i+1,
                     lines: { show:true, fill: true, fillColor: "rgba(51, 181, 229, 0.1)" },
+                    nulls: 0,
+                    data: []
+                  };
+
+        i += 1;
+
+        data[i] = {
+                    label: "pred.alt. = 0",
+                    color: '#999999',
+                    yaxis: i+1,
+                    lines: { show:true, fill: false, },
                     nulls: 0,
                     data: []
                   };
@@ -2052,7 +2074,7 @@ function graphAddPosition(vcallsign, new_data) {
 
             i = (k in vehicle.graph_data_map) ? vehicle.graph_data_map[k] : data.length;
 
-            if(i >= 8) return;  // up to 8 seperate data plots only
+            if(i >= 8) return;  // up to 7 seperate data plots only, 1 taken by alt, 1 by prediction
 
             if(data[i] === undefined) {
                 // configure series
