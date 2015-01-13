@@ -331,7 +331,12 @@ function clean_refresh(text, force) {
     if(ajax_inprogress) return false;
 
     stopAjax();
+
+    // reset mode if, invalid mode is specified
+    if(modeList.indexOf(text) == -1) text = (is_mobile) ? modeDefaultMobile : modeDefault;
+
     wvar.mode = text;
+    tmpC.select(text);
 
     position_id = 0;
 

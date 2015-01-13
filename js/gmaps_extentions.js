@@ -175,6 +175,10 @@ google.maps.DropDownControl.prototype.setVisible = function(isVisible) {
     this.div_.style.display = (isVisible) ? 'block' : 'none';
 };
 
+google.maps.DropDownControl.prototype.select = function(text) {
+    this.header.innerHTML = (this.options.headerPrefix || "") + text;
+};
+
 // simple status control
 
 google.maps.StatusTextControl = function(options) {
