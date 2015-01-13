@@ -681,6 +681,51 @@ function updateZoom() {
     }
 }
 
+var los_polylines = [];
+
+function drawLOSPaths(vcallsign) {
+    los_polylines.forEach(function(polyline) {
+        polyline.setMap(null);
+    });
+    los_polylines = [];
+
+    if(offline.get('opt_hide_receivers')) return;
+
+    var vehicle = vehicles[vcallsign];
+
+    if(vehicle === undefined || vehicle.vehicle_type !== "balloon") return;
+
+    var callsigns = vehicle.curr_position.callsign.split(',');
+
+    callsigns.forEach(function(callsign) {
+        callsign = callsign.trim(' ');
+
+        var r_index = receiver_names.indexOf(callsign);
+
+        if(r_index === -1) return;
+
+        var path = [
+            vehicle.marker_shadow.getPosition(),
+            receivers[r_index].marker.getPosition(),
+        ];
+
+        var p = new google.maps.Polyline({
+            map: map,
+            path: path,
+            zIndex: Z_PATH,
+            strokeColor: '#0F0',
+            strokeOpacity: 0.8,
+            strokeWeight: 3,
+            clickable: true,
+            draggable: false,
+            geodesic: true
+        });
+        p.path_length = google.maps.geometry.spherical.computeDistanceBetween(path[0], path[1]);
+        los_polylines.push(p);
+        google.maps.event.addListener(p, 'click', mapInfoBox_handle_prediction_path);
+    });
+}
+
 function focusVehicle(vcallsign, ignoreOpt) {
     if(!offline.get('opt_hilight_vehicle') && ignoreOpt === undefined) return;
 
@@ -723,6 +768,9 @@ function stopFollow(no_data_reset) {
         if(plot) plot = $.plot(plot_holder, {}, plot_options);
         updateGraph(null, true);
 
+        // clear LOS lines
+        drawLOSPaths(null);
+
         // update lookangles box
         if(GPS_ts !== null) $("#lookanglesbox span").hide().parent().find(".nofollow").show();
 
@@ -755,6 +803,7 @@ function followVehicle(vcallsign, noPan, force) {
         $("#main .vehicle"+vehicles[vcallsign].uuid).addClass("follow");
 
         updateGraph(vcallsign, true);
+        drawLOSPaths(vcallsign);
 	}
 
     if(should_pan) {
@@ -2521,6 +2570,8 @@ function updateReceivers(r) {
             receiver_names.splice(i,1);
         }
     }
+
+    if(follow_vehicle !== null) drawLOSPaths(follow_vehicle);
 }
 
 function updatePredictions(r) {
@@ -2637,6 +2688,7 @@ function update(response) {
 
                 if(listScroll) listScroll.refresh();
                 if(zoomed_in && follow_vehicle == vcallsign && !manual_pan) panTo(follow_vehicle);
+                if(follow_vehicle == vcallsign) drawLOSPaths(vcallsign);
             }
 
             // step to the next callsign
