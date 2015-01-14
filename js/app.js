@@ -314,7 +314,7 @@ function checkSize() {
         $('#main').width(sw);
     } else { // portrait mode
         //if(h < 420) h = 420;
-        var mh = (wvar.vlist) ? 180 : 0;
+        var mh = (wvar.vlist) ? 150 : 0;
 
         $('body,#loading').height(h);
         $('#map,#mapscreen').height(h-hh-5-mh);
