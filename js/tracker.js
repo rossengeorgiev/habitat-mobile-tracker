@@ -978,7 +978,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '</div>' + // left
            '<div class="right">' +
            '<dl>' +
-           ((vehicle.vehicle_type == "car") ? '' : '<dt>'+ascent_text+' '+hrate_text+'</dt><dd>rate v|h</dd>') +
+           ((vehicle.vehicle_type == "car") ? '' : '<dt>'+ascent_text+'<br/>'+hrate_text+'</dt><dd>rate v|h</dd>') +
            '<dt>'+text_alt+'</dt><dd>altitude</dd>' +
            '<dt>'+text_alt_max+'</dt><dd>max alt</dd>' +
            '';
