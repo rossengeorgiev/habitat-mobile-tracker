@@ -758,7 +758,7 @@ header .search form input[type='submit'] {
     }
     #main .data dl > dt {
         color: #000;
-        l120ne-height: 11px;
+        line-height: 11px;
         margin-top: 15px;
         font-weight: bold;
         font-size: 14px;
