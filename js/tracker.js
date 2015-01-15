@@ -1787,7 +1787,7 @@ function addPosition(position) {
                             };
 
         // deep copy yaxes config for graph
-        $.each($.extend(plot_options.yaxes, {}), function(k,v) { vehicle_info.graph_yaxes.push(v); });
+        plot_options.yaxes.forEach(function(v) { vehicle_info.graph_yaxes.push($.extend({}, v)); });
 
         // nyan mod
         if(wvar.nyan && vehicle_info.vehicle_type == "balloon") {
@@ -2098,6 +2098,7 @@ function graphAddPosition(vcallsign, new_data) {
                     data: []
                   };
 
+        vehicle.graph_yaxes[i].max = 0;
         i += 1;
 
         data[i] = {
@@ -2109,9 +2110,19 @@ function graphAddPosition(vcallsign, new_data) {
                     data: []
                   };
 
+        vehicle.graph_yaxes[i].max = 0;
     }
 
-    if(parseInt(new_data.gps_alt) < 0) delete vehicle.graph_yaxes[i].min;
+    // set yrange for altitude and pred.alt, so they are aligned
+    if(parseInt(new_data.gps_alt) < vehicle.graph_yaxes[0].min) {
+        vehicle.graph_yaxes[0].min = parseInt(new_data.gps_alt);
+        vehicle.graph_yaxes[1].min = vehicle.graph_yaxes[0].min;
+    }
+
+    if(parseInt(new_data.gps_alt) > vehicle.graph_yaxes[0].max) {
+        vehicle.graph_yaxes[0].max = parseInt(new_data.gps_alt);
+        vehicle.graph_yaxes[1].max = vehicle.graph_yaxes[0].max;
+    }
 
     // we don't record extra data, if there is no telemetry graph loaded
     // altitude is used for altitude profile
