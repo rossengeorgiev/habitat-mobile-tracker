@@ -368,6 +368,7 @@ function clean_refresh(text, force) {
 
     lhash_update();
     refresh();
+    refreshPredictions();
 
     return true;
 }
@@ -2286,10 +2287,13 @@ function refreshReceivers() {
     });
 }
 
+var ajax_predictions = null;
+
 function refreshPredictions() {
     //if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'ajax', 'refresh', 'Predictions']);
+    clearTimeout(periodical_predictions);
 
-    $.ajax({
+    ajax_predictions = $.ajax({
         type: "GET",
         url: predictions_url,
         data: "",
@@ -2301,6 +2305,7 @@ function refreshPredictions() {
         error: function() {
         },
         complete: function(request, textStatus) {
+            clearTimeout(periodical_predictions);
             periodical_predictions = setTimeout(refreshPredictions, 60 * 1000);
         }
     });
@@ -2471,6 +2476,9 @@ function stopAjax() {
     // stop our timed ajax
     clearTimeout(periodical);
     if(ajax_positions) ajax_positions.abort();
+
+    clearTimeout(periodical_predictions);
+    if(ajax_predictions) ajax_predictions.abort();
 }
 
 var currentPosition = null;
