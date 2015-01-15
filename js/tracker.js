@@ -86,8 +86,8 @@ var plot_options = {
         mode: "x"
     },
     yaxes: [
-        {show: false, min: 0 },
-        {show: false, min: 0 },
+        {show: false, min: 0, max: 0},
+        {show: false, min: 0, max: 0},
         {show: false, min: 0 },
         {show: false, min: 0 },
         {show: false, min: 0 },
@@ -1048,7 +1048,15 @@ function redrawPrediction(vcallsign) {
     for(var i = 0, ii = data.length; i < ii; i++) {
         latlng = new google.maps.LatLng(data[i].lat, data[i].lon);
         line.push(latlng);
-        graph_data.push([parseInt(data[i].time)*1000, parseInt(data[i].alt)]);
+
+        // pred.alt for graph
+        var alt = parseInt(data[i].alt);
+        graph_data.push([parseInt(data[i].time)*1000, alt]);
+        // adjust y-range
+        if(alt > vehicle.graph_yaxes[0].max) {
+            vehicle.graph_yaxes[0].max = alt;
+            vehicle.graph_yaxes[1].max = vehicle.graph_yaxes[0].max;
+        }
 
         if(parseFloat(data[i].alt) > max_alt) {
             max_alt = parseFloat(data[i].alt);
