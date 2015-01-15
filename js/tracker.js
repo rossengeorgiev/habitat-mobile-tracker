@@ -2,7 +2,7 @@ var mission_id = 0;
 var position_id = 0;
 var data_url = "http://spacenear.us/tracker/datanew.php";
 var receivers_url = "http://spacenear.us/tracker/receivers.php";
-var predictions_url = "http://spacenear.us/tracker/get_predictions.php";
+var predictions_url = "http://spacenear.us/tracker/get_predictions.php?vehicles=";
 
 var habitat_max = 400;
 var habitat_url = "http://habitat.habhub.org/habitat/";
@@ -36,7 +36,7 @@ var layer_clouds = null;
 var notamOverlay = null;
 
 var modeList = [
-    "Position",
+//    "Position",
     "1 hour",
     "3 hours",
     "6 hours",
@@ -368,6 +368,7 @@ function clean_refresh(text, force) {
 
     lhash_update();
     refresh();
+    refreshPredictions();
 
     return true;
 }
@@ -1787,7 +1788,7 @@ function addPosition(position) {
                             };
 
         // deep copy yaxes config for graph
-        $.each($.extend(plot_options.yaxes, {}), function(k,v) { vehicle_info.graph_yaxes.push(v); });
+        plot_options.yaxes.forEach(function(v) { vehicle_info.graph_yaxes.push($.extend({}, v)); });
 
         // nyan mod
         if(wvar.nyan && vehicle_info.vehicle_type == "balloon") {
@@ -2098,6 +2099,7 @@ function graphAddPosition(vcallsign, new_data) {
                     data: []
                   };
 
+        vehicle.graph_yaxes[i].max = 0;
         i += 1;
 
         data[i] = {
@@ -2109,9 +2111,19 @@ function graphAddPosition(vcallsign, new_data) {
                     data: []
                   };
 
+        vehicle.graph_yaxes[i].max = 0;
     }
 
-    if(parseInt(new_data.gps_alt) < 0) delete vehicle.graph_yaxes[i].min;
+    // set yrange for altitude and pred.alt, so they are aligned
+    if(parseInt(new_data.gps_alt) < vehicle.graph_yaxes[0].min) {
+        vehicle.graph_yaxes[0].min = parseInt(new_data.gps_alt);
+        vehicle.graph_yaxes[1].min = vehicle.graph_yaxes[0].min;
+    }
+
+    if(parseInt(new_data.gps_alt) > vehicle.graph_yaxes[0].max) {
+        vehicle.graph_yaxes[0].max = parseInt(new_data.gps_alt);
+        vehicle.graph_yaxes[1].max = vehicle.graph_yaxes[0].max;
+    }
 
     // we don't record extra data, if there is no telemetry graph loaded
     // altitude is used for altitude profile
@@ -2275,12 +2287,15 @@ function refreshReceivers() {
     });
 }
 
+var ajax_predictions = null;
+
 function refreshPredictions() {
     //if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'ajax', 'refresh', 'Predictions']);
+    clearTimeout(periodical_predictions);
 
-    $.ajax({
+    ajax_predictions = $.ajax({
         type: "GET",
-        url: predictions_url,
+        url: predictions_url + encodeURIComponent(wvar.query),
         data: "",
         dataType: "json",
         success: function(response, textStatus) {
@@ -2290,6 +2305,7 @@ function refreshPredictions() {
         error: function() {
         },
         complete: function(request, textStatus) {
+            clearTimeout(periodical_predictions);
             periodical_predictions = setTimeout(refreshPredictions, 60 * 1000);
         }
     });
@@ -2460,6 +2476,9 @@ function stopAjax() {
     // stop our timed ajax
     clearTimeout(periodical);
     if(ajax_positions) ajax_positions.abort();
+
+    clearTimeout(periodical_predictions);
+    if(ajax_predictions) ajax_predictions.abort();
 }
 
 var currentPosition = null;
