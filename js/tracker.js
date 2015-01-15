@@ -2,7 +2,7 @@ var mission_id = 0;
 var position_id = 0;
 var data_url = "http://spacenear.us/tracker/datanew.php";
 var receivers_url = "http://spacenear.us/tracker/receivers.php";
-var predictions_url = "http://spacenear.us/tracker/get_predictions.php";
+var predictions_url = "http://spacenear.us/tracker/get_predictions.php?vehicles=";
 
 var habitat_max = 400;
 var habitat_url = "http://habitat.habhub.org/habitat/";
@@ -2295,7 +2295,7 @@ function refreshPredictions() {
 
     ajax_predictions = $.ajax({
         type: "GET",
-        url: predictions_url,
+        url: predictions_url + encodeURIComponent(wvar.query),
         data: "",
         dataType: "json",
         success: function(response, textStatus) {
