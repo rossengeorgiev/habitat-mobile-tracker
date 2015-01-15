@@ -36,7 +36,7 @@ var layer_clouds = null;
 var notamOverlay = null;
 
 var modeList = [
-    "Position",
+//    "Position",
     "1 hour",
     "3 hours",
     "6 hours",
