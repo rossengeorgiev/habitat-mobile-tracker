@@ -562,7 +562,7 @@ $(window).ready(function() {
     if(wvar.graph_expanded) $('#telemetry_graph .graph_label').click();
 
     // hysplit button
-    $("#main").on('click','.row .data .vbutton.hysplit', function(event) {
+    $("#main").on('tap','.row .data .vbutton.hysplit', function(event) {
         event.stopPropagation();
 
         var elm = $(this);
@@ -578,7 +578,7 @@ $(window).ready(function() {
         }
     });
 
-    $("#main").on('click','.row .data .vbutton.path', function(event) {
+    $("#main").on('tap','.row .data .vbutton.path', function(event) {
         event.stopPropagation();
 
         var elm = $(this);
