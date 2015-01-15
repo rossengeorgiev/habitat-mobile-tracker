@@ -2267,6 +2267,8 @@ function refresh() {
     complete: function(request, textStatus) {
         clearTimeout(periodical);
         periodical = setTimeout(refresh, timer_seconds * 1000);
+
+        if(periodical_predictions === null) refreshPredictions();
     }
   });
 }
@@ -2461,7 +2463,8 @@ function initHabitat() {
 }
 
 
-var periodical, periodical_receivers, periodical_predictions;
+var periodical, periodical_receivers;
+var periodical_predictions = null;
 var timer_seconds = 15;
 
 function startAjax() {
@@ -2475,9 +2478,6 @@ function startAjax() {
 
     //periodical_listeners = setInterval(refreshReceivers, 60 * 1000);
     refreshReceivers();
-
-    //periodical_predictions = setInterval(refreshPredictions, 2 * timer_seconds * 1000);
-    refreshPredictions();
 }
 
 function stopAjax() {
@@ -2486,6 +2486,7 @@ function stopAjax() {
     if(ajax_positions) ajax_positions.abort();
 
     clearTimeout(periodical_predictions);
+    periodical_predictions = null;
     if(ajax_predictions) ajax_predictions.abort();
 }
 
