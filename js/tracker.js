@@ -324,8 +324,9 @@ function throttle_events(event) {
 }
 
 
-function clean_refresh(text, force) {
+function clean_refresh(text, force, history_step) {
     force = !!force;
+    history_step = !!history_step;
 
     if(text == wvar.mode && !force) return false;
     if(ajax_inprogress) return false;
@@ -366,7 +367,7 @@ function clean_refresh(text, force) {
     );
     listScroll.refresh();
 
-    lhash_update();
+    lhash_update(history_step);
     refresh();
     refreshPredictions();
 

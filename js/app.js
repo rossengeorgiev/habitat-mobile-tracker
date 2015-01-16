@@ -1020,6 +1020,6 @@ $(window).ready(function() {
        wvar.zoom = true;
 
        if(text === "") { wvar.mode = null; }
-       clean_refresh(wvar.mode, true);
+       clean_refresh(wvar.mode, true, true);
    });
 });
