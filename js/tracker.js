@@ -2268,8 +2268,6 @@ function refresh() {
     complete: function(request, textStatus) {
         clearTimeout(periodical);
         periodical = setTimeout(refresh, timer_seconds * 1000);
-
-        if(periodical_predictions === null) refreshPredictions();
     }
   });
 }
@@ -2736,6 +2734,8 @@ function update(response) {
           if (got_positions && !zoomed_in && Object.keys(vehicles).length) {
               zoom_on_payload();
           }
+
+          if(periodical_predictions === null) refreshPredictions();
 
           ajax_inprogress = false;
         }
