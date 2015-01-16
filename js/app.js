@@ -173,7 +173,10 @@ for(var idx in params) {
         case "hidelist": if(line[1] == "1") wvar.vlist = false; break;
         case "hidegraph": if(line[1] == "1") wvar.graph = false; break;
         case "expandgraph": if(line[1] == "1") wvar.graph_expanded = true; break;
-        case "filter": wvar.query = decodeURIComponent(line[1]); break;
+        case "filter":
+            wvar.query = decodeURIComponent(line[1]);
+            $("header .search input[type='text']").val(wvar.query);
+            break;
         case "nyan": wvar.nyan = true; break;
         case "focus": wvar.focus = decodeURIComponent(line[1]); break;
         case "docid": wvar.docid = line[1]; break;
