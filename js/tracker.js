@@ -2229,7 +2229,7 @@ function refresh() {
 
   $("#stText").text("checking |");
 
-  if(/^[a-z0-9]{32}$/ig.exec(wvar.query)) {
+  if(/[a-z0-9]{32}/ig.exec(wvar.query)) {
       tmpC.setVisible(false);
       initHabitat();
       return;
@@ -2322,7 +2322,7 @@ function refreshPredictions() {
 
 function habitat_translation_layer(json_result) {
     if(json_result.rows.length === 0) {
-        habitat_step(true);
+        habitat_payload_step(true);
         return;
     }
 
@@ -2381,30 +2381,30 @@ function habitat_translation_layer(json_result) {
 
     // next step
     periodical = setTimeout(function() {
-        habitat_step();
+        habitat_payload_step();
     }, 500);
 }
 
-var habitat_step_data;
+var habitat_payload_step_data;
 
-function habitat_step(remove_current) {
+function habitat_payload_step(remove_current) {
     remove_current = !!remove_current;
 
     if(remove_current) {
-        habitat_step_data.payloads.splice(habitat_step_data.idx, 1);
+        habitat_payload_step_data.payloads.splice(habitat_payload_step_data.idx, 1);
     }
 
-    if(habitat_step_data.payloads.length === 0) {
+    if(habitat_payload_step_data.payloads.length === 0) {
         $("#stText").text("");
         return;
     }
 
-    habitat_step_data.idx += 1;
-    habitat_step_data.idx = habitat_step_data.idx % habitat_step_data.payloads.length;
+    habitat_payload_step_data.idx += 1;
+    habitat_payload_step_data.idx = habitat_payload_step_data.idx % habitat_payload_step_data.payloads.length;
 
-    var url = habitat_step_data.payloads[habitat_step_data.idx].url;
-    url += habitat_step_data.payloads[habitat_step_data.idx].skip;
-    habitat_step_data.payloads[habitat_step_data.idx].skip += habitat_max;
+    var url = habitat_payload_step_data.payloads[habitat_payload_step_data.idx].url;
+    url += habitat_payload_step_data.payloads[habitat_payload_step_data.idx].skip;
+    habitat_payload_step_data.payloads[habitat_payload_step_data.idx].skip += habitat_max;
 
     ajax_positions = $.getJSON(url, function(response) {
             habitat_translation_layer(response);
@@ -2414,47 +2414,61 @@ function habitat_step(remove_current) {
 function initHabitat() {
     $("#stText").text("loading |");
 
+    habitat_payload_step_data = {
+        idx: 0,
+        payloads: [],
+    };
+    var habitat_docs = [];
+
+    wvar.query.split(";").forEach(function(v) {
+        v = v.trim();
+        if(/^[a-z0-9]{32}$/ig.exec(v)) habitat_docs.push(v);
+    })
+
+    habitat_doc_step(habitat_docs);
+}
+
+
+function habitat_doc_step(hab_docs) {
+    var docid = hab_docs.shift();
+
     ajax_positions = $.ajax({
         type: "GET",
-        url: habitat_url + wvar.query,
+        url: habitat_url + docid,
         data: "",
         dataType: "json",
         success: function(response, textStatus) {
             if(response.type == "flight") {
-                if(response.payloads.length === 0) {
-                    update(null);
-                    $("#stText").text("no payloads in doc |");
-                    return;
-                }
+                if(response.payloads.length > 0) {
+                    ts_start = convert_time(response.start) / 1000;
+                    ts_end = convert_time(response.end) / 1000;
 
-                ts_start = convert_time(response.start) / 1000;
-                ts_end = convert_time(response.end) / 1000;
 
-                habitat_step_data = {
-                    idx: 0,
-                    payloads: [],
-                };
+                    response.payloads.forEach( function(payload_id) {
+                        var url = habitat_url_payload_telemetry.replace(/\{ID\}/g, payload_id);
+                        url = url.replace("{START}", ts_start).replace("{END}", ts_end);
 
-                response.payloads.forEach( function(payload_id) {
-                    var url = habitat_url_payload_telemetry.replace(/\{ID\}/g, payload_id);
-                    url = url.replace("{START}", ts_start).replace("{END}", ts_end);
-
-                    habitat_step_data.payloads.push({
-                        url: url,
-                        skip: 0,
+                        habitat_payload_step_data.payloads.push({
+                            url: url,
+                            skip: 0,
+                        });
                     });
-                });
-
-                habitat_step();
+                }
             }
             else {
-                update(null);
-                $("#stText").text("docid is not a flight doc |");
+                if(hab_docs.length === 0) update(null);
+                console.error("tracker: docid", docid, " is not a flight_doc");
+            }
+
+            if(hab_docs.length === 0) {
+                habitat_payload_step();
+            } else {
+                habitat_doc_step(hab_docs);
             }
         },
         error: function() {
-            update(null);
-            $("#stText").text("Unable to load flight doc |");
+            if(hab_docs.length === 0) update(null);
+            console.error("tracker: error trying to load docid", docid);
         },
         complete: function(request, textStatus) {
         }
