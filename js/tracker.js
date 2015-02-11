@@ -2396,6 +2396,7 @@ function habitat_payload_step(remove_current) {
 
     if(habitat_payload_step_data.payloads.length === 0) {
         $("#stText").text("");
+        $("#main .header.empty").html("<span>No vehicles :(</span>");
         return;
     }
 
