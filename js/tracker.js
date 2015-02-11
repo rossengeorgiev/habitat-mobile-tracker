@@ -525,7 +525,7 @@ function load() {
 }
 
 function panTo(vcallsign) {
-    if(!vcallsign) return;
+    if(!vcallsign || vehicles[vcallsign] === undefined) return;
 
     // update lookangles
     update_lookangles(vcallsign);
