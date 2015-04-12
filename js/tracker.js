@@ -1312,7 +1312,7 @@ var mapInfoBox_handle_path_fetch = function(id,vehicle) {
 
         div = document.createElement('div');
 
-        html = "<div style='line-height:16px'>";
+        html = "<div style='line-height:16px;position:relative;'>";
         html += "<img style='position:absolute;top:"+vehicle.image_src_offset.y+"px;left:"+vehicle.image_src_offset.x+"px;" +
                 "width:"+vehicle.image_src_size.width+"px;height:"+vehicle.image_src_size.height+"px'" +
                 " src='"+vehicle.image_src+"' />";
