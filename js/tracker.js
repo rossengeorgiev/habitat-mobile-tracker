@@ -1911,7 +1911,6 @@ function addPosition(position) {
 
         vehicle.curr_position = position;
         graphAddPosition(vcallsign, position);
-
     }
     else if(wvar.mode == "Position") { // we don't splice old postions in latest position mode
         return;
@@ -1950,9 +1949,8 @@ function addPosition(position) {
     vehicle.updated = true;
 
     // record the start of flight
-    var newts = convert_time(vehicle.curr_position.gps_time);
-    if(newts < vehicle.start_time) {
-        vehicle.start_time = newts;
+    if(new_ts < vehicle.start_time) {
+        vehicle.start_time = new_ts;
     }
 
     // record the highest altitude
