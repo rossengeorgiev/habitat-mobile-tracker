@@ -1068,7 +1068,7 @@ function redrawPrediction(vcallsign) {
     }
 
     vehicle.graph_data[1].data = graph_data;
-    updateGraph(vcallsign, true);
+    if(follow_vehicle !== null && follow_vehicle === vcallsign) updateGraph(vcallsign, true);
     vehicle.prediction_path = line;
 
     if(vehicle.prediction_polyline !== null) {
