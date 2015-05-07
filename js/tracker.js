@@ -257,7 +257,7 @@ var maptypes = {
         'Bing.com & Ordnance Survey',
          10,
          17,
-         function(xy,z) { return 'http://ecn.t'+((Math.abs(xy.x+xy.y)%3)+1)+'.tiles.virtualearth.net/tiles/r'+makeQuad(xy.x, xy.y, z)+'?g=2689&lbl=l1&productSet=mmOS'; }
+         function(xy,z) { return 'http://ecn.t'+((Math.abs(xy.x+xy.y)%3)+1)+'.tiles.virtualearth.net/tiles/r'+makeQuad(xy.x, xy.y, z)+'?g=3483&productSet=mmOS&key=AhN7I60Jff9-gQEnDk6CORUyr66zjb5LFc0zS0KPsEIfaDRAVVIeDvk1H6jUx25l'; }
     ],
     osm: [
         'OSM',
