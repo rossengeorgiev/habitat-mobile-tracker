@@ -2321,7 +2321,7 @@ function refreshPredictions() {
     });
 }
 
-function habitat_translation_layer(json_result) {
+function habitat_translation_layer(json_result, prefix) {
     if(json_result.rows.length === 0) {
         habitat_payload_step(true);
         return;
@@ -2349,7 +2349,7 @@ function habitat_translation_layer(json_result) {
 
         var row = {
             'position_id': 0,
-            'vehicle': doc.data.payload,
+            'vehicle': prefix + doc.data.payload,
             'server_time': doc.data._parsed.time_parsed,
             'sequence': doc.data.sentence_id,
             'gps_lat': doc.data.latitude,
@@ -2404,12 +2404,13 @@ function habitat_payload_step(remove_current) {
     habitat_payload_step_data.idx += 1;
     habitat_payload_step_data.idx = habitat_payload_step_data.idx % habitat_payload_step_data.payloads.length;
 
+    var prefix = habitat_payload_step_data.payloads[habitat_payload_step_data.idx].prefix;
     var url = habitat_payload_step_data.payloads[habitat_payload_step_data.idx].url;
     url += habitat_payload_step_data.payloads[habitat_payload_step_data.idx].skip;
     habitat_payload_step_data.payloads[habitat_payload_step_data.idx].skip += habitat_max;
 
     ajax_positions = $.getJSON(url, function(response) {
-            habitat_translation_layer(response);
+            habitat_translation_layer(response, prefix);
     });
 }
 
@@ -2451,6 +2452,7 @@ function habitat_doc_step(hab_docs) {
                         url = url.replace("{START}", ts_start).replace("{END}", ts_end);
 
                         habitat_payload_step_data.payloads.push({
+                            prefix: response._id.substr(-4) + "/",
                             url: url,
                             skip: 0,
                         });
