@@ -1301,7 +1301,25 @@ var mapInfoBox_handle_path = function(event) {
 };
 
 var mapInfoBox_handle_path_fetch = function(id,vehicle) {
-    $.getJSON("http://spacenear.us/tracker/datanew.php?mode=single&format=json&position_id=" + id, function(data) {
+    var ishabitat = id.length == 64
+
+    if(ishabitat) {
+        var url = 'http://habitat.habhub.org/habitat/' + id;
+    } else {
+        var url = "http://spacenear.us/tracker/datanew.php?mode=single&format=json&position_id=" + id;
+    }
+
+    $.getJSON(url, function(data) {
+        if(ishabitat) {
+            var encap = {positions: { position: [] }};
+
+            if(!data.hasOwnProperty('error')) {
+                data._id = data._id.substring(58);
+                encap.positions.position.push(habitat_doc_to_snus(data));
+                data = encap;
+            }
+        }
+
         if('positions' in data && data.positions.position.length === 0) {
             mapInfoBox.setContent("not&nbsp;found");
             mapInfoBox.open(map);
@@ -2333,48 +2351,13 @@ function habitat_translation_layer(json_result, prefix) {
     result.fetch_timestamp = Date.now();
     $("#stTimer").attr("data-timestamp", result.fetch_timestamp);
 
-    var blacklist = {
-        altitude: 1,
-        date: 1,
-        latitude: 1,
-        longitude: 1,
-        payload: 1,
-        sentence_id: 1,
-        time: 1,
-    };
-
     for(var i in json_result) {
         var doc = json_result[i].doc;
+
         if(doc.data.latitude === 0 && doc.data.longitude === 0) continue;
 
-        var row = {
-            'position_id': 0,
-            'vehicle': prefix + doc.data.payload,
-            'server_time': doc.data._parsed.time_parsed,
-            'sequence': doc.data.sentence_id,
-            'gps_lat': doc.data.latitude,
-            'gps_lon': doc.data.longitude,
-            'gps_alt': doc.data.altitude,
-            'callsign': "HABITAT ARCHIVE",
-            'data': {}
-        };
+        var row = habitat_doc_to_snus(doc, prefix);
 
-        try {
-            row.gps_time = "20" + doc.data.date.replace(/([0-9]{2})/g, "$1-") + doc.data.time;
-        } catch (e) {
-            row.gps_time = row.server_time;
-        }
-
-        // move all other properties as data
-        for(var x in doc.data) {
-            // skip internal and reserved vars
-            if(x[0] == '_' || blacklist.hasOwnProperty(x)) continue;
-
-            row.data[x] = doc.data[x];
-        }
-        row.data = JSON.stringify(row.data);
-
-        // append the packet
         result.positions.position.push(row);
     }
 
@@ -2384,6 +2367,49 @@ function habitat_translation_layer(json_result, prefix) {
     periodical = setTimeout(function() {
         habitat_payload_step();
     }, 500);
+}
+
+var habitat_field_blacklist = {
+    altitude: 1,
+    date: 1,
+    latitude: 1,
+    longitude: 1,
+    payload: 1,
+    sentence_id: 1,
+    time: 1,
+};
+
+function habitat_doc_to_snus(doc, prefix) {
+    prefix = prefix || '';
+
+    var row = {
+        'position_id': doc._id,
+        'vehicle': prefix + doc.data.payload,
+        'server_time': doc.data._parsed.time_parsed,
+        'sequence': doc.data.sentence_id,
+        'gps_lat': doc.data.latitude,
+        'gps_lon': doc.data.longitude,
+        'gps_alt': doc.data.altitude,
+        'callsign': "HABITAT ARCHIVE",
+        'data': {}
+    };
+
+    try {
+        row.gps_time = "20" + doc.data.date.replace(/([0-9]{2})/g, "$1-") + doc.data.time;
+    } catch (e) {
+        row.gps_time = row.server_time;
+    }
+
+    // move all other properties as data
+    for(var x in doc.data) {
+        // skip internal and reserved vars
+        if(x[0] == '_' || habitat_field_blacklist.hasOwnProperty(x)) continue;
+
+        row.data[x] = doc.data[x];
+    }
+    row.data = JSON.stringify(row.data);
+
+    return row;
 }
 
 var habitat_payload_step_data;
