@@ -780,6 +780,7 @@ $(window).ready(function() {
         "#sw_hide_timebox",
         "#sw_hilight_vehicle",
         "#sw_nowelcome",
+        "#sw_interpolate",
     ];
 
     // applies functionality when switches are toggled
@@ -845,6 +846,12 @@ $(window).ready(function() {
             case "opt_layers_clouds":
                 if(on) { layers_clouds.setMap(map); }
                 else { layers_clouds.setMap(null); }
+                break;
+            case "opt_interpolate":
+                if(on) { graph_gap_size = graph_gap_size_max; }
+                else { graph_gap_size = graph_gap_size_default; }
+                clean_refresh(wvar.mode, true, false);
+                break;
         }
     });
 

@@ -2027,6 +2027,11 @@ function updateGraph(vcallsign, reset_selection) {
     vehicles[vcallsign].graph_data_updated = false;
 }
 
+var graph_gap_size_default = 180000; // 3 mins in milis
+var graph_gap_size_max = 31536000000;
+var graph_gap_size = offline.get('opt_interpolate') ? graph_gap_size_max : graph_gap_size_default;
+var graph_pad_size = 120000; // 2 min
+
 function graphAddPosition(vcallsign, new_data) {
 
     var vehicle = vehicles[vcallsign];
@@ -2038,8 +2043,6 @@ function graphAddPosition(vcallsign, new_data) {
     var splice_idx = 0;
     var splice_remove = 0;
     var splice_pad = false;
-    var gap_size = 180000; // 3 mins in milis
-    var pad_size = 120000; // 2 min
     var i;
 
     if(data.length) {
@@ -2065,7 +2068,7 @@ function graphAddPosition(vcallsign, new_data) {
 
             if(i > -1) {
                 // this is if new datum hits padded area
-                if((xref[i][1] === null && xref[i][0] - 1 + (gap_size - pad_size) >= ts)) {
+                if((xref[i][1] === null && xref[i][0] - 1 + (graph_gap_size - graph_pad_size) >= ts)) {
                     splice_remove = 2;
                     splice_idx = i-1;
                 }
@@ -2079,12 +2082,12 @@ function graphAddPosition(vcallsign, new_data) {
 
                 }
                 // should we pad before the new datum
-                else if (xref[i][1] !== null && xref[i][0] + gap_size < ts) {
+                else if (xref[i][1] !== null && xref[i][0] + graph_gap_size < ts) {
                     // pad with previous datum
                     $.each(data, function(k,v) {
                         if(k==1) return; // skip prediction series
 
-                        v.data.splice(i+1, 0, [xref[i][0]+pad_size, v.data[i][1]], [xref[i][0]+pad_size+1, null]);
+                        v.data.splice(i+1, 0, [xref[i][0]+graph_pad_size, v.data[i][1]], [xref[i][0]+graph_pad_size+1, null]);
                         v.nulls += 2;
                     });
 
@@ -2094,19 +2097,19 @@ function graphAddPosition(vcallsign, new_data) {
             }
 
             // should we pad after
-            if(ts + gap_size < xref[splice_idx+splice_remove][0]) {
+            if(ts + graph_gap_size < xref[splice_idx+splice_remove][0]) {
                 splice_pad = true;
             }
 
         }
         else {
             //insert gap when there are 3mins, or more, without telemetry
-            if(ts_last + gap_size < ts) {
+            if(ts_last + graph_gap_size < ts) {
                 $.each(data, function(k,v) {
                     if(k==1) return; // skip prediction series
 
-                    v.data.push([ts_last+pad_size, v.data[ts_last_idx][1]]);
-                    v.data.push([ts_last+pad_size+1, null]);
+                    v.data.push([ts_last+graph_pad_size, v.data[ts_last_idx][1]]);
+                    v.data.push([ts_last+graph_pad_size+1, null]);
                     v.nulls += 2;
                 });
             }
@@ -2211,7 +2214,7 @@ function graphAddPosition(vcallsign, new_data) {
         for(k in data_matrix) {
             if(splice) {
                 if(splice_pad) {
-                    data[k].data.splice(splice_idx, splice_remove, data_matrix[k], [ts+pad_size, data_matrix[k][1]], [ts+pad_size+1, null]);
+                    data[k].data.splice(splice_idx, splice_remove, data_matrix[k], [ts+graph_pad_size, data_matrix[k][1]], [ts+graph_pad_size+1, null]);
                     data[k].nulls += 2;
                 } else {
                     data[k].data.splice(splice_idx, splice_remove, data_matrix[k]);
@@ -2226,7 +2229,7 @@ function graphAddPosition(vcallsign, new_data) {
     // push latest altitude
     if(splice) {
         if(splice_pad) {
-            data[0].data.splice(splice_idx, splice_remove, [ts, parseInt(new_data.gps_alt)], [ts+pad_size, parseInt(new_data.gps_alt)], [ts+pad_size+1, null]);
+            data[0].data.splice(splice_idx, splice_remove, [ts, parseInt(new_data.gps_alt)], [ts+graph_pad_size, parseInt(new_data.gps_alt)], [ts+graph_pad_size+1, null]);
             data[0].nulls += 2;
         } else {
             data[0].data.splice(splice_idx, splice_remove, [ts, parseInt(new_data.gps_alt)]);
