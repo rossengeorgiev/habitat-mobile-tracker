@@ -575,6 +575,7 @@ function habitat_data(jsondata, alternative) {
   };
 
   var suffixes = {
+    "current": " A",
     "battery": " V",
     "solar_panel": " V",
     "temperature": "&deg;C",
