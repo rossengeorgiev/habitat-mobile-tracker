@@ -94,10 +94,10 @@ google.maps.DropDownControl = function(options) {
     this.div_ = document.createElement('div');
     this.div_.className = "gmnoprint";
     this.div_.draggable = false;
-    this.div_.style.cssText = "margin: 5px; margin-top: 0;z-index: 0; position: absolute; cursor: pointer; text-align: left; width: 100px; right: 0px; top: 0px;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-khtml-user-select:none";
+    this.div_.style.cssText = "margin: 10px; margin-top: 0;z-index: 0; position: absolute; cursor: pointer; text-align: left; width: 85px; right: 0px; top: 0px;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-khtml-user-select:none";
 
     this.div_head = document.createElement('div');
-    this.div_head.style.cssText = "direction: ltr; overflow: hidden; text-align: left; position: relative; color: rgb(0, 0, 0); font-family: Roboto,Arial,sans-serif; -moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-khtml-user-select: none; font-size: 11px; background-color: rgb(255, 255, 255); padding: 1px 6px; border-radius: 2px; background-clip: padding-box; border: 1px solid rgba(0, 0, 0, 0.15); box-shadow: 0px 1px 4px -1px rgba(0, 0, 0, 0.3); font-weight: 500;";
+    this.div_head.style.cssText = "direction: ltr; overflow: hidden; text-align: left; position: relative; color: rgb(0, 0, 0); font-family: Roboto, Arial, sans-serif; -webkit-user-select: none; font-size: 11px; padding: 8px; border-radius: 2px; -webkit-background-clip: padding-box; box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px; font-weight: 500; background-color: rgb(255, 255, 255); background-clip: padding-box;";
     this.div_head.title = options.title;
 
     google.maps.event.addDomListener(this.div_head, 'mouseover', function(){
@@ -119,13 +119,13 @@ google.maps.DropDownControl = function(options) {
 
     // generate list of dropdown entries
     this.div_list = document.createElement('div');
-    this.div_list.style.cssText = "background-color: white; z-index: -1; padding-top: 2px; background-clip: padding-box; border-width: 0px 1px 1px; border-style: none solid solid; border-color: use-text-color rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.15); border-top-colors: none; border-right-colors: none; border-bottom-colors: none; border-left-colors: none; border-image: none; box-shadow: 0px 1px 4px -1px rgba(0, 0, 0, 0.3); position: relative; text-align: left; display: none;";
+    this.div_list.style.cssText = "z-index: -1; padding: 2px; border-bottom-left-radius: 2px; border-bottom-right-radius: 2px; box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px; position: absolute; top: 100%; left: 0px; right: 0px; text-align: left; display: none; background-color: white;";
 
     var div_list = this.div_list;
 
     options.list.forEach(function(name) {
         var row = document.createElement('div');
-        row.style.cssText = "color: rgb(86, 86, 86); font-family: Roboto,Arial,sans-serif; -moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-khtml-user-select: none; font-size: 11px; background-color: rgb(255, 255, 255); padding: 3px; padding-top: 2px; padding-bottom: 2px; line-height: 11px; font-weight: 500;";
+        row.style.cssText = "color: rgb(86, 86, 86); font-family: Roboto, Arial, sans-serif; -webkit-user-select: none; font-size: 11px; padding: 6px; background-color: rgb(255, 255, 255);";
         row.innerHTML = name;
 
         google.maps.event.addDomListener(row, 'click', function(){

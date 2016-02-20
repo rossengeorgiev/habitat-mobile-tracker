@@ -253,7 +253,7 @@ function wrapTiles(x, zoom) {
 // format: [ name, attr, minZoom, maxZoom, getTileUrl function ]
 var maptypes = {
     bing_os: [
-        'Ordnance Survey (UK)',
+        'Ord. Survey',
         'Bing.com & Ordnance Survey',
          10,
          17,
@@ -274,14 +274,14 @@ var maptypes = {
          function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c'][Math.abs(xy.x+xy.y)%3]+'.basemaps.cartocdn.com/dark_all/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
     ],
     osm_toner: [
-        'OSM Toner',
+        'Toner',
         'Stamen.org Toner',
          1,
          18,
          function(xy,z) { var n = Math.pow(2,z); return (xy.y<0 || xy.y>=n) ? null : 'http://'+['a','b','c','d'][Math.abs(xy.x+xy.y)%4]+'.tile.stamen.com/toner/'+z+'/'+wrapTiles(xy.x,z)+'/'+xy.y+'.png'; }
     ],
     osm_watercolor: [
-        'OSM Watercolor',
+        'Watercolor',
         'Stamen.org Watercolor',
          1,
          18,
@@ -462,7 +462,7 @@ function load() {
             map: map,
             title: "Show activity for given period",
             //position: google.maps.ControlPosition.TOP_RIGHT,
-            position: google.maps.ControlPosition.RIGHT_TOP,
+            position: google.maps.ControlPosition.LEFT_TOP,
             headerPrefix: "Last: ",
             list: modeList,
             listDefault: modeList.indexOf(wvar.mode),
@@ -483,7 +483,7 @@ function load() {
     setTimeout(function() {
         var elm = $("#timebox");
 
-        if(is_mobile) $(".slickbox").css({left:'5px'});
+        //if(is_mobile) $(".slickbox").css({left:'5px'});
         var origW = elm.width();
         var iconW = elm.find("svg").width();
 

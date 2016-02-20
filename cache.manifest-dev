@@ -2,7 +2,7 @@ CACHE MANIFEST
 # version {VERSION}
 
 # gogole maps files
-http://maps.gstatic.com/cat_js/maps-api-v3/api/js/18/22/%7Bmain,common,controls,ga,geometry,infowindow,kml,map,marker,onion,overlay,poly,stats,util,weather,weather_impl%7D.js
+http://maps.google.com/maps/api/js?v=3.22&sensor=false&libraries=map,common,controls,util,marker,onion,kml,ga,infowindow,stats,poly,overlay,weather,weather_impl,geometry&language=en_us&key=AIzaSyCOqkcNey4CCyG4X0X5qxHAhCgD8g5DwXg
 http://fonts.googleapis.com/css?family=Roboto:300,400,500,700
 http://maps.gstatic.com/mapfiles/undo_poly.png
 http://maps.gstatic.com/mapfiles/mv/imgs8.png
