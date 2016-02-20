@@ -38,10 +38,8 @@ var notamOverlay = null;
 var modeList = [
 //    "Position",
     "1 hour",
-    "3 hours",
     "6 hours",
     "1 day",
-    "2 days",
     "3 days",
     "All",
 ];
