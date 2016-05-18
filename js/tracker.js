@@ -627,6 +627,14 @@ function habitat_data(jsondata, alternative) {
       if (suffixes[k] !== undefined)
         suffix = suffixes[k];
 
+      if (typeof v === "string") {
+        v = v.replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+      }
+
       if(typeof alternative == 'boolean' && alternative) {
           output += "<div><b>" + name + ":&nbsp;</b>" + v + suffix + "</div>";
       } else {
