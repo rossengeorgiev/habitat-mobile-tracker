@@ -428,7 +428,7 @@ function load() {
     // initalize nite overlay
     nite.init(map);
     if(!offline.get('opt_daylight')) nite.hide();
-    setInterval(function() { nite.refresh(); }, 60000); // 1min
+    setInterval(function() { nite.refresh(); }, 30000); // 30s
 
     // we need a dummy overlay to access getProjection()
     overlay = new google.maps.OverlayView();
