@@ -518,10 +518,6 @@ function load() {
 
     }, 500);
 
-    // initialize clouds layer
-    layers_clouds = new google.maps.weather.CloudLayer();
-    if(offline.get('opt_layers_clouds')) layers_clouds.setMap(map);
-
     // load if aprs layer, if selected
     if(offline.get('opt_layers_aprs')) map.overlayMapTypes.setAt("1", overlayAPRS);
 }

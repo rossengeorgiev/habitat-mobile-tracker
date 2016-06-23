@@ -769,7 +769,6 @@ $(window).ready(function() {
 
     // list of all switches
     var opts = [
-        "#sw_layers_clouds",
         "#sw_layers_aprs",
         "#sw_offline",
         "#sw_station",
@@ -842,10 +841,6 @@ $(window).ready(function() {
             case "opt_layers_aprs":
                 if(on) map.overlayMapTypes.setAt("1", overlayAPRS);
                 else map.overlayMapTypes.setAt("1", null);
-                break;
-            case "opt_layers_clouds":
-                if(on) { layers_clouds.setMap(map); }
-                else { layers_clouds.setMap(null); }
                 break;
             case "opt_interpolate":
                 if(on) { graph_gap_size = graph_gap_size_max; }
