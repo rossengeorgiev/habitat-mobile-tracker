@@ -673,7 +673,7 @@ $(window).ready(function() {
         var box = $("#"+name+"box");
 
         if(box.is(':hidden')) {
-            $('.flatpage').hide();
+            $('.flatpage, #homebox').hide();
             box.show().scrollTop(0);
 
             if(name == 'about' && !$('#motd').hasClass('inited')) {
