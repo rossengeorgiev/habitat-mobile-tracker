@@ -393,6 +393,10 @@ function load() {
         zoomControlOptions: {
             style: google.maps.ZoomControlStyle.DEFAULT
         },
+        fullscreenControl: true,
+        fullscreenControlOptions: {
+            position: google.maps.ControlPosition.LEFT_BOTTOM
+        },
         scrollwheel: true
     });
 
