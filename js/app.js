@@ -581,6 +581,10 @@ $(window).ready(function() {
         }
     });
 
+    $("#main").on('tap','.row .data a.vbutton', function(event) {
+        this.click();
+    });
+
     $("#main").on('tap','.row .data .vbutton.path', function(event) {
         event.stopPropagation();
 

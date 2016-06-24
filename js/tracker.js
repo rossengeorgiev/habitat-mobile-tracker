@@ -966,6 +966,8 @@ function updateVehicleInfo(vcallsign, newPosition) {
                ' style="top:'+(vehicle.image_src_size.height+55)+'px">Path</span>' +
            ((vcallsign in hysplit) ? '<span class="vbutton hysplit '+((hysplit[vcallsign].getMap()) ? 'active' : '')+'"' +
                 ' data-vcallsign="'+vcallsign+'" style="top:'+(vehicle.image_src_size.height+55+21+10)+'px">HYSPLIT</span>' : '') +
+           ((vcallsign.substr(0, 6) in ssdv) ? '<a class="vbutton active" href="http://ssdv.habhub.org/' + vcallsign.substr(0, 6) + '"' +
+                ' target="_blank" style="top:'+(vehicle.image_src_size.height+55+((vcallsign in hysplit) ? 42 : 21)+10)+'px">SSDV</a>' : '') +
            '<div class="left">' +
            '<dl>';
   // end
@@ -2696,6 +2698,7 @@ function refreshUI() {
     if(follow_vehicle !== null) update_lookangles(follow_vehicle);
 }
 
+var ssdv = {};
 var status = "";
 var bs_idx = 0;
 
@@ -2712,6 +2715,8 @@ function update(response) {
 
         return;
     }
+
+    ssdv = (!response.ssdv) ? {} : response.ssdv;
 
     // create a dummy response object for postions
     var lastPositions = { positions: { position: [] } };
