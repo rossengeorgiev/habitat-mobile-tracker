@@ -749,7 +749,7 @@ header .search form input[type='submit'] {
         height: 150px;
     }
     #main .data {
-        height: 140px;
+        min-height: 108px;
     }
     #main .data .left {
         float: left;
