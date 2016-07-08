@@ -110,7 +110,7 @@ google.maps.DropDownControl = function(options) {
     this.header = document.createElement('span');
     this.header.innerHTML = (options.headerPrefix || "") + options.list[options.listDefault || 0];
     var arrow = document.createElement('img');
-    arrow.src = "http://maps.gstatic.com/mapfiles/arrow-down.png";
+    arrow.src = "//maps.gstatic.com/mapfiles/arrow-down.png";
     arrow.style.cssText = "-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-khtml-user-select: none; border: 0px none; padding: 0px; margin: -2px 0px 0px; position: absolute; right: 6px; top: 50%; width: 7px; height: 4px;";
 
     this.div_head.appendChild(this.header);

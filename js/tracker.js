@@ -1,11 +1,11 @@
 var mission_id = 0;
 var position_id = 0;
-var data_url = "http://spacenear.us/tracker/datanew.php";
-var receivers_url = "http://spacenear.us/tracker/receivers.php";
-var predictions_url = "http://spacenear.us/tracker/get_predictions.php?vehicles=";
+var data_url = "//spacenear.us/tracker/datanew.php";
+var receivers_url = "//spacenear.us/tracker/receivers.php";
+var predictions_url = "//spacenear.us/tracker/get_predictions.php?vehicles=";
 
 var habitat_max = 400;
-var habitat_url = "http://habitat.habhub.org/habitat/";
+var habitat_url = "//habitat.habhub.org/habitat/";
 var habitat_url_payload_telemetry = habitat_url + "_design/payload_telemetry/_view/payload_time?startkey=[%22{ID}%22,{START}]&endkey=[%22{ID}%22,{END}]&include_docs=true&limit=" + habitat_max + "&skip=";
 
 var host_url = "";
@@ -966,7 +966,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
                ' style="top:'+(vehicle.image_src_size.height+55)+'px">Path</span>' +
            ((vcallsign in hysplit) ? '<span class="vbutton hysplit '+((hysplit[vcallsign].getMap()) ? 'active' : '')+'"' +
                 ' data-vcallsign="'+vcallsign+'" style="top:'+(vehicle.image_src_size.height+55+21+10)+'px">HYSPLIT</span>' : '') +
-           ((vcallsign.substr(0, 6) in ssdv) ? '<a class="vbutton active" href="http://ssdv.habhub.org/' + vcallsign.substr(0, 6) + '"' +
+           ((vcallsign.substr(0, 6) in ssdv) ? '<a class="vbutton active" href="//ssdv.habhub.org/' + vcallsign.substr(0, 6) + '"' +
                 ' target="_blank" style="top:'+(vehicle.image_src_size.height+55+((vcallsign in hysplit) ? 42 : 21)+10)+'px">SSDV</a>' : '') +
            '<div class="left">' +
            '<dl>';
@@ -1313,9 +1313,9 @@ var mapInfoBox_handle_path_fetch = function(id,vehicle) {
     var ishabitat = id.length == 64
 
     if(ishabitat) {
-        var url = 'http://habitat.habhub.org/habitat/' + id;
+        var url = '//habitat.habhub.org/habitat/' + id;
     } else {
-        var url = "http://spacenear.us/tracker/datanew.php?mode=single&format=json&position_id=" + id;
+        var url = "//spacenear.us/tracker/datanew.php?mode=single&format=json&position_id=" + id;
     }
 
     $.getJSON(url, function(data) {
