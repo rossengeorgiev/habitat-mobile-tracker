@@ -4,7 +4,7 @@
  <Description>Habhub Tracker - Search</Description>
  <InputEncoding>UTF-8</InputEncoding>
  <Contact>hello@rgp.io</Contact>
- <Image height="16" width="16" type="image/x-icon">http://tracker.habhub.org/favicon.ico</Image>
+ <Image height="16" width="16" type="image/x-icon">https://tracker.habhub.org/favicon.ico</Image>
  <Developer>Rossen Georgiev</Developer>
- <Url type="text/html" method="get" template="http://tracker.habhub.org/#!qm=All&amp;q={searchTerms}" />
+ <Url type="text/html" method="get" template="https://tracker.habhub.org/#!qm=All&amp;q={searchTerms}" />
 </OpenSearchDescription>
