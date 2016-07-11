@@ -5,7 +5,8 @@ var receivers_url = "//spacenear.us/tracker/receivers.php";
 var predictions_url = "//spacenear.us/tracker/get_predictions.php?vehicles=";
 
 var habitat_max = 400;
-var habitat_url = "//habitat.habhub.org/habitat/";
+//var habitat_url = "//habitat.habhub.org/habitat/";
+var habitat_url = "/habitat/";
 var habitat_url_payload_telemetry = habitat_url + "_design/payload_telemetry/_view/payload_time?startkey=[%22{ID}%22,{START}]&endkey=[%22{ID}%22,{END}]&include_docs=true&limit=" + habitat_max + "&skip=";
 
 var host_url = "";
@@ -1313,9 +1314,9 @@ var mapInfoBox_handle_path_fetch = function(id,vehicle) {
     var ishabitat = id.length == 64
 
     if(ishabitat) {
-        var url = '//habitat.habhub.org/habitat/' + id;
+        var url = habitat_url + id;
     } else {
-        var url = "//spacenear.us/tracker/datanew.php?mode=single&format=json&position_id=" + id;
+        var url = data_url + "?mode=single&format=json&position_id=" + id;
     }
 
     $.getJSON(url, function(data) {
