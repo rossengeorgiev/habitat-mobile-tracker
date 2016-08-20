@@ -6,7 +6,7 @@
  */
 
 ChaseCar = {
-    db_uri: "http://habitat.habhub.org/",   // db address
+    db_uri: "https://tracker.habhub.org/",   // db address
     uuidsRequested: false,                  // used in .request() to track whenever it has requested uuids
     _uuids: [],                           // array with uuids
     ucount: 20,                             // number of uuids in the _uuids array (determines how many uuids are request at a time)
