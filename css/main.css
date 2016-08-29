@@ -338,6 +338,7 @@ header .search form input[type='submit'] {
     display: block;
     width: 90%;
     float: left;
+    white-space: nowrap;
 }
 
 .header .arrow {
@@ -466,6 +467,7 @@ header .search form input[type='submit'] {
     right: 22px;
     width: 60px;
     height: 40px;
+    z-index: 1;
 }
 #main .row .data dt > i {
     font-size: 12px;
