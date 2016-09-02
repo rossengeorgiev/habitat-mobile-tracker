@@ -66,7 +66,7 @@ var updateCode = function() {
     var prefix = window.location.href.replace("embed-preview.html","");
     var code = $("#iframe-box").html().trim().replace("index.html?",prefix+"index.html?");
 
-    var params = "";
+    var params = "embed=1";
 
     params += "&amp;hidelist=" + ($("#opt_list").prop("checked") ? 0 : 1);
     params += "&amp;hidegraph=" + ($("#opt_graph").prop("checked") ? 0 : 1);
@@ -88,7 +88,8 @@ $(window).ready(function() {
     $("#opt_border,#opt_corners,#opt_list,#opt_graph").prop("checked",true);
     $("#opt_graph_open").prop("checked", false);
 
-    $("#opt_w,#opt_h").val(400);
+    $("#opt_w").val(400);
+    $("#opt_h").val(500);
 
     // preview update methods
 
@@ -228,7 +229,7 @@ $(window).ready(function() {
         <h2>2. Style</h1>
         <fieldset>
             <label for="opt_w">Width:</label>
-            <input type="text" value="500" id="opt_w" />
+            <input type="text" value="400" id="opt_w" />
             <input type="checkbox" value="1" id="opt_border"  checked="checked" />
             <label for="opt_border">Border</label>
             <br />
@@ -242,7 +243,7 @@ $(window).ready(function() {
 
         <h2>4. Live preview</h1>
             <div id="iframe-box">
-            <iframe width="400px" height="400px" src="index.html?embed=1&preview=1" style="border:1px solid #00A3D3;border-radius:20px;"></iframe>
+            <iframe width="400px" height="500px" src="index.html?&preview=1" style="border:1px solid #00A3D3;border-radius:20px;"></iframe>
             </div>
     </div>
     <script type="text/javascript">
