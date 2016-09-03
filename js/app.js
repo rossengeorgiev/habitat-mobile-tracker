@@ -522,8 +522,11 @@ $(window).ready(function() {
         scrollbars: true,
         scrollbarClass: 'scrollStyle',
         shrinkScrollbars: 'scale',
-        tap: is_mobile,
-        click: is_mobile,
+        tap: true,
+        click: true,
+        disableMouse: false,
+        disableTouch: false,
+        disablePointer: false,
     });
 
     $('#telemetry_graph').on('click', '.graph_label', function() {
