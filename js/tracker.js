@@ -30,6 +30,10 @@ var balloon_index = 0;
 var balloon_colors_name = ["red", "blue", "green", "yellow", "purple", "orange", "cyan"];
 var balloon_colors = ["#f00", "blue", "green", "#FDFC30", "#c700e6", "#ff8a0f", "#0fffca"];
 
+var nyan_color_index = 0;
+var nyan_colors = ['nyan', 'nyan-coin', 'nyan-mon', 'nyan-pirate', 'nyan-cool', 'nyan-tothemax', 'nyan-pumpkin', 'nyan-afro', 'nyan-coin', 'nyan-mummy'];
+var rainbow = ["#ff0000", "#fc9a00", "#f6ff00", "#38ff01", "#009aff","#0000ff"];
+
 var map = null;
 var overlay = null;
 var layer_clouds = null;
@@ -356,6 +360,7 @@ function clean_refresh(text, force, history_step) {
 
     car_index = 0;
     balloon_index = 0;
+    nyan_color_index = 0;
     stopFollow(force);
 
     // add loading spinner in the vehicle list
@@ -1833,19 +1838,21 @@ function addPosition(position) {
             vehicle_info.marker.setMode = function(mode) { this.mode = mode; this.setPosition(this.getPosition()); };
             vehicle_info.marker.setAltitude = function(derp) { this.setPosition(this.getPosition()); };
 
+
+            var nyan = nyan_colors[nyan_color_index] + ".gif";
+            nyan_color_index = (nyan_color_index + 1) % nyan_colors.length;
+            var nyanw = (nyan_color_index == 4) ? 104 : 55;
+
             vehicle_info.marker.setIcon({
-                 url: host_url + markers_url + "nyan.gif",
-                 size: new google.maps.Size(55,39),
-                 scaledSize: new google.maps.Size(55,39),
+                 url: host_url + markers_url + nyan,
+                 size: new google.maps.Size(nyanw,39),
+                 scaledSize: new google.maps.Size(nyanw,39),
                  anchor: new google.maps.Point(26,20)
              });
             vehicle_info.marker.iconImg = 1;
 
             vehicle_info.image_src = host_url + markers_url + "hab_nyan.gif";
             vehicle_info.image_src_offset = new google.maps.Point(-34,-70);
-
-            // whats nyan only purpose? Make people happy, of course. And how?
-            var rainbow = ["#ff0000", "#fc9a00", "#f6ff00", "#38ff01", "#009aff","#0000ff"];
 
             // remove all polylines
             var k;
