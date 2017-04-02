@@ -62,7 +62,7 @@ var wvar = {
     mode: (is_mobile) ? modeDefaultMobile : modeDefault,
     zoom: true,
     query: "",
-    nyan: true,
+    nyan: false,
 };
 
 
@@ -84,7 +84,7 @@ function load_hash(no_refresh) {
         zoom: true,
         focus: "",
         query: "",
-        nyan: true,
+        nyan: false,
     };
 
     parms.forEach(function(v) {
