@@ -981,7 +981,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '</div>' + // right
            '</div>' + // data
            '';
-  var c    = '<dt class="receivers">Recieved <i class="friendly-dtime" data-timestamp='+(convert_time(newPosition.server_time))+'></i> via:</dt><dd class="receivers">' +
+  var c    = '<dt class="receivers">Received <i class="friendly-dtime" data-timestamp='+(convert_time(newPosition.server_time))+'></i> via:</dt><dd class="receivers">' +
            newPosition.callsign.split(",").join(", ") + '</dd>';
 
   if(!newPosition.callsign) c = '';
