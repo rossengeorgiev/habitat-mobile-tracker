@@ -283,7 +283,7 @@ function checkSize() {
     wrect = document.body.getBoundingClientRect();
     // chrome seems to calculate the body bounding box differently from every other browser
     if (!!window.chrome) {
-        w_fix = (wrect.width === Math.floor(wrect.width)) ? 1 : 0;
+        w_fix = (w >= wrect.width) ? 1 : 0;
     } else {
         w_fix = (w === Math.floor(wrect.width)) ? 0 : 1;
     }
