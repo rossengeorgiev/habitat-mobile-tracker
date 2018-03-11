@@ -32,6 +32,7 @@ function lhash_update(history_step) {
 
     if(wvar.query !== "") {
         hash += "&q=" + wvar.query;
+        $("header .search input[type='text']").val(wvar.query);
     }
 
     // other vars
@@ -61,7 +62,7 @@ var wvar = {
     focus: "",
     mode: (is_mobile) ? modeDefaultMobile : modeDefault,
     zoom: true,
-    query: "",
+    query: "!RS_*;",
     nyan: false,
 };
 
