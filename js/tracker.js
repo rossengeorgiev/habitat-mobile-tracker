@@ -390,6 +390,7 @@ function load() {
             mapTypeIds: maptype_ids,
             style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
         },
+        gestureHandling: 'greedy',
         keyboardShortcuts: false,
         streetViewControl: false,
         rotateControl: false,
