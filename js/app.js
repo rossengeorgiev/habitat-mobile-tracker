@@ -276,9 +276,19 @@ var callsign = "";
 
 function checkSize() {
     // we are in landscape mode
-    w = $(window).width();
+    w = window.innerWidth;
+
+    // this is hacky fix for off by 1px that makes the vechicle list disappear
+    wrect = document.body.getBoundingClientRect();
+    // chrome seems to calculate the body bounding box differently from every other browser
+    if (!!window.chrome) {
+        w_fix = (wrect.width === Math.floor(wrect.width)) ? 1 : 0;
+    } else {
+        w_fix = (w === Math.floor(wrect.width)) ? 0 : 1;
+    }
+
     w = (w < 320) ? 320 :  w; // absolute minimum 320px
-    h = $(window).height();
+    h = window.innerHeight;
     //h = (h < 300) ? 300 :  h; // absolute minimum 320px minus 20px for the iphone bar
     hh = $('header').height();
 
@@ -293,7 +303,7 @@ function checkSize() {
 
     $("#mapscreen,.flatpage").height(h-hh-5);
 
-    sw = (wvar.vlist) ? 199 : 0;
+    sw = (wvar.vlist) ? 200 : 0;
 
     $('.container').width(w-20);
 
@@ -305,7 +315,7 @@ function checkSize() {
             $('#map').height(h-hh-5);
         }
         $('body,#loading').height(h);
-        $('#mapscreen,#map,#telemetry_graph,#telemetry_graph .holder').width(w-sw-ph);
+        $('#mapscreen,#map,#telemetry_graph,#telemetry_graph .holder').width(w-sw-ph-w_fix);
         $('#main').width(sw);
     } else { // portrait mode
         //if(h < 420) h = 420;
