@@ -372,8 +372,11 @@ function clean_refresh(text, force, history_step) {
     listScroll.refresh();
 
     lhash_update(history_step);
+
+    clearTimeout(periodical);
+    clearTimeout(periodical_receivers);
+
     refresh();
-    refreshPredictions();
 
     return true;
 }
@@ -2265,7 +2268,10 @@ function refresh() {
   if(ajax_inprogress) {
     clearTimeout(periodical);
     periodical = setTimeout(refresh, 2000);
+    return;
   }
+
+  ajax_inprogress = true;
 
   $("#stText").text("checking |");
 
@@ -2288,7 +2294,6 @@ function refresh() {
     data: data_str,
     dataType: "json",
     success: function(response, textStatus) {
-        ajax_inprogress = true;
         $("#stText").text("loading |");
         response.fetch_timestamp = Date.now();
         update(response);
@@ -2340,7 +2345,11 @@ var ajax_predictions = null;
 
 function refreshPredictions() {
     //if(typeof _gaq == 'object') _gaq.push(['_trackEvent', 'ajax', 'refresh', 'Predictions']);
-    clearTimeout(periodical_predictions);
+    if(ajax_inprogress) {
+      clearTimeout(periodical_predictions);
+      periodical_predictions = setTimeout(refreshPredictions, 1000);
+      return;
+    }
 
     ajax_predictions = $.ajax({
         type: "GET",
