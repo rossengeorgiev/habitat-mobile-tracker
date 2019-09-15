@@ -572,7 +572,9 @@ function habitat_data(jsondata, alternative) {
     "radiation": "Radiation (CPM)",
     "temperature_radio": "Temperature, Radio",
     "uplink_rssi": "Uplink RSSI",
-    "light_intensity": "Light Intensity"
+    "light_intensity": "Light Intensity",
+    "pred_lat": "Onboard Prediction (Lat)",
+    "pred_lon": "Onboard Prediction (Lon)"
   };
 
   var hide_keys = {
