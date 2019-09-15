@@ -572,7 +572,9 @@ function habitat_data(jsondata, alternative) {
     "radiation": "Radiation (CPM)",
     "temperature_radio": "Temperature, Radio",
     "uplink_rssi": "Uplink RSSI",
-    "light_intensity": "Light Intensity"
+    "light_intensity": "Light Intensity",
+    "pred_lat": "Onboard Prediction (Lat)",
+    "pred_lon": "Onboard Prediction (Lon)"
   };
 
   var hide_keys = {
@@ -918,6 +920,53 @@ function updateVehicleInfo(vcallsign, newPosition) {
         vehicle.marker.setMode("balloon");
     } else {
         vehicle.marker.setMode("parachute");
+    }
+
+    // Update landing marker if data is available
+    if (newPosition.data.hasOwnProperty("pred_lat") && newPosition.data.hasOwnProperty("pred_lon")){
+        // Landing prediction data exists..
+        if (vehicle.landing_marker !== null){
+            // We already have a marker initialized.
+            if(newPosition.gps_alt > 350){
+                // Balloon is still in flight, so update the marker.
+                vehicle.landing_marker.setPosition(new google.maps.LatLng(newPosition.data.pred_lat, newPosition.data.pred_lon));
+                // Re-add to map if it's been removed previously.
+                if (vehicle.landing_marker.getMap() == null){
+                    vehicle.landing_marker.setMap(map);
+                }
+            }else{
+                // Balloon has landed, so hide the marker.
+                // Should we do this? Can we re-add it safely?
+                vehicle.landing_marker.setMap(null);
+            }
+        } else{
+            // Landing marker has not been initialised yet.
+            if((newPosition.data.pred_lat !== 0.0) && (newPosition.data.pred_lon !== 0.0)){
+
+                landing_image_src = host_url + markers_url + "balloon-xmark.png";
+                landing_image_src_size = new google.maps.Size(48,38);
+                landing_image_src_offset = new google.maps.Point(0,-38);
+
+                landing_marker = new google.maps.Marker({
+                    icon: {
+                        url: landing_image_src,
+                        size: landing_image_src_size,
+                        scaledSize: landing_image_src_size,
+                        anchor: new google.maps.Point(24,18)
+                    },
+                    zIndex: Z_CAR,
+                    position: new google.maps.LatLng(position.data.pred_lat, position.data.pred_lon),
+                    map: map,
+                    optimized: false,
+                    title: vcallsign + " Onboard Landing Prediction"
+                });
+
+                // Add the marker to the map, and to the vehicle object.
+                landing_marker.setMap(map);
+                vehicle.landing_marker = landing_marker;
+            }
+
+        }
     }
   }
 
@@ -1657,6 +1706,34 @@ function addPosition(position) {
                 this.setPosition(overlay.getProjection().fromDivPixelToLatLng(pos));
             };
 
+            // Add landing marker if the payload provides a predicted landing position.
+            // TODO: Only create this if the lat/lon are not zero.
+            if (position.data.hasOwnProperty('pred_lat') && position.data.hasOwnProperty('pred_lon')){
+                // Only create the marker if the pred lat/lon are not zero (as will be the case during ascent).
+                if ((position.data.pred_lat !== 0.0) && (position.data.pred_lon !== 0.0)){
+                    landing_image_src = host_url + markers_url + "balloon-xmark.png";
+                    landing_image_src_size = new google.maps.Size(48,38);
+                    landing_image_src_offset = new google.maps.Point(0,-38);
+
+                    landing_marker = new google.maps.Marker({
+                        icon: {
+                            url: landing_image_src,
+                            size: landing_image_src_size,
+                            scaledSize: landing_image_src_size,
+                            anchor: new google.maps.Point(24,18)
+                        },
+                        zIndex: Z_CAR,
+                        position: new google.maps.LatLng(position.data.pred_lat, position.data.pred_lon),
+                        map: map,
+                        optimized: false,
+                        title: vcallsign + " Onboard Landing Prediction"
+                    });
+                    gmaps_elements.push(landing_marker);
+                }
+            } else {
+                landing_marker = null;
+            }
+
             horizon_circle = new google.maps.Circle({
                 map: map,
                 zIndex: Z_RANGE,
@@ -1790,6 +1867,7 @@ function addPosition(position) {
                             vehicle_type: vehicle_type,
                             marker: marker,
                             marker_shadow: marker_shadow,
+                            landing_marker: landing_marker,
                             image_src: image_src,
                             image_src_size: image_src_size,
                             image_src_offset: image_src_offset,
