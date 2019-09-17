@@ -1549,6 +1549,7 @@ function addPosition(position) {
     if(!vehicles.hasOwnProperty(vcallsign)) {
         var marker = null;
         var marker_shadow = null;
+        var landing_marker = null;
         var vehicle_type = "";
         var horizon_circle = null;
         var subhorizon_circle = null;
@@ -1729,6 +1730,8 @@ function addPosition(position) {
                         title: vcallsign + " Onboard Landing Prediction"
                     });
                     gmaps_elements.push(landing_marker);
+                } else {
+                    landing_marker = null;
                 }
             } else {
                 landing_marker = null;
