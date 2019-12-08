@@ -44,6 +44,7 @@ var modeList = [
 //    "Position",
     "1 hour",
     "6 hours",
+    "12 hours",
     "1 day",
     "3 days",
     "All",
