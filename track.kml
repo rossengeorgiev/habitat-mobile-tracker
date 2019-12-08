@@ -4,7 +4,7 @@
       <name>habhub tracker (GE)</name>
       <description>Live tracking of high altitude balloons via Google Earth</description>
       <Url>
-      <href>http://spacenear.us/tracker/datanew.php?format=kml</href>
+      <href>http://spacenear.us/tracker/datanew.php?format=kml&amp;mode=2days&amp;vehicles=!RS_*;</href>
         <refreshMode>onInterval</refreshMode>
         <refreshInterval>20</refreshInterval>
       </Url>
