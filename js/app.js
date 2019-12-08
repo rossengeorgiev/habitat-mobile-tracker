@@ -848,13 +848,12 @@ $(window).ready(function() {
                 break;
             case "opt_hide_horizon":
                 if(on) {
-                    // TODO: Remove horizon and labels from map
-                    console.log("Remove horizons.");
+                    hideHorizonRings();
                 }
                 else {
-                    // TODO: Add horizon to map.
-                    console.log("Add horizons.");
+                    showHorizonRings();
                 }
+                break;
             case "opt_layers_aprs":
                 if(on) map.overlayMapTypes.setAt("1", overlayAPRS);
                 else map.overlayMapTypes.setAt("1", null);

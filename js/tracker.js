@@ -1549,6 +1549,7 @@ function addPosition(position) {
     if(!vehicles.hasOwnProperty(vcallsign)) {
         var marker = null;
         var marker_shadow = null;
+        var landing_marker = null;
         var vehicle_type = "";
         var horizon_circle = null;
         var subhorizon_circle = null;
@@ -1710,7 +1711,6 @@ function addPosition(position) {
             };
 
             // Add landing marker if the payload provides a predicted landing position.
-            // TODO: Only create this if the lat/lon are not zero.
             if (position.data.hasOwnProperty('pred_lat') && position.data.hasOwnProperty('pred_lon')){
                 // Only create the marker if the pred lat/lon are not zero (as will be the case during ascent).
                 if ((position.data.pred_lat !== 0.0) && (position.data.pred_lon !== 0.0)){
@@ -1732,6 +1732,8 @@ function addPosition(position) {
                         title: vcallsign + " Onboard Landing Prediction"
                     });
                     gmaps_elements.push(landing_marker);
+                } else {
+                    landing_marker = null;
                 }
             } else {
                 landing_marker = null;
