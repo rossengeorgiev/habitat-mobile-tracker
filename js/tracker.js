@@ -2714,6 +2714,12 @@ function updateReceivers(r) {
 
         if(lat < -90 || lat > 90 || lon < -180 || lon > 180) continue;
 
+        // Filter out any receivers that are from the TTN Bridge code, and that are older than 1 hour.
+        // This helps de-clutter the map during launches utilising TTN, and that result in *many* new 
+        // receivers showing up on the map.
+        var age = parseFloat(r[i].tdiff_hours); // Grab age of the receiver.
+        if(r[i].description.includes('TTN_LORAWAN_GW') && age > 1.0) continue;
+
         var r_index = $.inArray(r[i].name, receiver_names);
 
         if(r_index == -1) {
