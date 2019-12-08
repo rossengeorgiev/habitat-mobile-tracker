@@ -1678,10 +1678,13 @@ function addPosition(position) {
                     };
                 } else {
                     vehicle.marker.shadow.setVisible(true);
-                    vehicle.horizon_circle.setVisible(true);
-                    vehicle.horizon_circle.label.set('visible', true);
-                    vehicle.subhorizon_circle.setVisible(true);
-                    vehicle.subhorizon_circle.label.set('visible', true);
+
+                    if(offline.get('opt_hide_horizon') == false){
+                        vehicle.horizon_circle.setVisible(true);
+                        vehicle.horizon_circle.label.set('visible', true);
+                        vehicle.subhorizon_circle.setVisible(true);
+                        vehicle.subhorizon_circle.label.set('visible', true);
+                    }
 
                     if(mode == "parachute") {
                         img = {
@@ -1811,6 +1814,13 @@ function addPosition(position) {
 
             google.maps.event.addListener(subhorizon_circle, 'center_changed', refresh_func);
             google.maps.event.addListener(subhorizon_circle, 'radius_changed', refresh_func);
+
+            if(offline.get("opt_hide_horizon")){
+                horizon_circle.setVisible(false);
+                horizon_circle.label.set('visible', false);
+                subhorizon_circle.setVisible(false);
+                subhorizon_circle.label.set('visible', false);
+            }
 
             marker.setAltitude(0);
             polyline_visible = true;
@@ -2792,6 +2802,28 @@ function refreshUI() {
 
     mapInfoBox.close();
     if(follow_vehicle !== null) update_lookangles(follow_vehicle);
+}
+
+
+function hideHorizonRings(){
+    for(var vcallsign in vehicles) {
+        if(vehicles[vcallsign].vehicle_type == "balloon"){
+            vehicles[vcallsign].horizon_circle.setVisible(false);
+            vehicles[vcallsign].horizon_circle.label.set('visible', false);
+            vehicles[vcallsign].subhorizon_circle.setVisible(false);
+            vehicles[vcallsign].subhorizon_circle.label.set('visible', false);
+        }
+    }
+}
+function showHorizonRings(){
+    for(var vcallsign in vehicles) {
+        if(vehicles[vcallsign].vehicle_type == "balloon"){
+            vehicles[vcallsign].horizon_circle.setVisible(true);
+            vehicles[vcallsign].horizon_circle.label.set('visible', true);
+            vehicles[vcallsign].subhorizon_circle.setVisible(true);
+            vehicles[vcallsign].subhorizon_circle.label.set('visible', true);
+        }
+    }
 }
 
 var ssdv = {};

@@ -785,6 +785,7 @@ $(window).ready(function() {
         "#sw_hide_receivers",
         "#sw_hide_timebox",
         "#sw_hilight_vehicle",
+        '#sw_hide_horizon',
         "#sw_nowelcome",
         "#sw_interpolate",
     ];
@@ -845,6 +846,15 @@ $(window).ready(function() {
                     $('#lookanglesbox').css({top:'40px'});
                 }
                 break;
+            case "opt_hide_horizon":
+                if(on) {
+                    // TODO: Remove horizon and labels from map
+                    console.log("Remove horizons.");
+                }
+                else {
+                    // TODO: Add horizon to map.
+                    console.log("Add horizons.");
+                }
             case "opt_layers_aprs":
                 if(on) map.overlayMapTypes.setAt("1", overlayAPRS);
                 else map.overlayMapTypes.setAt("1", null);
